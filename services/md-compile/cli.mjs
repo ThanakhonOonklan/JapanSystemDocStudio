@@ -1,0 +1,111 @@
+#!/usr/bin/env node
+// Documentation Studio REA: compile a Markdown project to PDF.
+//
+//   node cli.mjs <compileDir> <rootFile>
+//
+// Called by clsi (LatexRunner) instead of latexmk when the root file is
+// Markdown or a book.yaml. Writes, inside <compileDir>:
+//   output.pdf       the default language
+//   output-<lang>.pdf  one per language when the book has several
+//   output.log       messages shown in the log panel
+//
+// Exit code 0 = PDF written, 1 = compile failed (see output.log).
+
+import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { Log } from './lib/log.mjs'
+import { loadProject } from './lib/project.mjs'
+import { buildDocument, renderChapters } from './lib/render.mjs'
+import { renderPdfs } from './lib/pdf.mjs'
+
+const here = path.dirname(fileURLToPath(import.meta.url))
+const VERSION = JSON.parse(
+  fs.readFileSync(path.join(here, 'package.json'), 'utf8')
+).version
+const TIMEOUT_MS = parseInt(process.env.MDC_TIMEOUT_MS || '150000', 10)
+
+async function main() {
+  const [compileDirArg, mainFile] = process.argv.slice(2)
+  if (!compileDirArg || !mainFile) {
+    console.error('usage: cli.mjs <compileDir> <rootFile>')
+    return 2
+  }
+  const compileDir = path.resolve(compileDirArg)
+  const log = new Log()
+  log.info(`Documentation Studio markdown compiler ${VERSION}`)
+  log.info(`Root file: ${mainFile}`)
+
+  // never leave a stale PDF from an earlier run behind
+  for (const entry of fs.readdirSync(compileDir)) {
+    if (/^output(-[A-Za-z-]+)?\.pdf$/.test(entry)) {
+      fs.rmSync(path.join(compileDir, entry), { force: true })
+    }
+  }
+
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mdc-'))
+  try {
+    const project = loadProject(compileDir, mainFile, log)
+    const css = fs.readFileSync(path.join(here, 'lib', 'template.css'), 'utf8')
+
+    const jobs = []
+    for (const language of project.languages) {
+      if (language.files.length === 0) {
+        log.error(`[${language.code}] no chapters to build`)
+        continue
+      }
+      log.info(`[${language.code}] ${language.files.length} file(s)`)
+      const body = renderChapters({
+        files: language.files,
+        compileDir,
+        log,
+      })
+      const htmlPath = path.join(tmp, `${language.code}.html`)
+      fs.writeFileSync(
+        htmlPath,
+        buildDocument({
+          lang: language.code,
+          title: language.title,
+          body,
+          css,
+        })
+      )
+      // several languages: one PDF each, and output.pdf is a copy of the default
+      const multiple = project.languages.length > 1
+      jobs.push({
+        htmlPath,
+        pdfPath: path.join(
+          compileDir,
+          multiple ? `output-${language.code}.pdf` : 'output.pdf'
+        ),
+        label: language.code,
+      })
+    }
+
+    if (log.errors > 0 || jobs.length === 0) {
+      throw new Error('nothing to build')
+    }
+    await renderPdfs(jobs, log, { timeoutMs: TIMEOUT_MS })
+
+    if (project.languages.length > 1) {
+      const defaultPdf = path.join(
+        compileDir,
+        `output-${project.defaultLanguage}.pdf`
+      )
+      fs.copyFileSync(defaultPdf, path.join(compileDir, 'output.pdf'))
+      log.info(`output.pdf is a copy of output-${project.defaultLanguage}.pdf`)
+    }
+    log.info('Done.')
+    return 0
+  } catch (err) {
+    log.error(err.message)
+    return 1
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true })
+    await log.write(compileDir)
+    process.stdout.write(log.toString())
+  }
+}
+
+process.exitCode = await main()

@@ -1,0 +1,7 @@
+title:
+  th: คู่มือการใช้งานระบบตัวอย่าง
+  en: Sample System User Manual
+defaultLanguage: th
+chapters:
+  - 01-intro.md
+  - 02-install.md

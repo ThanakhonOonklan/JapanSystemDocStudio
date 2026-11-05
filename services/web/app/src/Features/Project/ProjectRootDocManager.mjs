@@ -33,8 +33,22 @@ function setRootDocAutomaticallyInBackground(projectId) {
   }, 30 * 1000)
 }
 
+// Documentation Studio REA: Markdown projects are rooted at book.yaml
+// (several chapters/languages) or main.md (a single file).
+const MARKDOWN_ROOT_PATHS = ['/book.yaml', '/book.yml', '/main.md']
+
 async function setRootDocAutomatically(projectId) {
   const docs = await ProjectEntityHandler.promises.getAllDocs(projectId)
+
+  for (const rootPath of MARKDOWN_ROOT_PATHS) {
+    const doc = docs[rootPath]
+    if (doc?._id) {
+      return await ProjectEntityUpdateHandler.promises.setRootDoc(
+        projectId,
+        doc._id
+      )
+    }
+  }
 
   for (const [path, doc] of Object.entries(docs)) {
     if (
@@ -51,6 +65,20 @@ async function setRootDocAutomatically(projectId) {
 }
 
 async function findRootDocFileFromDirectory(directoryPath) {
+  // Documentation Studio REA: a Markdown project is rooted at book.yaml or main.md
+  for (const rootPath of MARKDOWN_ROOT_PATHS) {
+    const file = rootPath.slice(1)
+    try {
+      const content = await fs.promises.readFile(
+        Path.join(directoryPath, file),
+        'utf8'
+      )
+      return { path: file, content: content.replace(/\r/g, '') }
+    } catch (err) {
+      if (err.code !== 'ENOENT') throw err
+    }
+  }
+
   const unsortedFiles = await globby(['**/*.{tex,Rtex,Rnw}'], {
     cwd: directoryPath,
     followSymlinkedDirectories: false,

@@ -161,7 +161,31 @@ function killLatex(projectId, callback) {
   }
 }
 
+// Documentation Studio REA: Markdown projects (root file .md, book.yaml or
+// book.yml) are compiled by services/md-compile instead of latexmk.
+const MARKDOWN_ROOT = /\.(md|ya?ml)$/i
+const MD_COMPILE_CLI = '/overleaf/services/md-compile/cli.mjs'
+
+function _buildMarkdownCommand(mainFile) {
+  return [
+    'env',
+    // md-compile has its own node_modules; do not load the yarn PnP runtime
+    '-u',
+    'NODE_OPTIONS',
+    'HOME=/tmp',
+    `PLAYWRIGHT_BROWSERS_PATH=${process.env.PLAYWRIGHT_BROWSERS_PATH || '/opt/playwright-browsers'}`,
+    'node',
+    MD_COMPILE_CLI,
+    '$COMPILE_DIR',
+    mainFile,
+  ]
+}
+
 function _buildLatexCommand(mainFile, opts = {}) {
+  if (MARKDOWN_ROOT.test(mainFile)) {
+    return _buildMarkdownCommand(mainFile)
+  }
+
   const command = []
 
   if (Settings.clsi?.strace) {

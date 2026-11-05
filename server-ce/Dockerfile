@@ -8,6 +8,25 @@ FROM $OVERLEAF_BASE_TAG
 
 WORKDIR /overleaf
 
+# Markdown -> PDF toolchain (services/md-compile)
+# -----------------------------------------------
+# Fonts: Noto Sans Thai / Noto Sans / Noto Sans Mono, plus the Thai TLWG set.
+RUN apt-get update \
+&&  apt-get install -y --no-install-recommends fontconfig fonts-noto-core fonts-noto-mono fonts-thai-tlwg \
+&&  rm -rf /var/lib/apt/lists/* \
+&&  fc-cache -f
+
+# md-compile keeps its own node_modules (npm), separate from the yarn
+# workspace, together with the Chromium build matching playwright-core.
+# Done before copying sources so that these layers stay cached.
+ENV PLAYWRIGHT_BROWSERS_PATH=/opt/playwright-browsers
+COPY services/md-compile/package.json services/md-compile/package-lock.json /overleaf/services/md-compile/
+RUN cd /overleaf/services/md-compile \
+&&  npm ci --omit=dev \
+&&  node node_modules/playwright-core/cli.js install --with-deps chromium \
+&&  rm -rf /var/lib/apt/lists/* \
+&&  chmod -R a+rX /opt/playwright-browsers
+
 # Add required source files for yarn install
 # -------------------------------------------
 COPY --parents libraries/*/package.json .yarn/patches/ services/*/package.json tools/migrations/ package.json yarn.lock .yarnrc.yml .pnp.register.mjs /overleaf/

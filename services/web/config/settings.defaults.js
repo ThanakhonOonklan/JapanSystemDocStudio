@@ -875,7 +875,8 @@ module.exports = {
     process.env.FILE_IGNORE_PATTERN ||
     '**/{{__MACOSX,.git,.texpadtmp,.R,.venv,venv}{,/**},.!(latexmkrc),*.{dvi,aux,log,toc,out,pdfsync,synctex,synctex(busy),fdb_latexmk,fls,nlo,ind,glo,gls,glg,bbl,blg,doc,docx,gz,swp}}',
 
-  validRootDocExtensions: ['tex', 'Rtex', 'ltx', 'Rnw'],
+  // md, yaml and yml: Markdown projects (root file book.yaml or *.md)
+  validRootDocExtensions: ['tex', 'Rtex', 'ltx', 'Rnw', 'md', 'yaml', 'yml'],
 
   emailConfirmationDisabled:
     process.env.EMAIL_CONFIRMATION_DISABLED === 'true' || false,

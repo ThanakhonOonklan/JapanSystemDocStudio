@@ -8,3 +8,4 @@ server-ce/test
 services/web/scripts/plan-prices
 services/web/scripts/translations
 services/web/scripts/ukamf
+services/md-compile/node_modules
