@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="140" viewBox="0 0 480 140">
+  <rect x="10" y="40" width="120" height="60" rx="8" fill="#e8f0fe" stroke="#0b57d0"/>
+  <rect x="180" y="40" width="120" height="60" rx="8" fill="#e6f4ea" stroke="#188038"/>
+  <rect x="350" y="40" width="120" height="60" rx="8" fill="#fef7e0" stroke="#b06000"/>
+  <path d="M130 70 H180 M300 70 H350" stroke="#444" stroke-width="2" fill="none"/>
+  <text x="70" y="75" text-anchor="middle" font-family="Noto Sans Thai, sans-serif" font-size="16">Markdown</text>
+  <text x="240" y="75" text-anchor="middle" font-family="Noto Sans Thai, sans-serif" font-size="16">Paged.js</text>
+  <text x="410" y="75" text-anchor="middle" font-family="Noto Sans Thai, sans-serif" font-size="16">PDF</text>
+</svg>

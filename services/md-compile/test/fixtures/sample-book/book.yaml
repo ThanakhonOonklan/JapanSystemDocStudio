@@ -1,6 +1,14 @@
 title:
   th: คู่มือการใช้งานระบบตัวอย่าง
   en: Sample System User Manual
+subtitle:
+  th: สำหรับผู้ใช้งานทั่วไป
+  en: For general users
+version: "1.0"
+author: ทีมเอกสาร
+date:
+  th: 5 พฤศจิกายน 2569
+  en: 5 November 2026
 defaultLanguage: th
 chapters:
   - 01-intro.md

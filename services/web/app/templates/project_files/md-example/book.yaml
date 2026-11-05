@@ -1,0 +1,19 @@
+# Book settings. Each value can be plain text or a map of language -> text.
+title:
+  th: <%= JSON.stringify(project_name) %>
+  en: <%= JSON.stringify(project_name) %>
+subtitle:
+  th: ตัวอย่างเอกสารคู่มือสองภาษา
+  en: A bilingual manual example
+version: "1.0"
+author: <%= JSON.stringify(author) %>
+date:
+  th: <%= JSON.stringify(thai_date) %>
+  en: <%= JSON.stringify(month + ' ' + year) %>
+defaultLanguage: th   # language written to output.pdf
+toc: true             # table of contents
+tocDepth: 3
+numbering: true       # number chapters, sections, figures and tables
+chapters:             # file names inside th/ and en/
+  - 01-intro.md
+  - 02-writing.md

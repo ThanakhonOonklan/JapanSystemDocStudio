@@ -37,17 +37,47 @@ export function parseFrontMatter(text) {
   return { data: typeof data === 'object' ? data : {}, body: text.slice(match[0].length) }
 }
 
-function pickTitle(title, lang) {
-  if (typeof title === 'string') return title
-  if (title && typeof title === 'object') {
-    return title[lang] || title.default || Object.values(title)[0]
+/**
+ * A book.yaml value is either a plain value or a map from language code to
+ * value, e.g. `title: { th: ..., en: ... }`.
+ */
+export function localized(value, lang) {
+  if (value == null) return undefined
+  if (typeof value === 'object' && !Array.isArray(value)) {
+    const picked = value[lang] ?? value.default ?? Object.values(value)[0]
+    return picked == null ? undefined : String(picked)
   }
-  return undefined
+  return String(value)
+}
+
+const pickTitle = localized
+
+const META_FIELDS = ['subtitle', 'version', 'author', 'organization', 'date']
+
+function pickMeta(source, lang) {
+  const meta = {}
+  for (const field of META_FIELDS) {
+    const value = localized(source?.[field], lang)
+    if (value) meta[field] = value
+  }
+  return meta
+}
+
+// Document-level options shared by all languages.
+function pickOptions(source) {
+  return {
+    toc: source?.toc !== false,
+    tocDepth: Math.min(Math.max(parseInt(source?.tocDepth, 10) || 3, 1), 4),
+    numbering: source?.numbering !== false,
+    cover: source?.cover !== false,
+    css: typeof source?.css === 'string' ? source.css : undefined,
+  }
 }
 
 /**
- * @returns {{ title?: string, defaultLanguage: string,
- *             languages: Array<{ code: string, title?: string, files: string[] }> }}
+ * @returns {{ defaultLanguage: string,
+ *             options: { toc: boolean, tocDepth: number, numbering: boolean, cover: boolean, css?: string },
+ *             languages: Array<{ code: string, title?: string, meta: Record<string, string>, files: string[] }> }}
  */
 export function loadProject(compileDir, mainFile, log) {
   const mainPath = resolveInside(compileDir, compileDir, mainFile)
@@ -67,12 +97,17 @@ function loadSingleFile(compileDir, mainPath) {
   const { data, body } = parseFrontMatter(text)
   const code = typeof data.lang === 'string' ? data.lang : 'th'
   const heading = /^#\s+(.+?)\s*$/m.exec(body)
+  const options = pickOptions(data)
+  // a single file only gets a cover page when it says so in its front matter
+  options.cover = data.cover === true || (data.cover !== false && data.title != null)
   return {
     defaultLanguage: code,
+    options,
     languages: [
       {
         code,
         title: pickTitle(data.title, code) || heading?.[1],
+        meta: pickMeta(data, code),
         files: [mainPath],
       },
     ],
@@ -118,7 +153,12 @@ function loadBook(compileDir, bookPath, log) {
       }
       files.push(file)
     }
-    return { code, title: pickTitle(book.title, code), files }
+    return {
+      code,
+      title: pickTitle(book.title, code),
+      meta: pickMeta(book, code),
+      files,
+    }
   })
 
   const defaultLanguage =
@@ -126,5 +166,5 @@ function loadBook(compileDir, bookPath, log) {
       ? String(book.defaultLanguage)
       : codes[0]
 
-  return { defaultLanguage, languages }
+  return { defaultLanguage, options: pickOptions(book), languages }
 }

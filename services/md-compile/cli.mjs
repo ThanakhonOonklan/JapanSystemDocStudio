@@ -17,14 +17,32 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { Log } from './lib/log.mjs'
 import { loadProject } from './lib/project.mjs'
-import { buildDocument, renderChapters } from './lib/render.mjs'
+import {
+  buildDocument,
+  renderChapters,
+  renderCover,
+  renderToc,
+} from './lib/render.mjs'
 import { renderPdfs } from './lib/pdf.mjs'
+import { isInside } from './lib/paths.mjs'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const VERSION = JSON.parse(
   fs.readFileSync(path.join(here, 'package.json'), 'utf8')
 ).version
 const TIMEOUT_MS = parseInt(process.env.MDC_TIMEOUT_MS || '150000', 10)
+
+// Optional project stylesheet (book.yaml: `css: assets/custom.css`) applied
+// after the default template.
+function readCustomCss(compileDir, cssPath, log) {
+  if (!cssPath) return ''
+  const file = path.resolve(compileDir, cssPath)
+  if (!isInside(compileDir, file) || !fs.existsSync(file)) {
+    log.warn(`css file not found: ${cssPath}`)
+    return ''
+  }
+  return '\n' + fs.readFileSync(file, 'utf8')
+}
 
 async function main() {
   const [compileDirArg, mainFile] = process.argv.slice(2)
@@ -48,6 +66,7 @@ async function main() {
   try {
     const project = loadProject(compileDir, mainFile, log)
     const css = fs.readFileSync(path.join(here, 'lib', 'template.css'), 'utf8')
+    const customCss = readCustomCss(compileDir, project.options.css, log)
 
     const jobs = []
     for (const language of project.languages) {
@@ -56,19 +75,37 @@ async function main() {
         continue
       }
       log.info(`[${language.code}] ${language.files.length} file(s)`)
-      const body = renderChapters({
+      const { html: body, headings } = renderChapters({
         files: language.files,
         compileDir,
         log,
+        lang: language.code,
+        numbering: project.options.numbering,
       })
+      const cover = project.options.cover
+        ? renderCover({
+            title: language.title,
+            meta: language.meta,
+            lang: language.code,
+          })
+        : ''
+      const toc = project.options.toc
+        ? renderToc({
+            headings,
+            depth: project.options.tocDepth,
+            lang: language.code,
+          })
+        : ''
       const htmlPath = path.join(tmp, `${language.code}.html`)
       fs.writeFileSync(
         htmlPath,
         buildDocument({
           lang: language.code,
           title: language.title,
+          cover,
+          toc,
           body,
-          css,
+          css: css + customCss,
         })
       )
       // several languages: one PDF each, and output.pdf is a copy of the default

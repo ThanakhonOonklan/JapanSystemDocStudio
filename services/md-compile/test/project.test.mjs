@@ -26,19 +26,25 @@ test('book.yaml: detects th/ and en/ and the default language', () => {
   assert.equal(project.languages[0].title, 'คู่มือการใช้งานระบบตัวอย่าง')
   assert.equal(project.languages[1].title, 'Sample System User Manual')
   assert.equal(project.languages[0].files.length, 2)
+  assert.equal(project.languages[0].meta.version, '1.0')
+  assert.equal(project.languages[0].meta.date, '5 พฤศจิกายน 2569')
+  assert.equal(project.languages[1].meta.date, '5 November 2026')
+  assert.equal(project.options.toc, true)
+  assert.equal(project.options.tocDepth, 3)
   assert.equal(log.warnings, 0)
 })
 
 test('rendering keeps ids and rewrites project images to file URLs', () => {
   const log = new Log()
   const project = loadProject(fixture, 'book.yaml', log)
-  const html = renderChapters({
+  const { html } = renderChapters({
     files: project.languages[1].files,
     compileDir: fixture,
     log,
+    lang: 'en',
   })
-  assert.match(html, /<h1 id="intro">Introduction<\/h1>/)
-  assert.match(html, /<img[^>]+src="file:[^"]+diagram\.svg"[^>]+id="fig-flow"/)
+  assert.match(html, /<h1 id="intro"><span class="num">1<\/span> Introduction<\/h1>/)
+  assert.match(html, /<figure id="fig-flow"[^>]*>\s*<img[^>]+src="file:[^"]+diagram\.svg"/)
   assert.equal(log.warnings, 0)
 })
 
@@ -51,7 +57,7 @@ test('raw HTML and external images are not passed through', () => {
       '<script>alert(1)</script>\n\n![x](https://example.com/x.png)\n\n![y](../../secret.png)\n'
     )
     const log = new Log()
-    const html = renderChapters({ files: [file], compileDir: dir, log })
+    const { html } = renderChapters({ files: [file], compileDir: dir, log })
     assert.doesNotMatch(html, /<script>/)
     assert.doesNotMatch(html, /example\.com/)
     assert.equal(log.warnings, 2)

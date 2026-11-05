@@ -1,0 +1,9 @@
+# Book settings. Each value can be plain text or a map of language -> text.
+title:
+  th: <%= JSON.stringify(project_name) %>
+  en: <%= JSON.stringify(project_name) %>
+version: "1.0"
+author: <%= JSON.stringify(author) %>
+defaultLanguage: th   # language written to output.pdf
+chapters:             # file names inside th/ and en/
+  - 01-intro.md

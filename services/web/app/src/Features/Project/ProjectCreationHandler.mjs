@@ -1,9 +1,7 @@
 import OError from '@overleaf/o-error'
 import metrics from '@overleaf/metrics'
-import logger from '@overleaf/logger'
 import Settings from '@overleaf/settings'
 import mongodb from 'mongodb-legacy'
-import Features from '../../infrastructure/Features.mjs'
 import { Project } from '../../models/Project.mjs'
 import { Folder } from '../../models/Folder.mjs'
 import ProjectEntityUpdateHandler from './ProjectEntityUpdateHandler.mjs'
@@ -18,8 +16,6 @@ import AnalyticsManager from '../Analytics/AnalyticsManager.mjs'
 import TpdsUpdateSender from '../ThirdPartyDataStore/TpdsUpdateSender.mjs'
 import SplitTestHandler from '../SplitTests/SplitTestHandler.mjs'
 import SplitTestUserGetter from '../SplitTests/SplitTestUserGetter.mjs'
-import ClsiCacheManager from '../Compile/ClsiCacheManager.mjs'
-import crypto from 'node:crypto'
 
 const { ObjectId } = mongodb
 
@@ -38,9 +34,20 @@ const MONTH_NAMES = [
   'December',
 ]
 
-const templateProjectDir = Features.hasFeature('saas')
-  ? 'example-project'
-  : 'example-project-sp'
+const THAI_MONTH_NAMES = [
+  'มกราคม',
+  'กุมภาพันธ์',
+  'มีนาคม',
+  'เมษายน',
+  'พฤษภาคม',
+  'มิถุนายน',
+  'กรกฎาคม',
+  'สิงหาคม',
+  'กันยายน',
+  'ตุลาคม',
+  'พฤศจิกายน',
+  'ธันวาคม',
+]
 
 async function createBlankProject(
   ownerId,
@@ -86,148 +93,88 @@ async function createProjectFromSnippet(ownerId, projectName, docLines) {
   return project
 }
 
-async function createBasicProject(ownerId, projectName) {
-  const project = await _createBlankProject(ownerId, projectName)
+// Documentation Studio REA: new projects are Markdown books (book.yaml with
+// th/ and en/ chapters). The files come from templates/project_files/<dir>/.
+const MARKDOWN_TEMPLATES = {
+  blank: {
+    dir: 'md-blank',
+    docs: ['book.yaml', 'th/01-intro.md', 'en/01-intro.md'],
+    files: [],
+  },
+  example: {
+    dir: 'md-example',
+    docs: [
+      'book.yaml',
+      'th/01-intro.md',
+      'th/02-writing.md',
+      'en/01-intro.md',
+      'en/02-writing.md',
+    ],
+    files: ['assets/diagram.svg'],
+  },
+}
 
-  const docLines = await _buildTemplate('mainbasic.tex', ownerId, projectName)
-  await _createRootDoc(project, ownerId, docLines)
+async function _addMarkdownProjectFiles(project, ownerId, projectName, kind) {
+  const spec = MARKDOWN_TEMPLATES[kind]
+  for (const relativePath of spec.docs) {
+    const docLines = await _buildTemplate(
+      `${spec.dir}/${relativePath}`,
+      ownerId,
+      projectName
+    )
+    const { doc } =
+      await ProjectEntityUpdateHandler.promises.upsertDocWithPath(
+        project._id,
+        `/${relativePath}`,
+        docLines,
+        null,
+        ownerId
+      )
+    if (relativePath === 'book.yaml') {
+      await ProjectEntityUpdateHandler.promises.setRootDoc(project._id, doc._id)
+      // update the rootDoc id on the project in memory
+      project.rootDoc_id = doc._id
+    }
+  }
+  for (const relativePath of spec.files) {
+    await ProjectEntityUpdateHandler.promises.upsertFileWithPath(
+      project._id,
+      `/${relativePath}`,
+      path.join(
+        import.meta.dirname,
+        `/../../../templates/project_files/${spec.dir}/${relativePath}`
+      ),
+      null,
+      ownerId,
+      null
+    )
+  }
+}
 
+async function _createMarkdownProject(ownerId, projectName, kind, attributes) {
+  const project = await _createBlankProject(ownerId, projectName, attributes)
+  try {
+    await _addMarkdownProjectFiles(project, ownerId, projectName, kind)
+  } catch (error) {
+    throw OError.tag(error, 'error adding files when creating Markdown project')
+  }
   AnalyticsManager.recordEventForUserInBackground(ownerId, 'project-created', {
     projectId: project._id,
   })
-
   return project
 }
 
-function hashProjectContent({ fileEntries, docEntries }) {
-  const entries = []
-  for (const {
-    path,
-    file: { hash },
-  } of fileEntries) {
-    entries.push(`${path}:${hash}`)
-  }
-  for (const { path, docLines } of docEntries) {
-    entries.push(`${path}:${docLines}`)
-  }
-  entries.sort()
-  const hash = crypto.createHash('sha256')
-  for (const item of entries) {
-    hash.update(item)
-  }
-  return hash.digest('hex')
-}
-
-let exampleProjectContentHash
-
-async function populateClsiCacheForExampleProject(
-  ownerId,
-  project,
-  fileEntries,
-  docEntries
-) {
-  const hash = hashProjectContent({ fileEntries, docEntries })
-  if (exampleProjectContentHash && exampleProjectContentHash !== hash) {
-    // We need a stable identifier for example projects. Otherwise we will
-    // generate a lot of cruft in clsi-cache/GCS.
-    const err = new Error('example project content is not static')
-    logger.error({ err }, err.message)
-    return
-  }
-  exampleProjectContentHash = hash
-
-  const templateVersionId = `example-project-${hash}`
-  const { _id: projectId, imageName } = project
-  const found = await ClsiCacheManager.prepareClsiCache(projectId, ownerId, {
-    templateVersionId,
-    imageName: imageName && path.basename(imageName),
-  }).catch(err => {
-    logger.error(
-      { err, templateVersionId, projectId },
-      'failed to prepare clsi-cache from example project'
-    )
-    return undefined
-  })
-  if (found === false) {
-    ClsiCacheManager.createTemplateClsiCache({
-      templateVersionId,
-      project,
-      fileEntries,
-      docEntries,
-    }).catch(err => {
-      logger.error(
-        { err, templateVersionId },
-        'failed to create example project clsi-cache'
-      )
-    })
-  }
-  return projectId
+async function createBasicProject(ownerId, projectName) {
+  return await _createMarkdownProject(ownerId, projectName, 'blank')
 }
 
 async function createExampleProject(ownerId, projectName, attributes = {}) {
-  const project = await _createBlankProject(ownerId, projectName, attributes)
-
-  const { fileEntries, docEntries } = await _addExampleProjectFiles(
+  return await _createMarkdownProject(
     ownerId,
     projectName,
-    project
+    'example',
+    attributes
   )
-  await populateClsiCacheForExampleProject(
-    ownerId,
-    project,
-    fileEntries,
-    docEntries
-  )
-
-  AnalyticsManager.recordEventForUserInBackground(ownerId, 'project-created', {
-    projectId: project._id,
-  })
-
-  return project
-}
-
-async function _addExampleProjectFiles(ownerId, projectName, project) {
-  const mainDocLines = await _buildTemplate(
-    `${templateProjectDir}/main.tex`,
-    ownerId,
-    projectName
-  )
-  const rootDoc = await _createRootDoc(project, ownerId, mainDocLines)
-
-  const bibDocLines = await _buildTemplate(
-    `${templateProjectDir}/sample.bib`,
-    ownerId,
-    projectName
-  )
-  const bibDoc = await ProjectEntityUpdateHandler.promises.addDoc(
-    project._id,
-    project.rootFolder[0]._id,
-    'sample.bib',
-    bibDocLines,
-    ownerId,
-    null
-  )
-
-  const frogPath = path.join(
-    import.meta.dirname,
-    `/../../../templates/project_files/${templateProjectDir}/frog.jpg`
-  )
-  const { fileRef } = await ProjectEntityUpdateHandler.promises.addFile(
-    project._id,
-    project.rootFolder[0]._id,
-    'frog.jpg',
-    frogPath,
-    null,
-    ownerId,
-    null
-  )
-  return {
-    fileEntries: [{ path: fileRef.name, file: fileRef }],
-    docEntries: [
-      { path: 'main.tex', doc: rootDoc, docLines: mainDocLines.join('\n') },
-      { path: 'sample.bib', doc: bibDoc, docLines: bibDocLines.join('\n') },
-    ],
-  }
 }
 
 async function _createBlankProject(
@@ -329,11 +276,15 @@ async function _buildTemplate(templateName, userId, projectName) {
     `/../../../templates/project_files/${templateName}`
   )
   const template = fs.readFileSync(templatePath)
+  const now = new Date()
   const data = {
     project_name: projectName,
     user,
-    year: new Date().getUTCFullYear(),
-    month: MONTH_NAMES[new Date().getUTCMonth()],
+    author: [user?.first_name, user?.last_name].filter(Boolean).join(' '),
+    year: now.getUTCFullYear(),
+    month: MONTH_NAMES[now.getUTCMonth()],
+    // e.g. "พฤศจิกายน 2569" (Buddhist era)
+    thai_date: `${THAI_MONTH_NAMES[now.getUTCMonth()]} ${now.getUTCFullYear() + 543}`,
   }
   const output = _.template(template.toString())(data)
   return output.split('\n')

@@ -1,4 +1,13 @@
-// Markdown -> HTML.
+// Markdown -> HTML for a book.
+//
+// On top of plain Markdown this adds:
+//   - numbered chapters/sections (1, 1.1, 1.1.1); `{.unnumbered}` opts out
+//   - numbered figures: an image alone in its paragraph with alt text
+//       ![Caption](assets/a.png){#fig-a}
+//   - numbered tables: a paragraph starting with ": " right after a table
+//       : Caption {#tbl-b}
+//   - cross-references: @fig-a, @tbl-b, @sec-c (or @id of any heading)
+//   - a cover page and a table of contents
 //
 // Raw HTML in the Markdown source is not allowed (html: false), so a document
 // cannot inject scripts into the page that Chromium renders. Images are
@@ -11,17 +20,251 @@ import MarkdownIt from 'markdown-it'
 import markdownItAttrs from 'markdown-it-attrs'
 import { parseFrontMatter } from './project.mjs'
 import { isInside } from './paths.mjs'
+import { strings } from './i18n.mjs'
 
 const URL_SCHEME = /^[a-z][a-z0-9+.-]*:/i
 // 1x1 transparent GIF used in place of images that cannot be loaded
 const BLANK_IMAGE =
   'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+const PREFIXED_REF = /^(fig|tbl|sec)-/
+const REF_START = '\u0001REF:'
+const REF_END = '\u0002'
+
+export function escapeHtml(text) {
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
+function plainText(inline) {
+  let text = ''
+  for (const child of inline?.children || []) {
+    if (child.type === 'text' || child.type === 'code_inline') {
+      text += child.content
+    } else if (child.type === 'softbreak') {
+      text += ' '
+    }
+  }
+  return text
+}
+
+function newState({ lang, numbering, log }) {
+  return {
+    t: strings(lang),
+    numbering,
+    log,
+    chapter: 0,
+    section: 0,
+    subsection: 0,
+    figure: 0,
+    table: 0,
+    anonymous: 0,
+    headings: [], // { level, id, number, text }
+    labels: new Map(), // id -> { kind, number, text }
+    ids: new Set(),
+  }
+}
+
+function claimId(bs, id, where) {
+  if (bs.ids.has(id)) {
+    bs.log.warn(`${where}: duplicate id "${id}"`)
+  }
+  bs.ids.add(id)
+}
+
+// Number within the current chapter: "2.1", or just "1" before any chapter.
+function localNumber(bs, counter) {
+  return bs.chapter > 0 ? `${bs.chapter}.${counter}` : `${counter}`
+}
+
+function htmlInline(StateToken, html) {
+  const token = new StateToken('html_inline', '', 0)
+  token.content = html
+  return token
+}
+
+function handleHeading(tokens, i, env, Token) {
+  const bs = env.state
+  const open = tokens[i]
+  const inline = tokens[i + 1]
+  const level = Number(open.tag.slice(1))
+  const where = path.relative(env.compileDir, env.file)
+
+  const classes = (open.attrGet('class') || '').split(/\s+/)
+  const numbered = bs.numbering && level <= 3 && !classes.includes('unnumbered')
+
+  let number
+  if (numbered) {
+    if (level === 1) {
+      bs.chapter++
+      bs.section = 0
+      bs.subsection = 0
+      bs.figure = 0
+      bs.table = 0
+    } else if (level === 2) {
+      bs.section++
+      bs.subsection = 0
+    } else {
+      bs.subsection++
+    }
+    number = [bs.chapter, bs.section, bs.subsection]
+      .slice(0, level)
+      .filter(n => n > 0)
+      .join('.')
+  }
+
+  let id = open.attrGet('id')
+  if (!id) {
+    id = `sec-auto-${++bs.anonymous}`
+    open.attrSet('id', id)
+  }
+  claimId(bs, id, where)
+
+  const text = plainText(inline)
+  if (number && inline) {
+    inline.children.unshift(
+      htmlInline(Token, `<span class="num">${number}</span> `)
+    )
+  }
+  bs.headings.push({ level, id, number, text })
+  bs.labels.set(id, {
+    kind: level === 1 ? 'chapter' : 'section',
+    number,
+    text,
+  })
+}
+
+function isFigureParagraph(tokens, i) {
+  const inline = tokens[i + 1]
+  const close = tokens[i + 2]
+  if (inline?.type !== 'inline' || close?.type !== 'paragraph_close') {
+    return false
+  }
+  const children = inline.children || []
+  return (
+    children.length === 1 &&
+    children[0].type === 'image' &&
+    children[0].content.trim() !== ''
+  )
+}
+
+function handleFigure(tokens, i, env, Token) {
+  const bs = env.state
+  const open = tokens[i]
+  const inline = tokens[i + 1]
+  const close = tokens[i + 2]
+  const image = inline.children[0]
+  const where = path.relative(env.compileDir, env.file)
+
+  let id = image.attrGet('id')
+  // the id belongs on the <figure>, not on the <img>
+  image.attrs = (image.attrs || []).filter(([name]) => name !== 'id')
+  if (!id) id = `fig-auto-${++bs.anonymous}`
+  claimId(bs, id, where)
+
+  const number = localNumber(bs, ++bs.figure)
+  const caption = image.content.trim()
+
+  open.type = 'figure_open'
+  open.tag = 'figure'
+  open.attrSet('id', id)
+  open.attrSet('class', 'figure')
+  close.type = 'figure_close'
+  close.tag = 'figure'
+  inline.children.push(
+    htmlInline(
+      Token,
+      `<figcaption><span class="label">${escapeHtml(bs.t.figure)} ${number}</span> ${escapeHtml(caption)}</figcaption>`
+    )
+  )
+  bs.labels.set(id, { kind: 'figure', number, text: caption })
+}
+
+function handleTable(tokens, i, env) {
+  const bs = env.state
+  const open = tokens[i]
+  const where = path.relative(env.compileDir, env.file)
+
+  let depth = 0
+  let j = i
+  for (; j < tokens.length; j++) {
+    if (tokens[j].type === 'table_open') depth++
+    if (tokens[j].type === 'table_close' && --depth === 0) break
+  }
+  const paragraph = tokens[j + 1]
+  const inline = tokens[j + 2]
+  const paragraphClose = tokens[j + 3]
+  if (
+    paragraph?.type !== 'paragraph_open' ||
+    inline?.type !== 'inline' ||
+    paragraphClose?.type !== 'paragraph_close'
+  ) {
+    return
+  }
+  const text = plainText(inline)
+  if (!/^:\s+\S/.test(text)) return
+
+  const caption = text.replace(/^:\s+/, '').trim()
+  let id = paragraph.attrGet('id')
+  if (!id) id = `tbl-auto-${++bs.anonymous}`
+  claimId(bs, id, where)
+  const number = localNumber(bs, ++bs.table)
+
+  tokens.splice(j + 1, 3) // the caption paragraph is not rendered on its own
+  open.meta = { id, number, caption, label: `${bs.t.table} ${number}` }
+  bs.labels.set(id, { kind: 'table', number, text: caption })
+}
 
 function createMarkdown() {
   const md = new MarkdownIt({ html: false, linkify: false, typographer: false })
   md.use(markdownItAttrs, {
     allowedAttributes: ['id', 'class', 'width', 'height'],
   })
+
+  // @fig-x / @tbl-x / @sec-x / @heading-id
+  md.inline.ruler.push('xref', (state, silent) => {
+    const { src, pos } = state
+    if (src.charCodeAt(pos) !== 0x40) return false
+    if (pos > 0 && /[A-Za-z0-9_.]/.test(src[pos - 1])) return false // e-mail
+    const match = /^@([A-Za-z][A-Za-z0-9_-]*)/.exec(src.slice(pos))
+    if (!match) return false
+    const id = match[1].replace(/[-_]+$/, '')
+    if (!silent) {
+      const token = state.push('xref', '', 0)
+      token.content = id
+    }
+    state.pos += 1 + id.length
+    return true
+  })
+  md.renderer.rules.xref = (tokens, idx) =>
+    `${REF_START}${tokens[idx].content}${REF_END}`
+
+  md.core.ruler.after('curly_attributes', 'book_structure', state => {
+    const { tokens, env } = state
+    for (let i = 0; i < tokens.length; i++) {
+      const token = tokens[i]
+      if (token.type === 'heading_open') {
+        handleHeading(tokens, i, env, state.Token)
+      } else if (token.type === 'paragraph_open' && isFigureParagraph(tokens, i)) {
+        handleFigure(tokens, i, env, state.Token)
+      } else if (token.type === 'table_open') {
+        handleTable(tokens, i, env)
+      }
+    }
+  })
+
+  md.renderer.rules.table_open = (tokens, idx, options, env, self) => {
+    const token = tokens[idx]
+    if (!token.meta) return self.renderToken(tokens, idx, options)
+    token.attrSet('id', token.meta.id)
+    token.attrJoin('class', 'numbered')
+    return (
+      self.renderToken(tokens, idx, options) +
+      `<caption><span class="label">${escapeHtml(token.meta.label)}</span> ${escapeHtml(token.meta.caption)}</caption>\n`
+    )
+  }
 
   md.renderer.rules.image = (tokens, idx, options, env, self) => {
     const token = tokens[idx]
@@ -57,19 +300,38 @@ function createMarkdown() {
   return md
 }
 
-function escapeHtml(text) {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
+function referenceText(label, t) {
+  if (!label.number) return label.text
+  const kind = { figure: t.figure, table: t.table, chapter: t.chapter }[label.kind]
+  return `${kind || t.section} ${label.number}`
+}
+
+function resolveReferences(html, bs) {
+  const pattern = new RegExp(`${REF_START}([^${REF_END}]+)${REF_END}`, 'g')
+  return html.replace(pattern, (_match, id) => {
+    const label = bs.labels.get(id)
+    if (!label) {
+      if (PREFIXED_REF.test(id)) bs.log.warn(`unknown reference @${id}`)
+      return `@${id}`
+    }
+    return `<a class="xref" href="#${id}">${escapeHtml(referenceText(label, bs.t))}</a>`
+  })
 }
 
 /**
- * Render the chapters of one language to an HTML body.
+ * Render the chapters of one language.
+ *
+ * @returns {{ html: string, headings: Array<{ level: number, id: string, number?: string, text: string }> }}
  */
-export function renderChapters({ files, compileDir, log }) {
+export function renderChapters({
+  files,
+  compileDir,
+  log,
+  lang = 'en',
+  numbering = true,
+}) {
   const md = createMarkdown()
+  const state = newState({ lang, numbering, log })
   const parts = []
   for (const file of files) {
     const source = fs.readFileSync(file, 'utf8')
@@ -79,6 +341,7 @@ export function renderChapters({ files, compileDir, log }) {
       baseDir: path.dirname(file),
       file,
       log,
+      state,
     })
     parts.push(
       `<section class="chapter" data-source="${escapeHtml(
@@ -86,13 +349,62 @@ export function renderChapters({ files, compileDir, log }) {
       )}">\n${html}</section>`
     )
   }
-  return parts.join('\n')
+  return {
+    html: resolveReferences(parts.join('\n'), state),
+    headings: state.headings,
+  }
+}
+
+/**
+ * Cover page from the title and metadata of the book.
+ */
+export function renderCover({ title, meta, lang }) {
+  if (!title) return ''
+  const t = strings(lang)
+  const rows = ['version', 'author', 'organization', 'date']
+    .filter(field => meta[field])
+    .map(
+      field =>
+        `<div><dt>${escapeHtml(t[field])}</dt><dd>${escapeHtml(meta[field])}</dd></div>`
+    )
+    .join('\n')
+  return `<section class="cover">
+<div class="cover-inner">
+<h1 class="cover-title">${escapeHtml(title)}</h1>
+${meta.subtitle ? `<p class="cover-subtitle">${escapeHtml(meta.subtitle)}</p>` : ''}
+${rows ? `<dl class="cover-meta">\n${rows}\n</dl>` : ''}
+</div>
+</section>`
+}
+
+/**
+ * Table of contents (page numbers are filled in by Paged.js).
+ */
+export function renderToc({ headings, depth, lang }) {
+  const t = strings(lang)
+  const items = headings
+    .filter(h => h.level <= depth)
+    .map(
+      h =>
+        // the dotted filler is drawn by CSS; the page number comes from
+        // target-counter() on the link's ::after
+        `<li class="toc-${h.level}"><a href="#${escapeHtml(h.id)}"><span class="toc-text">${
+          h.number ? `<span class="num">${escapeHtml(h.number)}</span> ` : ''
+        }${escapeHtml(h.text)}</span><span class="toc-fill"></span></a></li>`
+    )
+  if (items.length === 0) return ''
+  return `<nav class="toc">
+<h2 class="toc-title">${escapeHtml(t.contents)}</h2>
+<ul>
+${items.join('\n')}
+</ul>
+</nav>`
 }
 
 /**
  * Wrap rendered content into a complete HTML document.
  */
-export function buildDocument({ lang, title, body, css }) {
+export function buildDocument({ lang, title, cover, toc, body, css }) {
   return `<!doctype html>
 <html lang="${escapeHtml(lang)}">
 <head>
@@ -104,6 +416,8 @@ ${css}
 <script>window.PagedConfig = { auto: false }</script>
 </head>
 <body>
+${cover || ''}
+${toc || ''}
 ${body}
 </body>
 </html>
