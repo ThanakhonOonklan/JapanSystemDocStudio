@@ -1,0 +1,79 @@
+# Documentation Studio REA — local single-machine setup.
+#
+# Build the images first (from the repo root):
+#   docker build --file server-ce/Dockerfile-base --tag docstudio/base:dev .
+#   docker build --file server-ce/Dockerfile --build-arg OVERLEAF_BASE_TAG=docstudio/base:dev --tag docstudio/community:dev .
+#
+# Create .env once (git-ignored) with a stable random secret, e.g. in PowerShell:
+#   $b = New-Object byte[] 32; [Security.Cryptography.RandomNumberGenerator]::Fill($b)
+#   "OVERLEAF_INVITE_TOKEN_SECRET=$([Convert]::ToBase64String($b))" | Set-Content -Encoding ascii .env
+#
+# Then run:
+#   docker compose -f docker-compose.local.yml up -d
+# and open http://localhost:8080/launchpad to create the first admin user.
+#
+# Differences from upstream docker-compose.yml:
+#   - uses the image built from this repo instead of sharelatex/sharelatex
+#   - binds to 127.0.0.1:8080 only (not reachable from other machines)
+#   - named Docker volumes instead of ~/ paths (works on Windows)
+#   - Server Pro-only sandboxed-compile settings removed
+
+name: docstudio
+
+services:
+  sharelatex:
+    image: docstudio/community:dev
+    container_name: docstudio-app
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    ports:
+      - 127.0.0.1:8080:80
+    stop_grace_period: 60s
+    volumes:
+      - app_data:/var/lib/overleaf
+    environment:
+      OVERLEAF_APP_NAME: Documentation Studio REA
+      OVERLEAF_NAV_TITLE: Documentation Studio REA
+      OVERLEAF_SITE_URL: http://localhost:8080
+      OVERLEAF_MONGO_URL: mongodb://mongo/sharelatex
+      OVERLEAF_REDIS_HOST: redis
+      REDIS_HOST: redis
+      ENABLED_LINKED_FILE_TYPES: "project_file,project_output_file"
+      ENABLE_CONVERSIONS: "true"
+      EMAIL_CONFIRMATION_DISABLED: "true"
+      # Required secret. Kept in .env (git-ignored); generate once and keep it stable.
+      OVERLEAF_INVITE_TOKEN_SECRET: ${OVERLEAF_INVITE_TOKEN_SECRET:?set OVERLEAF_INVITE_TOKEN_SECRET in .env}
+
+  mongo:
+    image: mongo:8.0
+    container_name: docstudio-mongo
+    restart: unless-stopped
+    command: "--replSet overleaf"
+    volumes:
+      - mongo_data:/data/db
+      - ./bin/shared/mongodb-init-replica-set.js:/docker-entrypoint-initdb.d/mongodb-init-replica-set.js
+    environment:
+      MONGO_INITDB_DATABASE: sharelatex
+    extra_hosts:
+      - mongo:127.0.0.1
+    healthcheck:
+      test: echo 'db.stats().ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  redis:
+    image: redis:6.2
+    container_name: docstudio-redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+volumes:
+  app_data:
+  mongo_data:
+  redis_data:

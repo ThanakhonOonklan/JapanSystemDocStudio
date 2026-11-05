@@ -127,7 +127,7 @@ chapters:
 | ระยะ | งาน | เสร็จเมื่อ |
 |---|---|---|
 | **M0 เตรียมเครื่อง** ✅ | ติดตั้ง Docker Desktop + WSL2 (แนะนำ RAM 8 GB ขึ้นไป) แล้วดึงโค้ด Overleaf เข้ามาใน repo นี้ (`git remote add upstream`) | มีโค้ด Overleaf อยู่ใน repo พร้อมประวัติ (branch `m0/import-overleaf`) |
-| **M1 รันของเดิม** | ติดตั้ง Ubuntu บน WSL2 (สำหรับ `make` และ `bash`) แล้ว build image จากซอร์สด้วย `server-ce/Makefile` (`make build-base` และ `make build-community`) จากนั้นรันด้วย `docker-compose.yml` ที่ root โดยปิดบรรทัด `SANDBOXED_COMPILES*` ก่อน เพราะเป็นของ Server Pro | เปิด `localhost` ได้ สร้างโปรเจกต์ได้ และ compile LaTeX ได้ |
+| **M1 รันของเดิม** ✅ | build image จากซอร์สด้วย `docker build` จาก PowerShell โดยตรง ไม่ต้องใช้ Ubuntu (ได้ `docstudio/base:dev` และ `docstudio/community:dev`) แล้วรันด้วย `docker-compose.local.yml` ซึ่งตัดค่า Server Pro ออก ใช้ secret จาก `.env` และเปิดเฉพาะ `127.0.0.1:8080` | เปิด `localhost:8080` ได้ สร้างโปรเจกต์ได้ และ compile LaTeX ได้ |
 | **M2 ตัด service** | ลบ `chat`, `notifications` และ `git-bridge` ออกจาก `server-ce` (runit, Dockerfile) และโค้ดใน `web` ที่เรียกใช้ | ระบบรันได้โดยไม่มี error ใน log |
 | **M3 ผู้ใช้คนเดียว** | ตัดการสมัคร การแชร์ และอีเมลออก แล้วเปลี่ยนเป็นล็อกอินอัตโนมัติ | เปิดเว็บแล้วเข้าหน้ารวมโปรเจกต์ได้ทันที |
 | **M4 md-compile** | สร้าง service ใหม่แทน `clsi` ให้ root ของโปรเจกต์เป็น `book.yaml` และกด Recompile แล้วได้ PDF | โปรเจกต์ตัวอย่างได้ PDF ไทยที่ตัดคำถูกต้อง |
