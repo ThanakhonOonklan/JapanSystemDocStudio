@@ -1,11 +1,8 @@
 import { useTranslation } from 'react-i18next'
 import { ToolbarMenuBar } from './menu-bar'
 import { ToolbarProjectTitle } from './project-title'
-import { OnlineUsers } from './online-users'
-import ShareProjectButton from './share-project-button'
 import ChangeLayoutButton from './change-layout-button'
 import ShowHistoryButton from './show-history-button'
-import RequestAccessButton from './request-access-button'
 import { useLayoutContext } from '@/shared/context/layout-context'
 import BackToEditorButton from '@/features/editor-navigation-toolbar/components/back-to-editor-button'
 import { useCallback } from 'react'
@@ -135,15 +132,14 @@ export const Toolbar = () => {
         {improvedFlakyConnections && (
           <OfflineIndicator isOffline={isOfflineDueToNetworkStall} />
         )}
+        {/* Documentation Studio REA: single-user, so no online users, access
+            requests or sharing here */}
         <div className="ide-redesign-toolbar-actions">
-          {!isOfflineDueToNetworkStall && <OnlineUsers />}
-          <RequestAccessButton />
           {!isRestrictedTokenMember && <ShowHistoryButton />}
           <ChangeLayoutButton />
           {shouldDisplaySubmitButton && cobranding && (
             <SubmitProjectButton cobranding={cobranding} />
           )}
-          <ShareProjectButton />
         </div>
       </div>
     </nav>

@@ -130,8 +130,10 @@ export const SettingsModalProvider: FC<React.PropsWithChildren> = ({
                 component: <NonBlinkingCursorSetting />,
               },
               {
+                // LaTeX syntax validation
                 key: 'syntaxValidation',
                 component: <CodeCheckSetting />,
+                hidden: true,
               },
               {
                 key: 'editorTabs',
@@ -163,10 +165,12 @@ export const SettingsModalProvider: FC<React.PropsWithChildren> = ({
               {
                 key: 'breadcrumbs-setting',
                 component: <BreadcrumbsSetting />,
+                hidden: true, // follows the LaTeX document structure
               },
               {
                 key: 'mathPreview',
                 component: <MathPreviewSetting />,
+                hidden: true, // LaTeX math
               },
             ],
           },
@@ -177,6 +181,7 @@ export const SettingsModalProvider: FC<React.PropsWithChildren> = ({
         key: 'spelling_and_language',
         title: t('spelling_and_language'),
         icon: 'spellcheck',
+        hidden: true, // hunspell dictionaries do not cover Thai
         sections: [
           {
             key: 'spellcheck',
@@ -207,21 +212,26 @@ export const SettingsModalProvider: FC<React.PropsWithChildren> = ({
                 key: 'rootDocId',
                 component: <RootDocumentSetting />,
               },
+              // LaTeX-only options: Markdown books are built by md-compile
               {
                 key: 'compiler',
                 component: <CompilerSetting />,
+                hidden: true,
               },
               {
                 key: 'imageName',
                 component: <ImageNameSetting />,
+                hidden: true,
               },
               {
                 key: 'draft',
                 component: <DraftSetting />,
+                hidden: true,
               },
               {
                 key: 'stopOnFirstError',
                 component: <StopOnFirstErrorSetting />,
+                hidden: true,
               },
               {
                 key: 'autoCompile',
@@ -230,6 +240,7 @@ export const SettingsModalProvider: FC<React.PropsWithChildren> = ({
               {
                 key: 'optimizeCompiles',
                 component: <OptimizeCompileSetting />,
+                hidden: true,
               },
             ],
           },
@@ -239,6 +250,7 @@ export const SettingsModalProvider: FC<React.PropsWithChildren> = ({
         key: 'references',
         title: t('references'),
         icon: 'book_5',
+        hidden: true, // bibliographies (BibTeX) are not used
         sections: [
           {
             key: 'general',
@@ -322,6 +334,7 @@ export const SettingsModalProvider: FC<React.PropsWithChildren> = ({
         title: t('account_settings'),
         icon: 'settings',
         href: '/user/settings',
+        hidden: true, // single-user: no password, e-mail or login settings
       },
       {
         key: 'subscription',

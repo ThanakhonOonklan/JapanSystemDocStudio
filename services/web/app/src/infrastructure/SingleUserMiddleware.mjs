@@ -39,7 +39,15 @@ function isBlocked(req) {
 }
 
 export function singleUserBlockMiddleware(req, res, next) {
-  if (!Settings.singleUserEmail || !isBlocked(req)) {
+  if (!Settings.singleUserEmail) {
+    return next()
+  }
+  // Logging out would only log the same person straight back in, so the
+  // "Log out" buttons simply return to the project list.
+  if (req.path === '/logout') {
+    return res.redirect(303, '/project')
+  }
+  if (!isBlocked(req)) {
     return next()
   }
   res.sendStatus(404)

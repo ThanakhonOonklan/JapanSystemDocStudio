@@ -136,14 +136,6 @@ function NavigationDropdown({
       </li>
       <li role="none">
         <Item
-          filter="shared"
-          text={t('shared_with_you')}
-          activePage={activePage}
-          leadingIcon={<OLDropdownItem.EmptyLeadingIcon />}
-        />
-      </li>
-      <li role="none">
-        <Item
           filter="archived"
           text={t('archived_projects')}
           activePage={activePage}

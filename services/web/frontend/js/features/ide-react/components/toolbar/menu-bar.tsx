@@ -91,7 +91,8 @@ export const ToolbarMenuBar = () => {
         id: 'file-file-tree',
         children: ['new_file', 'new_folder', 'upload_file', 'copy_project'],
       },
-      { id: 'file-tools', children: ['show_version_history', 'word_count'] },
+      // Documentation Studio REA: no word count (it counts LaTeX source)
+      { id: 'file-tools', children: ['show_version_history'] },
       { id: 'submit', children: ['submit-project', 'manage-template'] },
       {
         id: 'file-download',

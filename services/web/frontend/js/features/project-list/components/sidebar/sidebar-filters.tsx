@@ -63,11 +63,7 @@ export default function SidebarFilters({
         filter="owned"
         text={t('your_projects')}
       />
-      <SidebarFilter
-        activePage={activePage}
-        filter="shared"
-        text={t('shared_with_you')}
-      />
+      {/* Documentation Studio REA: single-user, nothing is shared with you */}
       <SidebarFilter
         activePage={activePage}
         filter="archived"

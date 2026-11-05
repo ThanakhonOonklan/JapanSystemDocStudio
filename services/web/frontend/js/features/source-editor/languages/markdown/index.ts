@@ -1,5 +1,6 @@
 import { markdown as markdownLanguage } from '@codemirror/lang-markdown'
 import { shortcuts } from './shortcuts'
+import { referenceCompletions, snippetCompletions } from './completions'
 import { languages } from '../index'
 import { Strikethrough, Table } from '@lezer/markdown'
 import { Math } from './math'
@@ -20,6 +21,9 @@ export const markdown = () => {
     support,
     shortcuts(),
     syntaxHighlighting(markdownHighlightStyle),
+    // Documentation Studio REA: @references and /snippets
+    language.data.of({ autocomplete: referenceCompletions }),
+    language.data.of({ autocomplete: snippetCompletions }),
   ])
 }
 

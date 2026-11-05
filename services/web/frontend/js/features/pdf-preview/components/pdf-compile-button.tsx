@@ -2,7 +2,6 @@ import { useTranslation } from 'react-i18next'
 import { memo, useCallback } from 'react'
 import classNames from 'classnames'
 import { useDetachCompileContext as useCompileContext } from '../../../shared/context/detach-compile-context'
-import { useStopOnFirstError } from '../../../shared/hooks/use-stop-on-first-error'
 import * as eventTracking from '../../../infrastructure/event-tracking'
 import OLTooltip from '@/shared/components/ol/ol-tooltip'
 import {
@@ -38,34 +37,15 @@ function PdfCompileButton() {
     animateCompileDropdownArrow,
     autoCompile,
     compiling,
-    draft,
     hasChanges,
     setAutoCompile,
-    setDraft,
-    setStopOnValidationError,
-    stopOnFirstError,
-    stopOnValidationError,
     startCompile,
     stopCompile,
     recompileFromScratch,
     isNetworkStalled,
   } = useCompileContext()
-  const { enableStopOnFirstError, disableStopOnFirstError } =
-    useStopOnFirstError({ eventSource: 'dropdown' })
 
   const { t } = useTranslation()
-
-  // The two compile modes (Normal / Fast [draft]) are mutually exclusive.
-  const setCompileMode = useCallback(
-    (mode: 'normal' | 'draft') => {
-      eventTracking.sendMB('recompile-setting-changed', {
-        setting: 'compile-mode',
-        settingVal: mode,
-      })
-      setDraft(mode === 'draft')
-    },
-    [setDraft]
-  )
 
   const { detachRole } = useLayoutContext()
 
@@ -192,70 +172,8 @@ function PdfCompileButton() {
             {t('off')}
           </OLDropdownItem>
         </li>
-        <OLDropdownDivider />
-        <OLDropdownHeader>{t('compile_mode')}</OLDropdownHeader>
-        <li role="none">
-          <OLDropdownItem
-            as="button"
-            onClick={() => setCompileMode('normal')}
-            trailingIcon={!draft ? 'check' : null}
-          >
-            {t('normal')}
-          </OLDropdownItem>
-        </li>
-        <li role="none">
-          <OLDropdownItem
-            as="button"
-            onClick={() => setCompileMode('draft')}
-            trailingIcon={draft ? 'check' : null}
-          >
-            {t('fast')}&nbsp;<span className="subdued">[draft]</span>
-          </OLDropdownItem>
-        </li>
-        <OLDropdownDivider />
-        <OLDropdownHeader>{t('syntax_checks')}</OLDropdownHeader>
-        <li role="none">
-          <OLDropdownItem
-            as="button"
-            onClick={() =>
-              sendEventAndSet(true, setStopOnValidationError, 'syntax-check')
-            }
-            trailingIcon={stopOnValidationError ? 'check' : null}
-          >
-            {t('stop_on_validation_error')}
-          </OLDropdownItem>
-        </li>
-        <li role="none">
-          <OLDropdownItem
-            as="button"
-            onClick={() =>
-              sendEventAndSet(false, setStopOnValidationError, 'syntax-check')
-            }
-            trailingIcon={!stopOnValidationError ? 'check' : null}
-          >
-            {t('ignore_validation_errors')}
-          </OLDropdownItem>
-        </li>
-        <OLDropdownDivider />
-        <OLDropdownHeader>{t('compile_error_handling')}</OLDropdownHeader>
-        <li role="none">
-          <OLDropdownItem
-            as="button"
-            onClick={enableStopOnFirstError}
-            trailingIcon={stopOnFirstError ? 'check' : null}
-          >
-            {t('stop_on_first_error')}
-          </OLDropdownItem>
-        </li>
-        <li role="none">
-          <OLDropdownItem
-            as="button"
-            onClick={disableStopOnFirstError}
-            trailingIcon={!stopOnFirstError ? 'check' : null}
-          >
-            {t('try_to_compile_despite_errors')}
-          </OLDropdownItem>
-        </li>
+        {/* Documentation Studio REA: the LaTeX draft mode, syntax checks and
+            error-handling options do not apply to Markdown books. */}
         <OLDropdownDivider />
         <li role="none">
           <OLDropdownItem

@@ -28,6 +28,6 @@ Write the table caption on the line after the table, starting with a colon:
 : Table caption {#tbl-example}
 ```
 
-## Thai content {#thai}
+## The other language {#other-language}
 
 The files in the `th/` folder should use the same `{#...}` ids for headings, figures and tables so that both languages match.
