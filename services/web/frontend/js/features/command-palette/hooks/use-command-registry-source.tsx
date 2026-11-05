@@ -46,7 +46,6 @@ const useCommandRegistrySource = (): CommandPaletteSource => {
         ],
       },
       'open-settings',
-      'show_version_history',
       'word_count',
       'view-pdf-presentation-mode',
       'comment',

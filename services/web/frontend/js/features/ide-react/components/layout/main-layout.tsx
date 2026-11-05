@@ -12,7 +12,6 @@ import { useLayoutContext } from '@/shared/context/layout-context'
 import { ElementType, useState } from 'react'
 import EditorPanel from '../editor/editor-panel'
 import { useRailContext } from '../../context/rail-context'
-import HistoryContainer from '@/features/ide-react/components/history-container'
 import { DefaultSynctexControl } from '@/features/pdf-preview/components/detach-synctex-control'
 import importOverleafModules from '../../../../../macros/import-overleaf-module.macro'
 
@@ -58,19 +57,15 @@ export default function MainLayout() {
         >
           <RailLayout />
           <Panel id="ide-redesign-editor-and-pdf-panel" order={2}>
-            <HistoryContainer />
             <PanelGroup
               autoSaveId="ide-redesign-editor-and-pdf-panel-group"
               direction="horizontal"
-              className={classNames({
-                hidden: view === 'history',
-              })}
             >
               <Panel
                 id="ide-redesign-editor-panel"
                 order={1}
                 className={classNames({
-                  hidden: !editorIsOpen || view === 'history',
+                  hidden: !editorIsOpen,
                 })}
                 minSize={5}
                 defaultSize={50}
@@ -106,9 +101,7 @@ export default function MainLayout() {
               </HorizontalResizeHandle>
               <Panel
                 collapsible
-                className={classNames('ide-redesign-pdf-container', {
-                  hidden: view === 'history',
-                })}
+                className="ide-redesign-pdf-container"
                 id="ide-redesign-pdf-panel"
                 order={2}
                 defaultSize={50}

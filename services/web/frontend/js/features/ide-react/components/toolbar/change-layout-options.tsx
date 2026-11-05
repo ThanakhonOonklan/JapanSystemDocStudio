@@ -34,10 +34,6 @@ const getActiveLayoutOption = ({
   view: IdeView | null
   detachRole?: DetachRole
 }): LayoutOption | null => {
-  if (view === 'history') {
-    return null
-  }
-
   if (detachRole === 'detacher') {
     return 'detachedPdf'
   }

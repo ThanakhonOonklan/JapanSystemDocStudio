@@ -1,4 +1,3 @@
-import AdminController from './Features/ServerAdmin/AdminController.mjs'
 import ErrorController from './Features/Errors/ErrorController.mjs'
 import Features from './infrastructure/Features.mjs'
 import ProjectController from './Features/Project/ProjectController.mjs'
@@ -8,20 +7,13 @@ import SpellingController from './Features/Spelling/SpellingController.mjs'
 import EditorRouter from './Features/Editor/EditorRouter.mjs'
 import Settings from '@overleaf/settings'
 import TpdsController from './Features/ThirdPartyDataStore/TpdsController.mjs'
-import SubscriptionRouter from './Features/Subscription/SubscriptionRouter.mjs'
 import UploadsRouter from './Features/Uploads/UploadsRouter.mjs'
 import metrics from '@overleaf/metrics'
-import ReferalController from './Features/Referal/ReferalController.mjs'
 import AuthenticationController from './Features/Authentication/AuthenticationController.mjs'
 import PermissionsController from './Features/Authorization/PermissionsController.mjs'
-import SessionManager from './Features/Authentication/SessionManager.mjs'
-import TagsController from './Features/Tags/TagsController.mjs'
-import NotificationsController from './Features/Notifications/NotificationsController.mjs'
 import CollaboratorsRouter from './Features/Collaborators/CollaboratorsRouter.mjs'
 import UserInfoController from './Features/User/UserInfoController.mjs'
 import UserController from './Features/User/UserController.mjs'
-import UserEmailsController from './Features/User/UserEmailsController.mjs'
-import UserPagesController from './Features/User/UserPagesController.mjs'
 import TutorialController from './Features/Tutorial/TutorialController.mjs'
 import DocumentController from './Features/Documents/DocumentController.mjs'
 import CompileManager from './Features/Compile/CompileManager.mjs'
@@ -32,8 +24,6 @@ import FileStoreController from './Features/FileStore/FileStoreController.mjs'
 import DocumentUpdaterController from './Features/DocumentUpdater/DocumentUpdaterController.mjs'
 import HistoryRouter from './Features/History/HistoryRouter.mjs'
 import ExportsController from './Features/Exports/ExportsController.mjs'
-import PasswordResetRouter from './Features/PasswordReset/PasswordResetRouter.mjs'
-import StaticPagesRouter from './Features/StaticPages/StaticPagesRouter.mjs'
 import ChatController from './Features/Chat/ChatController.mjs'
 import Modules from './infrastructure/Modules.mjs'
 import {
@@ -43,21 +33,13 @@ import {
 } from './infrastructure/RateLimiter.mjs'
 import RateLimiterMiddleware from './Features/Security/RateLimiterMiddleware.mjs'
 import InactiveProjectController from './Features/InactiveData/InactiveProjectController.mjs'
-import ContactRouter from './Features/Contacts/ContactRouter.mjs'
 import ReferencesController from './Features/References/ReferencesController.mjs'
 import AuthorizationMiddleware from './Features/Authorization/AuthorizationMiddleware.mjs'
-import BetaProgramController from './Features/BetaProgram/BetaProgramController.mjs'
-import AnalyticsRouter from './Features/Analytics/AnalyticsRouter.mjs'
 import MetaController from './Features/Metadata/MetaController.mjs'
-import TokenAccessController from './Features/TokenAccess/TokenAccessController.mjs'
-import TokenAccessRouter from './Features/TokenAccess/TokenAccessRouter.mjs'
 import LinkedFilesRouter from './Features/LinkedFiles/LinkedFilesRouter.mjs'
-import TemplatesRouter from './Features/Templates/TemplatesRouter.mjs'
-import UserMembershipRouter from './Features/UserMembership/UserMembershipRouter.mjs'
 import SystemMessageController from './Features/SystemMessages/SystemMessageController.mjs'
 import AnalyticsRegistrationSourceMiddleware from './Features/Analytics/AnalyticsRegistrationSourceMiddleware.mjs'
 import AnalyticsUTMTrackingMiddleware from './Features/Analytics/AnalyticsUTMTrackingMiddleware.mjs'
-import CaptchaMiddleware from './Features/Captcha/CaptchaMiddleware.mjs'
 import UnsupportedBrowserMiddleware from './infrastructure/UnsupportedBrowserMiddleware.mjs'
 import logger from '@overleaf/logger'
 import _ from 'lodash'
@@ -240,32 +222,10 @@ async function initialize(webRouter, privateApiRouter, publicApiRouter) {
     })
   }
 
-  // Mount onto /login in order to get the deviceHistory cookie.
-  webRouter.post(
-    '/login/can-skip-captcha',
-    // Keep in sync with the overleaf-login options.
-    RateLimiterMiddleware.rateLimit(rateLimiters.canSkipCaptcha),
-    CaptchaMiddleware.canSkipCaptcha
-  )
-
-  webRouter.get('/login', UserPagesController.loginPage)
-  AuthenticationController.addEndpointToLoginWhitelist('/login')
-
-  webRouter.post(
-    '/login',
-    RateLimiterMiddleware.rateLimit(overleafLoginRateLimiter), // rate limit IP (20 / 60s)
-    RateLimiterMiddleware.loginRateLimitEmail(), // rate limit email (10 / 120s)
-    CaptchaMiddleware.validateCaptcha('login'),
-    AuthenticationController.passportLogin
-  )
-
-  webRouter.get(
-    '/compromised-password',
-    AuthenticationController.requireLogin(),
-    UserPagesController.compromisedPasswordPage
-  )
-
-  webRouter.get('/account-suspended', UserPagesController.accountSuspended)
+  // Documentation Studio REA: there is one user who is logged in
+  // automatically, so there are no login, register, password, account,
+  // subscription, admin or sharing pages.
+  webRouter.get('/', (req, res) => res.redirect('/project'))
 
   webRouter.get(
     '/socket-diagnostics',
@@ -273,244 +233,21 @@ async function initialize(webRouter, privateApiRouter, publicApiRouter) {
     SocketDiagnostics.index
   )
 
-  if (Settings.enableLegacyLogin) {
-    AuthenticationController.addEndpointToLoginWhitelist('/login/legacy')
-    webRouter.get('/login/legacy', UserPagesController.loginPage)
-    webRouter.post(
-      '/login/legacy',
-      RateLimiterMiddleware.rateLimit(overleafLoginRateLimiter), // rate limit IP (20 / 60s)
-      RateLimiterMiddleware.loginRateLimitEmail(), // rate limit email (10 / 120s)
-      CaptchaMiddleware.validateCaptcha('login'),
-      AuthenticationController.passportLogin
-    )
-  }
-
-  webRouter.get(
-    '/read-only/one-time-login',
-    UserPagesController.oneTimeLoginPage
-  )
-  AuthenticationController.addEndpointToLoginWhitelist(
-    '/read-only/one-time-login'
-  )
-
-  webRouter.get('/logout', UserPagesController.logout)
-  webRouter.post('/logout', UserController.logout)
-
-  webRouter.get('/restricted', AuthorizationMiddleware.restricted)
-
-  if (Features.hasFeature('registration-page')) {
-    webRouter.get('/register', UserPagesController.registerPage)
-    AuthenticationController.addEndpointToLoginWhitelist('/register')
-  }
-
   EditorRouter.apply(webRouter, privateApiRouter)
   CollaboratorsRouter.apply(webRouter, privateApiRouter)
-  SubscriptionRouter.apply(webRouter, privateApiRouter, publicApiRouter)
   UploadsRouter.apply(webRouter, privateApiRouter)
-  PasswordResetRouter.apply(webRouter, privateApiRouter)
-  StaticPagesRouter.apply(webRouter, privateApiRouter)
-  ContactRouter.apply(webRouter, privateApiRouter)
-  AnalyticsRouter.apply(webRouter, privateApiRouter, publicApiRouter)
   LinkedFilesRouter.apply(webRouter, privateApiRouter, publicApiRouter)
-  TemplatesRouter.apply(webRouter)
-  UserMembershipRouter.apply(webRouter)
-  TokenAccessRouter.apply(webRouter)
   HistoryRouter.apply(webRouter, privateApiRouter)
 
   await Modules.applyRouter(webRouter, privateApiRouter, publicApiRouter)
-
-  if (Settings.enableSubscriptions) {
-    webRouter.get(
-      '/user/bonus',
-      AuthenticationController.requireLogin(),
-      ReferalController.bonus
-    )
-  }
 
   // .getMessages will generate an empty response for anonymous users.
   webRouter.get('/system/messages', SystemMessageController.getMessages)
 
   webRouter.get(
-    '/user/settings',
-    AuthenticationController.requireLogin(),
-    PermissionsController.useCapabilities(),
-    UserPagesController.settingsPage
-  )
-  webRouter.post(
-    '/user/settings',
-    AuthenticationController.requireLogin(),
-    UserController.updateUserSettings
-  )
-  webRouter.post(
-    '/user/password/update',
-    AuthenticationController.requireLogin(),
-    RateLimiterMiddleware.rateLimit(rateLimiters.changePassword),
-    PermissionsController.requirePermission('change-password'),
-    UserController.changePassword
-  )
-  webRouter.get(
-    '/user/emails',
-    AuthenticationController.requireLogin(),
-    AsyncLocalStorage.middleware,
-    PermissionsController.useCapabilities(),
-    UserController.ensureAffiliationMiddleware,
-    UserEmailsController.list
-  )
-  webRouter.get(
-    '/user/emails/confirm',
-    AuthenticationController.requireLogin(),
-    UserEmailsController.showConfirm
-  )
-  webRouter.post(
-    '/user/emails/confirm',
-    AuthenticationController.requireLogin(),
-    RateLimiterMiddleware.rateLimit(rateLimiters.confirmEmail),
-    UserEmailsController.confirm
-  )
-
-  webRouter.post(
-    '/user/emails/send-confirmation-code',
-    AuthenticationController.requireLogin(),
-    RateLimiterMiddleware.rateLimit(rateLimiters.sendConfirmation),
-    await Modules.middleware('confirmationEmailMiddleware'),
-    UserEmailsController.sendExistingEmailConfirmationCode
-  )
-
-  webRouter.post(
-    '/user/emails/resend-confirmation-code',
-    AuthenticationController.requireLogin(),
-    RateLimiterMiddleware.rateLimit(rateLimiters.resendConfirmation),
-    UserEmailsController.resendExistingSecondaryEmailConfirmationCode
-  )
-
-  webRouter.post(
-    '/user/emails/confirm-code',
-    AuthenticationController.requireLogin(),
-    RateLimiterMiddleware.rateLimit(rateLimiters.confirmEmail),
-    UserEmailsController.checkExistingEmailConfirmationCode
-  )
-
-  webRouter.get(
-    '/user/emails/primary-email-check',
-    AuthenticationController.requireLogin(),
-    UserEmailsController.primaryEmailCheckPage
-  )
-
-  webRouter.post(
-    '/user/emails/primary-email-check',
-    AuthenticationController.requireLogin(),
-    PermissionsController.useCapabilities(),
-    UserEmailsController.primaryEmailCheck
-  )
-
-  if (Features.hasFeature('affiliations')) {
-    webRouter.post(
-      '/user/emails/delete',
-      AuthenticationController.requireLogin(),
-      RateLimiterMiddleware.rateLimit(rateLimiters.deleteEmail),
-      await Modules.middleware('userDeleteEmail'),
-      UserEmailsController.remove
-    )
-    webRouter.post(
-      '/user/emails/default',
-      AuthenticationController.requireLogin(),
-      UserEmailsController.setDefault
-    )
-    webRouter.post(
-      '/user/emails/endorse',
-      AuthenticationController.requireLogin(),
-      PermissionsController.requirePermission('endorse-email'),
-      RateLimiterMiddleware.rateLimit(rateLimiters.endorseEmail),
-      UserEmailsController.endorse
-    )
-  }
-
-  if (Features.hasFeature('saas')) {
-    webRouter.get(
-      '/user/emails/add-secondary',
-      AuthenticationController.requireLogin(),
-      PermissionsController.requirePermission('add-secondary-email'),
-      UserEmailsController.addSecondaryEmailPage
-    )
-
-    webRouter.get(
-      '/user/emails/confirm-secondary',
-      AuthenticationController.requireLogin(),
-      PermissionsController.requirePermission('add-secondary-email'),
-      UserEmailsController.confirmSecondaryEmailPage
-    )
-  }
-
-  webRouter.get(
-    '/user/sessions',
-    AuthenticationController.requireLogin(),
-    UserPagesController.sessionsPage
-  )
-  webRouter.post(
-    '/user/sessions/clear',
-    AuthenticationController.requireLogin(),
-    UserController.clearSessions
-  )
-
-  // deprecated
-  webRouter.delete(
-    '/user/newsletter/unsubscribe',
-    AuthenticationController.requireLogin(),
-    UserController.unsubscribe
-  )
-
-  webRouter.post(
-    '/user/newsletter/unsubscribe',
-    AuthenticationController.requireLogin(),
-    UserController.unsubscribe
-  )
-
-  webRouter.post(
-    '/user/newsletter/subscribe',
-    AuthenticationController.requireLogin(),
-    UserController.subscribe
-  )
-
-  webRouter.get(
-    '/user/email-preferences',
-    AuthenticationController.requireLogin(),
-    UserPagesController.emailPreferencesPage
-  )
-
-  webRouter.post(
-    '/user/delete',
-    RateLimiterMiddleware.rateLimit(rateLimiters.deleteUser),
-    AuthenticationController.requireLogin(),
-    PermissionsController.requirePermission('delete-own-account'),
-    UserController.tryDeleteUser
-  )
-
-  webRouter.get(
-    '/user/personal_info',
-    AuthenticationController.requireLogin(),
-    UserInfoController.getLoggedInUsersPersonalInfo
-  )
-  privateApiRouter.get(
-    '/user/:user_id/personal_info',
-    AuthenticationController.requirePrivateApiAuth(),
-    UserInfoController.getPersonalInfo
-  )
-  webRouter.get(
     '/user/features',
     AuthenticationController.requireLogin(),
     UserInfoController.getUserFeatures
-  )
-
-  webRouter.get(
-    '/user/reconfirm',
-    UserPagesController.renderReconfirmAccountPage
-  )
-  // for /user/reconfirm POST, see password router
-
-  webRouter.get(
-    '/user/tpds/queues',
-    AuthenticationController.requireLogin(),
-    TpdsController.getQueues
   )
 
   webRouter.post(
@@ -542,15 +279,7 @@ async function initialize(webRouter, privateApiRouter, publicApiRouter) {
   const domainCaptureTestSessionMiddleware = await Modules.middleware(
     'domainCaptureTestSession'
   )
-  for (const projectDashboardRoute of [
-    '/project',
-    '/project/owned',
-    '/project/shared',
-    '/project/archived',
-    '/project/trashed',
-    '/project/untagged',
-    '/project/tags/:tag',
-  ]) {
+  for (const projectDashboardRoute of ['/project', '/project/owned']) {
     webRouter.get(
       projectDashboardRoute,
       AuthenticationController.requireLogin(),
@@ -714,31 +443,6 @@ async function initialize(webRouter, privateApiRouter, publicApiRouter) {
     CompileController.wordCount
   )
 
-  webRouter.post(
-    '/Project/:Project_id/archive',
-    AuthenticationController.requireLogin(),
-    AuthorizationMiddleware.ensureUserCanReadProject,
-    ProjectController.archiveProject
-  )
-  webRouter.delete(
-    '/Project/:Project_id/archive',
-    AuthenticationController.requireLogin(),
-    AuthorizationMiddleware.ensureUserCanReadProject,
-    ProjectController.unarchiveProject
-  )
-  webRouter.post(
-    '/project/:project_id/trash',
-    AuthenticationController.requireLogin(),
-    AuthorizationMiddleware.ensureUserCanReadProject,
-    ProjectController.trashProject
-  )
-  webRouter.delete(
-    '/project/:project_id/trash',
-    AuthenticationController.requireLogin(),
-    AuthorizationMiddleware.ensureUserCanReadProject,
-    ProjectController.untrashProject
-  )
-
   webRouter.delete(
     '/Project/:Project_id',
     AuthenticationController.requireLogin(),
@@ -746,12 +450,6 @@ async function initialize(webRouter, privateApiRouter, publicApiRouter) {
     ProjectController.deleteProject
   )
 
-  webRouter.post(
-    '/Project/:Project_id/restore',
-    AuthenticationController.requireLogin(),
-    AuthorizationMiddleware.ensureUserCanAdminProject,
-    ProjectController.restoreProject
-  )
   webRouter.post(
     '/Project/:Project_id/clone',
     AuthorizationMiddleware.ensureUserCanReadProject,
@@ -858,82 +556,6 @@ async function initialize(webRouter, privateApiRouter, publicApiRouter) {
     '/internal/users/:userId/expire',
     AuthenticationController.requirePrivateApiAuth(),
     UserController.expireDeletedUser
-  )
-
-  privateApiRouter.get(
-    '/user/:userId/tag',
-    AuthenticationController.requirePrivateApiAuth(),
-    TagsController.apiGetAllTags
-  )
-  webRouter.get(
-    '/tag',
-    AuthenticationController.requireLogin(),
-    TagsController.getAllTags
-  )
-  webRouter.post(
-    '/tag',
-    AuthenticationController.requireLogin(),
-    RateLimiterMiddleware.rateLimit(rateLimiters.createTag),
-    TagsController.createTag
-  )
-  webRouter.post(
-    '/tag/:tagId/rename',
-    AuthenticationController.requireLogin(),
-    RateLimiterMiddleware.rateLimit(rateLimiters.renameTag),
-    TagsController.renameTag
-  )
-  webRouter.post(
-    '/tag/:tagId/edit',
-    AuthenticationController.requireLogin(),
-    RateLimiterMiddleware.rateLimit(rateLimiters.renameTag),
-    TagsController.editTag
-  )
-  webRouter.delete(
-    '/tag/:tagId',
-    AuthenticationController.requireLogin(),
-    RateLimiterMiddleware.rateLimit(rateLimiters.deleteTag),
-    TagsController.deleteTag
-  )
-  webRouter.post(
-    '/tag/:tagId/project/:projectId',
-    AuthenticationController.requireLogin(),
-    RateLimiterMiddleware.rateLimit(rateLimiters.addProjectToTag),
-    TagsController.addProjectToTag
-  )
-  webRouter.post(
-    '/tag/:tagId/projects',
-    AuthenticationController.requireLogin(),
-    RateLimiterMiddleware.rateLimit(rateLimiters.addProjectsToTag),
-    TagsController.addProjectsToTag
-  )
-  webRouter.delete(
-    '/tag/:tagId/project/:projectId',
-    AuthenticationController.requireLogin(),
-    RateLimiterMiddleware.rateLimit(rateLimiters.removeProjectFromTag),
-    TagsController.removeProjectFromTag
-  )
-  webRouter.post(
-    '/tag/:tagId/projects/remove',
-    AuthenticationController.requireLogin(),
-    RateLimiterMiddleware.rateLimit(rateLimiters.removeProjectsFromTag),
-    TagsController.removeProjectsFromTag
-  )
-
-  webRouter.get(
-    '/notifications',
-    AuthenticationController.requireLogin(),
-    NotificationsController.getAllUnreadNotifications
-  )
-  webRouter.delete(
-    '/notifications/:notificationId',
-    AuthenticationController.requireLogin(),
-    NotificationsController.markNotificationAsRead
-  )
-
-  webRouter.get(
-    '/user/notification/:notificationId',
-    AuthenticationController.requireLogin(),
-    NotificationsController.getNotification
   )
 
   // Deprecated in favour of /internal/project/:project_id but still used by versioning
@@ -1087,76 +709,6 @@ async function initialize(webRouter, privateApiRouter, publicApiRouter) {
     ReferencesController.indexAll
   )
 
-  // disable beta program while v2 is in beta
-  webRouter.get(
-    '/beta/participate',
-    AuthenticationController.requireLogin(),
-    BetaProgramController.optInPage
-  )
-  webRouter.post(
-    '/beta/opt-in',
-    AuthenticationController.requireLogin(),
-    BetaProgramController.optIn
-  )
-  webRouter.post(
-    '/beta/opt-out',
-    AuthenticationController.requireLogin(),
-    BetaProgramController.optOut
-  )
-
-  webRouter.get('/chrome', function (req, res, next) {
-    // Match v1 behaviour - this is used for a Chrome web app
-    if (SessionManager.isUserLoggedIn(req.session)) {
-      res.redirect('/project')
-    } else {
-      res.redirect('/register')
-    }
-  })
-
-  webRouter.get(
-    '/admin',
-    AuthorizationMiddleware.ensureUserIsSiteAdmin,
-    AdminController.index
-  )
-
-  if (!Features.hasFeature('saas')) {
-    webRouter.post(
-      '/admin/openEditor',
-      AuthorizationMiddleware.ensureUserIsSiteAdmin,
-      AdminController.openEditor
-    )
-    webRouter.post(
-      '/admin/closeEditor',
-      AuthorizationMiddleware.ensureUserIsSiteAdmin,
-      AdminController.closeEditor
-    )
-    webRouter.post(
-      '/admin/disconnectAllUsers',
-      AuthorizationMiddleware.ensureUserIsSiteAdmin,
-      AdminController.disconnectAllUsers
-    )
-  }
-  webRouter.post(
-    '/admin/flushProjectToTpds',
-    AuthorizationMiddleware.ensureUserIsSiteAdmin,
-    AdminController.flushProjectToTpds
-  )
-  webRouter.post(
-    '/admin/pollDropboxForUser',
-    AuthorizationMiddleware.ensureUserIsSiteAdmin,
-    AdminController.pollDropboxForUser
-  )
-  webRouter.post(
-    '/admin/messages',
-    AuthorizationMiddleware.ensureUserIsSiteAdmin,
-    AdminController.createMessage
-  )
-  webRouter.post(
-    '/admin/messages/clear',
-    AuthorizationMiddleware.ensureUserIsSiteAdmin,
-    AdminController.clearMessages
-  )
-
   privateApiRouter.get('/perfTest', (req, res) => {
     plainTextResponse(res, 'hello')
   })
@@ -1271,42 +823,6 @@ async function initialize(webRouter, privateApiRouter, publicApiRouter) {
     metrics.inc('client-side-error')
     res.sendStatus(204)
   })
-
-  if (Features.hasFeature('link-sharing')) {
-    webRouter.get(
-      `/read/:token(${TokenAccessController.READ_ONLY_TOKEN_PATTERN})`,
-      RateLimiterMiddleware.rateLimit(rateLimiters.readOnlyToken),
-      AnalyticsRegistrationSourceMiddleware.setSource(
-        'collaboration',
-        'link-sharing'
-      ),
-      TokenAccessController.tokenAccessPage,
-      AnalyticsRegistrationSourceMiddleware.clearSource()
-    )
-
-    webRouter.get(
-      `/:token(${TokenAccessController.READ_AND_WRITE_TOKEN_PATTERN})`,
-      RateLimiterMiddleware.rateLimit(rateLimiters.readAndWriteToken),
-      AnalyticsRegistrationSourceMiddleware.setSource(
-        'collaboration',
-        'link-sharing'
-      ),
-      TokenAccessController.tokenAccessPage,
-      AnalyticsRegistrationSourceMiddleware.clearSource()
-    )
-
-    webRouter.post(
-      `/:token(${TokenAccessController.READ_AND_WRITE_TOKEN_PATTERN})/grant`,
-      RateLimiterMiddleware.rateLimit(rateLimiters.grantTokenAccessReadWrite),
-      TokenAccessController.grantTokenAccessReadAndWrite
-    )
-
-    webRouter.post(
-      `/read/:token(${TokenAccessController.READ_ONLY_TOKEN_PATTERN})/grant`,
-      RateLimiterMiddleware.rateLimit(rateLimiters.grantTokenAccessReadOnly),
-      TokenAccessController.grantTokenAccessReadOnly
-    )
-  }
 
   webRouter.get('/unsupported-browser', renderUnsupportedBrowserPage)
 

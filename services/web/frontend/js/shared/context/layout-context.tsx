@@ -19,14 +19,13 @@ import { BinaryFile } from '@/features/file-view/types/binary-file'
 import useEventListener from '@/shared/hooks/use-event-listener'
 import { isMac } from '@/shared/utils/os'
 import { sendSearchEvent } from '@/features/event-tracking/search-events'
-import { useRailContext } from '@/features/ide-react/context/rail-context'
 import usePersistedState from '@/shared/hooks/use-persisted-state'
 import { repositionAllTooltips } from '@/features/source-editor/extensions/tooltips-reposition'
 import { useEditorAnalytics } from '@/shared/hooks/use-editor-analytics'
 import { useFeatureFlag } from './split-test-context'
 
 export type IdeLayout = 'sideBySide' | 'flat'
-export type IdeView = 'editor' | 'file' | 'pdf' | 'history'
+export type IdeView = 'editor' | 'file' | 'pdf'
 
 export type LayoutContextOwnStates = {
   view: IdeView | null
@@ -89,29 +88,13 @@ export const LayoutProvider: FC<React.PropsWithChildren> = ({ children }) => {
   // what to show in the "flat" view (editor or pdf)
   const [view, _setView] = useState<IdeView | null>('editor')
   const [openFile, setOpenFile] = useState<BinaryFile | null>(null)
-  const { isOpen: railIsOpen, setIsOpen: setRailIsOpen } = useRailContext()
-  const [prevRailIsOpen, setPrevRailIsOpen] = useState(railIsOpen)
   // Whether we came from a file or a document when we left the ide
   const lastIdeView = useRef<IdeView>('editor')
   const { sendEvent } = useEditorAnalytics()
 
   const setView = useCallback(
     (value: IdeView | null) => {
-      _setView(oldValue => {
-        // ensure that the "history:toggle" event is broadcast when switching in or out of history view
-        if (value === 'history' || oldValue === 'history') {
-          window.dispatchEvent(new CustomEvent('history:toggle'))
-        }
-
-        if (value === 'history') {
-          setPrevRailIsOpen(railIsOpen)
-          setRailIsOpen(true)
-        }
-
-        if (oldValue === 'history') {
-          setRailIsOpen(prevRailIsOpen)
-        }
-
+      _setView(() => {
         if (value === 'editor' || value === 'file') {
           lastIdeView.current = value
         }
@@ -119,7 +102,7 @@ export const LayoutProvider: FC<React.PropsWithChildren> = ({ children }) => {
         return value
       })
     },
-    [_setView, setRailIsOpen, prevRailIsOpen, setPrevRailIsOpen, railIsOpen]
+    [_setView]
   )
 
   const restoreView = useCallback(() => {

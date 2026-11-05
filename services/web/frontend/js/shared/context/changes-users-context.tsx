@@ -1,17 +1,6 @@
-import {
-  createContext,
-  FC,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react'
-import { getJSON } from '@/infrastructure/fetch-json'
+import { createContext, FC, useContext, useMemo } from 'react'
 import { useProjectContext } from '@/shared/context/project-context'
 import { UserId } from '@ol-types/user'
-import { useEditorContext } from '@/shared/context/editor-context'
-import { debugConsole } from '@/utils/debugging'
-import { captureException } from '@/infrastructure/error-reporter'
 
 export type ChangesUser = {
   id: UserId
@@ -29,24 +18,12 @@ export const ChangesUsersContext = createContext<ChangesUsers | undefined>(
 export const ChangesUsersProvider: FC<React.PropsWithChildren> = ({
   children,
 }) => {
-  const { projectId, project } = useProjectContext()
+  const { project } = useProjectContext()
   const { members, owner } = project || {}
-  const { isRestrictedTokenMember } = useEditorContext()
 
-  const [changesUsers, setChangesUsers] = useState<ChangesUsers>()
-
-  useEffect(() => {
-    if (isRestrictedTokenMember) {
-      return
-    }
-
-    getJSON<ChangesUser[]>(`/project/${projectId}/changes/users`)
-      .then(data => setChangesUsers(new Map(data.map(item => [item.id, item]))))
-      .catch(error => {
-        debugConsole.error(error)
-        captureException(error)
-      })
-  }, [projectId, isRestrictedTokenMember])
+  // The changes/users API (project history) is not part of this build, so
+  // only the owner and members are known.
+  const changesUsers: ChangesUsers | undefined = undefined
 
   // add the project owner and members to the changes users data
   const value = useMemo(() => {
@@ -59,7 +36,7 @@ export const ChangesUsersProvider: FC<React.PropsWithChildren> = ({
       value.set(member._id, { ...member, id: member._id })
     }
     return value
-  }, [members, owner, changesUsers])
+  }, [members, owner])
 
   return (
     <ChangesUsersContext.Provider value={value}>

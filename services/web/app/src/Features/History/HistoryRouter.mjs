@@ -1,5 +1,9 @@
 // @ts-check
 
+// Documentation Studio REA: only the routes the editor and compile path need
+// are kept (blobs, history flush, project history resync). Version history
+// itself (updates, diffs, labels, restore/revert, version downloads) is gone.
+
 import Settings from '@overleaf/settings'
 import { RateLimiter } from '../../infrastructure/RateLimiter.mjs'
 import AuthenticationController from '../Authentication/AuthenticationController.mjs'
@@ -9,10 +13,6 @@ import HistoryController from './HistoryController.mjs'
 import AsyncLocalStorage from '../../infrastructure/AsyncLocalStorage.mjs'
 
 const rateLimiters = {
-  downloadProjectRevision: new RateLimiter('download-project-revision', {
-    points: 30,
-    duration: 60 * 60,
-  }),
   getProjectBlob: new RateLimiter('get-project-blob', {
     // Download project in full once per hour
     points: Settings.maxEntitiesPerProject,
@@ -29,7 +29,7 @@ const rateLimiters = {
  * @param {any} privateApiRouter
  */
 function apply(webRouter, privateApiRouter) {
-  // Blobs
+  // Blobs (images and other project files)
 
   webRouter.head(
     '/project/:project_id/blob/:hash',
@@ -46,65 +46,6 @@ function apply(webRouter, privateApiRouter) {
     HistoryController.getBlob
   )
 
-  // History diffs
-
-  webRouter.get(
-    '/project/:Project_id/updates',
-    AsyncLocalStorage.middleware,
-    AuthorizationMiddleware.blockRestrictedUserFromProject,
-    AuthorizationMiddleware.ensureUserCanReadProject,
-    HistoryController.proxyToHistoryApiAndInjectUserDetails
-  )
-  webRouter.get(
-    '/project/:Project_id/doc/:doc_id/diff',
-    AsyncLocalStorage.middleware,
-    AuthorizationMiddleware.blockRestrictedUserFromProject,
-    AuthorizationMiddleware.ensureUserCanReadProject,
-    HistoryController.proxyToHistoryApi
-  )
-  webRouter.get(
-    '/project/:Project_id/diff',
-    AsyncLocalStorage.middleware,
-    AuthorizationMiddleware.blockRestrictedUserFromProject,
-    AuthorizationMiddleware.ensureUserCanReadProject,
-    HistoryController.proxyToHistoryApiAndInjectUserDetails
-  )
-  webRouter.get(
-    '/project/:Project_id/filetree/diff',
-    AsyncLocalStorage.middleware,
-    AuthorizationMiddleware.blockRestrictedUserFromProject,
-    AuthorizationMiddleware.ensureUserCanReadProject,
-    HistoryController.proxyToHistoryApi
-  )
-
-  // File and project restore
-
-  webRouter.post(
-    '/project/:project_id/restore_file',
-    AuthorizationMiddleware.ensureUserCanWriteProjectContent,
-    HistoryController.restoreFileFromV2
-  )
-  webRouter.post(
-    '/project/:project_id/revert_file',
-    AuthorizationMiddleware.ensureUserCanWriteProjectContent,
-    HistoryController.revertFile
-  )
-  webRouter.post(
-    '/project/:project_id/revert-project',
-    AuthorizationMiddleware.ensureUserCanWriteProjectContent,
-    HistoryController.revertProject
-  )
-
-  // History download
-
-  webRouter.get(
-    '/project/:project_id/version/:version/zip',
-    RateLimiterMiddleware.rateLimit(rateLimiters.downloadProjectRevision),
-    AuthorizationMiddleware.blockRestrictedUserFromProject,
-    AuthorizationMiddleware.ensureUserCanReadProject,
-    HistoryController.downloadZipOfVersion
-  )
-
   // History flush and resync
 
   webRouter.post(
@@ -119,43 +60,6 @@ function apply(webRouter, privateApiRouter) {
     '/project/:Project_id/history/resync',
     AuthenticationController.requirePrivateApiAuth(),
     HistoryController.resyncProjectHistory
-  )
-
-  // History labels
-
-  webRouter.get(
-    '/project/:Project_id/labels',
-    AsyncLocalStorage.middleware,
-    AuthorizationMiddleware.blockRestrictedUserFromProject,
-    AuthorizationMiddleware.ensureUserCanReadProject,
-    HistoryController.getLabels
-  )
-  webRouter.post(
-    '/project/:Project_id/labels',
-    AuthorizationMiddleware.ensureUserCanWriteOrReviewProjectContent,
-    HistoryController.createLabel
-  )
-  webRouter.delete(
-    '/project/:Project_id/labels/:label_id',
-    AuthorizationMiddleware.ensureUserCanWriteOrReviewProjectContent,
-    HistoryController.deleteLabel
-  )
-
-  // History snapshot
-
-  webRouter.get(
-    '/project/:project_id/latest/history',
-    AsyncLocalStorage.middleware,
-    AuthorizationMiddleware.blockRestrictedUserFromProject,
-    AuthorizationMiddleware.ensureUserCanReadProject,
-    HistoryController.getLatestHistory
-  )
-  webRouter.get(
-    '/project/:project_id/changes',
-    AsyncLocalStorage.middleware,
-    AuthorizationMiddleware.blockRestrictedUserFromProject,
-    AuthorizationMiddleware.ensureUserCanReadProject,
-    HistoryController.getChanges
   )
 }
 

@@ -3,19 +3,16 @@ import { useRailContext } from '@/features/ide-react/context/rail-context'
 import classNames from 'classnames'
 import { useCallback, useMemo } from 'react'
 import usePreviousValue from '@/shared/hooks/use-previous-value'
-import { HistorySidebar } from '@/features/ide-react/components/history-sidebar'
 import { Tab } from 'react-bootstrap'
 import { RailElement } from '@/features/ide-react/util/rail-types'
 import { shouldIncludeElement } from '@/features/ide-react/util/rail-utils'
 
 export default function RailPanel({
   isReviewPanelOpen,
-  isHistoryView,
   railTabs,
   focusMode,
 }: {
   isReviewPanelOpen: boolean
-  isHistoryView: boolean
   railTabs: RailElement[]
   focusMode: boolean
 }) {
@@ -36,7 +33,7 @@ export default function RailPanel({
 
   return (
     <Panel
-      id={`ide-redesign-sidebar-panel-${isHistoryView ? 'file-tree' : selectedTab}`}
+      id={`ide-redesign-sidebar-panel-${selectedTab}`}
       className={classNames({ hidden: isReviewPanelOpen || focusMode })}
       order={1}
       defaultSize={selectedTab === 'workbench' ? 20 : 15}
@@ -47,12 +44,7 @@ export default function RailPanel({
       onCollapse={onCollapse}
       onExpand={handlePaneExpand}
     >
-      {isHistoryView && <HistorySidebar />}
-      <div
-        className={classNames('ide-rail-content', {
-          hidden: isHistoryView,
-        })}
-      >
+      <div className="ide-rail-content">
         <Tab.Content className="ide-rail-tab-content">
           {railTabs
             .filter(shouldIncludeElement)

@@ -77,8 +77,6 @@ export const RailLayout = () => {
 
   const { markMessagesAsRead } = useChatContext()
 
-  const isHistoryView = view === 'history'
-
   useEventListener(
     'ui:select-rail-tab',
     useCallback(
@@ -236,8 +234,7 @@ export const RailLayout = () => {
     }
   }, [railTabs, selectedTab, openTab, isOpen])
 
-  const isReviewPanelOpen =
-    selectedTab === 'review-panel' && isOpen && !isHistoryView
+  const isReviewPanelOpen = selectedTab === 'review-panel' && isOpen
 
   const { tabsInRail, tabsInOverflow, tabWrapperRef } =
     useRailOverflow(railTabs)
@@ -272,7 +269,7 @@ export const RailLayout = () => {
           Therefore, we nest them: the parent <nav> is the landmark, and its child gets the "role="tablist"". */}
       <nav
         className={classNames('ide-rail', {
-          hidden: isHistoryView || focusMode,
+          hidden: focusMode,
         })}
         aria-label={t('sidebar')}
       >
@@ -314,7 +311,6 @@ export const RailLayout = () => {
           .map(({ key, Component, ref }) => <Component key={key} ref={ref} />)}
       <RailPanel
         isReviewPanelOpen={isReviewPanelOpen}
-        isHistoryView={isHistoryView}
         railTabs={railTabs}
         focusMode={focusMode}
       />

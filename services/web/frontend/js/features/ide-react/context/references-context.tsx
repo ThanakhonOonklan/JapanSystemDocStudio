@@ -37,6 +37,8 @@ export const ReferencesContext = createContext<
   | undefined
 >(undefined)
 
+const ENABLE_REFERENCE_INDEXING = false
+
 export const ReferencesProvider: FC<React.PropsWithChildren> = ({
   children,
 }) => {
@@ -63,8 +65,9 @@ export const ReferencesProvider: FC<React.PropsWithChildren> = ({
 
   const indexAllReferences = useCallback(
     async (shouldBroadcast: boolean) => {
-      if (permissionsLevel === 'readOnly') {
-        // Not going to search the references, so let's not index them.
+      // BibTeX reference indexing needs the project history API, which this
+      // build does not ship (Markdown manuals have no citations).
+      if (!ENABLE_REFERENCE_INDEXING || permissionsLevel === 'readOnly') {
         return
       }
       sendMBOnce('client-side-references-index')

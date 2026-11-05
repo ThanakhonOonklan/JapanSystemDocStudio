@@ -33,7 +33,6 @@ import customLocalStorage from '@/infrastructure/local-storage'
 import useEventListener from '@/shared/hooks/use-event-listener'
 import { EditorType } from '@/features/ide-react/editor/types/editor-type'
 import { DocId } from '../../../../../types/project-settings'
-import { Update } from '@/features/history/services/types/update'
 import { useDebugDiffTracker } from '../hooks/use-debug-diff-tracker'
 import { convertFileRefToBinaryFile } from '@/features/ide-react/util/file-view'
 import { useEditorOpenDocContext } from '@/features/ide-react/context/editor-open-doc-context'
@@ -81,6 +80,9 @@ function hasGotoOffset(options: OpenDocOptions): options is GotoOffsetOptions {
 export const EditorManagerContext = createContext<EditorManager | undefined>(
   undefined
 )
+
+// an update to the open document that did not come from this editor
+type ExternalUpdate = { meta: { type?: string; source?: string } }
 
 export const EditorManagerProvider: FC<React.PropsWithChildren> = ({
   children,
@@ -245,19 +247,13 @@ export const EditorManagerProvider: FC<React.PropsWithChildren> = ({
     (doc: Doc, document: DocumentContainer) => {
       attachErrorHandlerToDocument(doc, document)
 
-      document.on('externalUpdate', (update: Update) => {
+      document.on('externalUpdate', (update: ExternalUpdate) => {
         if (ignoringExternalUpdatesRef.current) {
           return
         }
         if (
           update.meta.type === 'external' &&
           update.meta.source === 'git-bridge'
-        ) {
-          return
-        }
-        if (
-          update.meta.origin?.kind === 'file-restore' ||
-          update.meta.origin?.kind === 'project-restore'
         ) {
           return
         }

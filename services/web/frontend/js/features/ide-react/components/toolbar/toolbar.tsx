@@ -2,9 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { ToolbarMenuBar } from './menu-bar'
 import { ToolbarProjectTitle } from './project-title'
 import ChangeLayoutButton from './change-layout-button'
-import ShowHistoryButton from './show-history-button'
 import { useLayoutContext } from '@/shared/context/layout-context'
-import BackToEditorButton from '@/features/editor-navigation-toolbar/components/back-to-editor-button'
 import { useCallback } from 'react'
 import * as eventTracking from '../../../../infrastructure/event-tracking'
 import { ToolbarLogos } from './logos'
@@ -23,9 +21,9 @@ const [publishModalModules] = importOverleafModules('publishModalToolbarButton')
 const SubmitProjectButton = publishModalModules?.import.default
 
 export const Toolbar = () => {
-  const { view, restoreView, focusMode, setFocusMode, pdfLayout, setView } =
+  const { view, focusMode, setFocusMode, pdfLayout, setView } =
     useLayoutContext()
-  const { cobranding, isRestrictedTokenMember } = useEditorContext()
+  const { cobranding } = useEditorContext()
   const { permissionsLevel } = useIdeReactContext()
   const showUpgradePrompt = getMeta('ol-showUpgradePrompt')
   const improvedFlakyConnections = useFeatureFlag(
@@ -37,11 +35,6 @@ export const Toolbar = () => {
   const shouldDisplaySubmitButton =
     (permissionsLevel === 'owner' || permissionsLevel === 'readAndWrite') &&
     SubmitProjectButton
-
-  const handleBackToEditorClick = useCallback(() => {
-    eventTracking.sendMB('navigation-clicked-history', { action: 'close' })
-    restoreView()
-  }, [restoreView])
 
   const handleExitFocusMode = useCallback(() => {
     setFocusMode(false)
@@ -108,18 +101,6 @@ export const Toolbar = () => {
     )
   }
 
-  if (view === 'history') {
-    return (
-      <nav className="ide-redesign-toolbar" aria-label={t('project_actions')}>
-        <div className="d-flex align-items-center">
-          <BackToEditorButton onClick={handleBackToEditorClick} />
-        </div>
-        <ToolbarProjectTitle />
-        <div /> {/* Empty div used for spacing */}
-      </nav>
-    )
-  }
-
   return (
     <nav className="ide-redesign-toolbar" aria-label={t('project_actions')}>
       <div className="ide-redesign-toolbar-menu">
@@ -135,7 +116,6 @@ export const Toolbar = () => {
         {/* Documentation Studio REA: single-user, so no online users, access
             requests or sharing here */}
         <div className="ide-redesign-toolbar-actions">
-          {!isRestrictedTokenMember && <ShowHistoryButton />}
           <ChangeLayoutButton />
           {shouldDisplaySubmitButton && cobranding && (
             <SubmitProjectButton cobranding={cobranding} />

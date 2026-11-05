@@ -18,6 +18,7 @@ import mongoose from './app/src/infrastructure/Mongoose.mjs'
 import { triggerGracefulShutdown } from './app/src/infrastructure/GracefulShutdown.mjs'
 import FileWriter from './app/src/infrastructure/FileWriter.mjs'
 import { fileURLToPath } from 'node:url'
+import { ensureSingleUser } from './app/src/infrastructure/SingleUser.mjs'
 
 metrics.gauge(
   'web_startup',
@@ -102,6 +103,16 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   }
 
   PlansLocator.ensurePlansAreSetupCorrectly()
+
+  // the single user is created by the `web` process only (not `web-api`)
+  if (Settings.enabledServices.includes('web')) {
+    try {
+      await ensureSingleUser()
+    } catch (err) {
+      logger.fatal({ err }, 'cannot create the single user. Exiting.')
+      process.exit(1)
+    }
+  }
 
   Server.server.listen(port, host, function () {
     logger.debug(`web starting up, listening on ${host}:${port}`)

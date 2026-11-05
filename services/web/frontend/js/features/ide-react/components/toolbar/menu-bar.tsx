@@ -9,7 +9,6 @@ import { MenuBarOption } from '@/shared/components/menu-bar/menu-bar-option'
 import { useTranslation } from 'react-i18next'
 import ChangeLayoutOptions from './change-layout-options'
 import { ElementType, useCallback, useMemo, useState } from 'react'
-import { useLayoutContext } from '@/shared/context/layout-context'
 import { useCommandProvider } from '@/features/ide-react/hooks/use-command-provider'
 import CommandDropdown, {
   CommandSection,
@@ -41,7 +40,6 @@ const insertMenuSections = importOverleafModules('insertMenuSections') as {
 export const ToolbarMenuBar = () => {
   const { t } = useTranslation()
 
-  const { setView, view } = useLayoutContext()
   const { pdfUrl } = useCompileContext()
   const wordCountEnabled = pdfUrl || isSplitTestEnabled('word-count-client')
   const isDisabledDueToNetworkStall = useIsNetworkStalled()
@@ -55,15 +53,6 @@ export const ToolbarMenuBar = () => {
 
   useCommandProvider(
     () => [
-      {
-        type: 'command',
-        label: t('show_version_history'),
-        disabled: isDisabledDueToNetworkStall,
-        handler: () => {
-          setView(view === 'history' ? 'editor' : 'history')
-        },
-        id: 'show_version_history',
-      },
       {
         type: 'command',
         label: t('word_count_lower'),
@@ -83,7 +72,7 @@ export const ToolbarMenuBar = () => {
         id: 'copy_project',
       },
     ],
-    [t, setView, view, wordCountEnabled, anonymous, isDisabledDueToNetworkStall]
+    [t, wordCountEnabled, anonymous, isDisabledDueToNetworkStall]
   )
   const fileMenuStructure: MenuStructure = useMemo(
     () => [
@@ -91,8 +80,6 @@ export const ToolbarMenuBar = () => {
         id: 'file-file-tree',
         children: ['new_file', 'new_folder', 'upload_file', 'copy_project'],
       },
-      // Documentation Studio REA: no word count (it counts LaTeX source)
-      { id: 'file-tools', children: ['show_version_history'] },
       { id: 'submit', children: ['submit-project', 'manage-template'] },
       {
         id: 'file-download',

@@ -1086,12 +1086,7 @@ module.exports = {
     railModals: [],
   },
 
-  moduleImportSequence: [
-    'history-v1',
-    'launchpad',
-    'server-ce-scripts',
-    'user-activate',
-  ],
+  moduleImportSequence: ['history-v1', 'server-ce-scripts'],
   viewIncludes: {},
 
   csp: {

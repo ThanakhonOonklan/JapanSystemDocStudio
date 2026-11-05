@@ -2,7 +2,7 @@
 #
 # Build the images first (from the repo root):
 #   docker build --file server-ce/Dockerfile-base --tag docstudio/base:dev .
-#   docker build --file server-ce/Dockerfile --build-arg OVERLEAF_BASE_TAG=docstudio/base:dev --tag docstudio/community:dev .
+#   docker build --file server-ce/Dockerfile --build-arg OVERLEAF_BASE_TAG=docstudio/base:dev --tag docstudio/community:lean .
 #
 # Create .env once (git-ignored) with a stable random secret, e.g. in PowerShell:
 #   $b = New-Object byte[] 32; [Security.Cryptography.RandomNumberGenerator]::Fill($b)
@@ -10,7 +10,7 @@
 #
 # Then run:
 #   docker compose -f docker-compose.local.yml up -d
-# and open http://localhost:8080/launchpad to create the first admin user.
+# and open http://localhost:8080 (the single user is created automatically).
 #
 # Differences from upstream docker-compose.yml:
 #   - uses the image built from this repo instead of sharelatex/sharelatex
@@ -22,7 +22,7 @@ name: docstudio
 
 services:
   sharelatex:
-    image: docstudio/community:dev
+    image: docstudio/community:lean
     container_name: docstudio-app
     restart: unless-stopped
     depends_on:
