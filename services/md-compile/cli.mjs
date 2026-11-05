@@ -25,6 +25,7 @@ import {
 } from './lib/render.mjs'
 import { renderPdfs } from './lib/pdf.mjs'
 import { checkParity } from './lib/parity.mjs'
+import { discoverFonts, fontFaceCss, fontFamilies } from './lib/fonts.mjs'
 import { isInside } from './lib/paths.mjs'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
@@ -66,8 +67,27 @@ async function main() {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mdc-'))
   try {
     const project = loadProject(compileDir, mainFile, log)
-    const css = fs.readFileSync(path.join(here, 'lib', 'template.css'), 'utf8')
+    const { template } = project
+    const templateCss = fs.readFileSync(template.css, 'utf8')
     const customCss = readCustomCss(compileDir, project.options.css, log)
+
+    // fonts kept in the project's Font/ folder
+    const fonts = discoverFonts(path.dirname(path.resolve(compileDir, mainFile)))
+    if (fonts.length > 0) {
+      log.info(`Fonts from the project: ${fontFamilies(fonts).join(', ')}`)
+    }
+    for (const family of template.fonts) {
+      if (!fontFamilies(fonts).includes(family)) {
+        log.warn(
+          `font ${family} was not found in the Font folder of the project, a substitute font is used`
+        )
+      }
+    }
+    const css = fontFaceCss(fonts) + '\n' + templateCss
+
+    const pageLabels = template.pageLabels
+      ? { ...template.pageLabels, ...project.options.pageLabels }
+      : null
 
     const jobs = []
     for (const language of project.languages) {
@@ -86,6 +106,8 @@ async function main() {
         log,
         lang: language.code,
         numbering: project.options.numbering,
+        chapterHeading: project.options.chapterHeading,
+        kinds: language.kinds,
       })
       language.structure = structure
       const cover = project.options.cover
@@ -123,6 +145,7 @@ async function main() {
           multiple ? `output-${language.code}.pdf` : 'output.pdf'
         ),
         label: language.code,
+        pageLabels,
       })
     }
 

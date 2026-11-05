@@ -79,6 +79,9 @@ p { margin: 0 0 8pt; }
 
 a { color: var(--accent); text-decoration: none; }
 
+/* a line with only \newpage */
+.page-break { break-after: page; height: 0; }
+
 /* ---- Cover ----------------------------------------------------------- */
 
 .cover {

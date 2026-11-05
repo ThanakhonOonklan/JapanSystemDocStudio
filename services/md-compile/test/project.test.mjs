@@ -43,7 +43,7 @@ test('rendering keeps ids and rewrites project images to file URLs', () => {
     log,
     lang: 'en',
   })
-  assert.match(html, /<h1 id="intro"><span class="num">1<\/span> Introduction<\/h1>/)
+  assert.match(html, /<h1 id="intro" data-chapter-start="1"><span class="num">1<\/span> Introduction<\/h1>/)
   assert.match(html, /<figure id="fig-flow"[^>]*>\s*<img[^>]+src="file:[^"]+diagram\.svg"/)
   assert.equal(log.warnings, 0)
 })

@@ -4,6 +4,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { chromium } from 'playwright-core'
+import { computePageLabels } from './page-labels.mjs'
 
 // pagedjs restricts its "exports" map, so locate the browser bundle by path.
 const PAGED_POLYFILL = path.join(
@@ -35,7 +36,45 @@ export async function renderPdfs(jobs, log, { timeoutMs }) {
   }
 }
 
-async function renderOne(browser, { htmlPath, pdfPath, label }, log, timeoutMs) {
+/**
+ * Write the page numbers of templates that have their own rules: ask the page
+ * which part of the book each page belongs to, compute the labels, and put
+ * them into the margin boxes.
+ */
+async function applyPageLabels(page, config) {
+  const pages = await page.evaluate(() =>
+    [...document.querySelectorAll('.pagedjs_page')].map(pg => {
+      const content = pg.querySelector('.pagedjs_page_content')
+      return {
+        kind: content.querySelector('[data-kind]')?.dataset.kind ?? 'chapter',
+        chapterStart: Boolean(content.querySelector('[data-chapter-start]')),
+      }
+    })
+  )
+  const labels = computePageLabels(pages, config)
+  await page.evaluate(labels => {
+    const boxes = {
+      'top-right': '.pagedjs_margin-top-right',
+      'bottom-center': '.pagedjs_margin-bottom-center',
+    }
+    document.querySelectorAll('.pagedjs_page').forEach((pg, index) => {
+      for (const [position, selector] of Object.entries(boxes)) {
+        const box = pg.querySelector(`${selector} .pagedjs_margin-content`)
+        if (box) {
+          box.textContent =
+            labels[index].position === position ? labels[index].text : ''
+        }
+      }
+    })
+  }, labels)
+}
+
+async function renderOne(
+  browser,
+  { htmlPath, pdfPath, label, pageLabels },
+  log,
+  timeoutMs
+) {
   const context = await browser.newContext({ javaScriptEnabled: true })
   try {
     // The document cannot reach the network (it has no raw HTML anyway).
@@ -54,6 +93,11 @@ async function renderOne(browser, { htmlPath, pdfPath, label }, log, timeoutMs) 
       return flow.total
     })
     log.info(`[${label}] laid out ${pages} pages`)
+
+    if (pageLabels) {
+      await applyPageLabels(page, pageLabels)
+      log.info(`[${label}] page numbers written`)
+    }
 
     await page.pdf({
       path: pdfPath,

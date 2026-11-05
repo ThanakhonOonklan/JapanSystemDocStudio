@@ -21,6 +21,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import yaml from 'js-yaml'
 import { resolveInside } from './paths.mjs'
+import { getTemplate, TEMPLATES } from './templates.mjs'
 
 const LANGUAGE_DIRS = ['th', 'en']
 const FRONT_MATTER = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/
@@ -72,18 +73,46 @@ function pickMeta(source, lang) {
   return meta
 }
 
-// Document-level options shared by all languages.
-function pickOptions(source) {
+// What a file of the book is: it decides numbering, headings and page numbers.
+export const KINDS = ['cover', 'front', 'chapter', 'appendix', 'back']
+
+// Document-level options shared by all languages. Values in book.yaml win
+// over the defaults of the template.
+function pickOptions(source, template = TEMPLATES.default) {
+  const defaults = template.defaults
+  // true unless switched off (in book.yaml, or by the template's default)
+  const flag = key =>
+    source?.[key] === undefined ? defaults[key] !== false : source[key] !== false
   return {
-    toc: source?.toc !== false,
+    template: template.name,
+    toc: flag('toc'),
     tocDepth: Math.min(Math.max(parseInt(source?.tocDepth, 10) || 3, 1), 4),
-    numbering: source?.numbering !== false,
-    cover: source?.cover !== false,
+    numbering: flag('numbering'),
+    cover: flag('cover'),
+    chapterHeading: source?.chapterHeading ?? defaults.chapterHeading ?? 'number',
     css: typeof source?.css === 'string' ? source.css : undefined,
+    // overrides for the page-number rules of the template
+    pageLabels:
+      source?.pageLabels && typeof source.pageLabels === 'object'
+        ? source.pageLabels
+        : undefined,
     // how to treat differences between the languages: warn (default), strict
     // (they fail the build) or off
     parity: ['off', 'strict'].includes(source?.parity) ? source.parity : 'warn',
   }
+}
+
+function kindOf(file, declared, log) {
+  let kind = declared
+  if (kind == null) {
+    kind = parseFrontMatter(fs.readFileSync(file, 'utf8')).data.kind
+  }
+  if (kind == null) return 'chapter'
+  if (!KINDS.includes(kind)) {
+    log?.warn(`unknown kind "${kind}", treated as chapter`, { file })
+    return 'chapter'
+  }
+  return kind
 }
 
 /**
@@ -102,19 +131,22 @@ export function loadProject(compileDir, mainFile, log) {
   if (ext === '.yaml' || ext === '.yml') {
     return loadBook(compileDir, mainPath, log)
   }
-  return loadSingleFile(compileDir, mainPath)
+  return loadSingleFile(compileDir, mainPath, log)
 }
 
-function loadSingleFile(compileDir, mainPath) {
+function loadSingleFile(compileDir, mainPath, log) {
   const text = fs.readFileSync(mainPath, 'utf8')
   const { data, body } = parseFrontMatter(text)
   const code = typeof data.lang === 'string' ? data.lang : 'th'
   const heading = /^#\s+(.+?)\s*$/m.exec(body)
-  const options = pickOptions(data)
+  const template = getTemplate(data.template) ?? TEMPLATES.default
+  const options = pickOptions(data, template)
   // a single file only gets a cover page when it says so in its front matter
   options.cover = data.cover === true || (data.cover !== false && data.title != null)
+  const kind = kindOf(mainPath, undefined, log)
   return {
     defaultLanguage: code,
+    template,
     options,
     languages: [
       {
@@ -122,7 +154,8 @@ function loadSingleFile(compileDir, mainPath) {
         title: pickTitle(data.title, code) || heading?.[1],
         meta: pickMeta(data, code),
         files: [mainPath],
-        chapters: [{ name: path.basename(mainPath), file: mainPath }],
+        kinds: new Map([[mainPath, kind]]),
+        chapters: [{ name: path.basename(mainPath), file: mainPath, kind }],
       },
     ],
   }
@@ -140,6 +173,13 @@ function loadBook(compileDir, bookPath, log) {
   }
   if (!Array.isArray(book.chapters) || book.chapters.length === 0) {
     throw new Error(`${path.basename(bookPath)}: "chapters" must be a non-empty list`)
+  }
+
+  const template = getTemplate(book.template)
+  if (!template) {
+    throw new Error(
+      `unknown template "${book.template}" (available: ${Object.keys(TEMPLATES).join(', ')})`
+    )
   }
 
   const baseDir = path.dirname(bookPath)
@@ -166,20 +206,25 @@ function loadBook(compileDir, bookPath, log) {
     const dir = hasDir ? langDir : baseDir
     const files = []
     const chapters = []
-    for (const chapter of book.chapters) {
-      if (typeof chapter !== 'string') {
+    const kinds = new Map()
+    for (const item of book.chapters) {
+      // an entry is a file name, or { file, kind } to say what kind of part it is
+      const entry = typeof item === 'string' ? { file: item } : item
+      if (!entry || typeof entry.file !== 'string') {
         throw new Error('"chapters" must contain file names')
       }
-      const file = resolveInside(compileDir, dir, chapter)
+      const file = resolveInside(compileDir, dir, entry.file)
       if (!fs.existsSync(file)) {
         log.warn(
           `chapter not found for ${code}: ${path.relative(compileDir, file)}`,
-          { file: bookPath, line: lineInBook(chapter) }
+          { file: bookPath, line: lineInBook(entry.file) }
         )
         continue
       }
+      const kind = kindOf(file, entry.kind, log)
       files.push(file)
-      chapters.push({ name: chapter, file })
+      kinds.set(file, kind)
+      chapters.push({ name: entry.file, file, kind })
     }
     return {
       code,
@@ -187,6 +232,7 @@ function loadBook(compileDir, bookPath, log) {
       title: pickTitle(book.title, code),
       meta: pickMeta(book, code),
       files,
+      kinds,
       chapters,
     }
   })
@@ -196,5 +242,10 @@ function loadBook(compileDir, bookPath, log) {
       ? String(book.defaultLanguage)
       : codes[0]
 
-  return { defaultLanguage, options: pickOptions(book), languages }
+  return {
+    defaultLanguage,
+    template,
+    options: pickOptions(book, template),
+    languages,
+  }
 }

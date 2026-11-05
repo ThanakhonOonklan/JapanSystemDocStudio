@@ -1,0 +1,15 @@
+template: kmutnb-project
+title: รายงานตัวอย่าง
+chapters:
+  - file: 00-cover.md
+    kind: cover
+  - file: 01-certificate.md
+    kind: cover
+  - file: 02-abstract.md
+    kind: front
+  - file: 03-contents.md
+    kind: front
+  - 10-chapter1.md
+  - 20-chapter2.md
+  - file: 90-bibliography.md
+    kind: back

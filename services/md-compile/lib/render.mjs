@@ -50,10 +50,11 @@ function plainText(inline) {
   return text
 }
 
-function newState({ lang, numbering, log }) {
+function newState({ lang, numbering, chapterHeading, log }) {
   return {
     t: strings(lang),
     numbering,
+    chapterHeading,
     log,
     chapter: 0,
     section: 0,
@@ -102,7 +103,19 @@ function handleHeading(tokens, i, env, Token) {
   const line = lineOf(open, env)
 
   const classes = (open.attrGet('class') || '').split(/\s+/)
-  const numbered = bs.numbering && level <= 3 && !classes.includes('unnumbered')
+  // only the chapters of the book are numbered, not the cover, front matter,
+  // bibliography or appendices
+  const numbered =
+    bs.numbering &&
+    env.kind === 'chapter' &&
+    level <= 3 &&
+    !classes.includes('unnumbered')
+
+  // the heading of a chapter, appendix or bibliography starts a new part:
+  // the page labelling pass hides the page number on its first page
+  if (level === 1 && ['chapter', 'appendix', 'back'].includes(env.kind)) {
+    open.attrSet('data-chapter-start', '1')
+  }
 
   let number
   if (numbered) {
@@ -142,9 +155,20 @@ function handleHeading(tokens, i, env, Token) {
 
   const text = plainText(inline)
   if (number && inline) {
-    inline.children.unshift(
-      htmlInline(Token, `<span class="num">${number}</span> `)
-    )
+    if (level === 1 && bs.chapterHeading === 'label-break') {
+      // "บทที่ 1" on one line, the title on the next
+      open.attrJoin('class', 'chapter-title')
+      inline.children.unshift(
+        htmlInline(
+          Token,
+          `<span class="chapter-label">${escapeHtml(bs.t.chapter)} ${number}</span><br>`
+        )
+      )
+    } else {
+      inline.children.unshift(
+        htmlInline(Token, `<span class="num">${number}</span> `)
+      )
+    }
   }
   bs.headings.push({ level, id, number, text })
   bs.labels.set(id, {
@@ -270,7 +294,17 @@ function createMarkdown() {
     const { tokens, env } = state
     for (let i = 0; i < tokens.length; i++) {
       const token = tokens[i]
-      if (token.type === 'inline') {
+      if (
+        token.type === 'paragraph_open' &&
+        tokens[i + 1]?.type === 'inline' &&
+        tokens[i + 1].content.trim() === '\\newpage' &&
+        tokens[i + 2]?.type === 'paragraph_close'
+      ) {
+        // a line with only \newpage starts a new page
+        const marker = new state.Token('html_block', '', 0)
+        marker.content = '<div class="page-break"></div>\n'
+        tokens.splice(i, 3, marker)
+      } else if (token.type === 'inline') {
         // remember where images and references are, for warnings
         for (const child of token.children || []) {
           if (child.type === 'image' || child.type === 'xref') {
@@ -365,23 +399,27 @@ export function renderChapters({
   log,
   lang = 'en',
   numbering = true,
+  chapterHeading = 'number',
+  kinds = new Map(),
 }) {
   const md = createMarkdown()
-  const state = newState({ lang, numbering, log })
+  const state = newState({ lang, numbering, chapterHeading, log })
   const parts = []
   for (const file of files) {
     const source = fs.readFileSync(file, 'utf8')
     const { body, lineOffset } = parseFrontMatter(source)
+    const kind = kinds.get(file) ?? 'chapter'
     const html = md.render(body, {
       compileDir,
       baseDir: path.dirname(file),
       file,
+      kind,
       lineOffset,
       log,
       state,
     })
     parts.push(
-      `<section class="chapter" data-source="${escapeHtml(
+      `<section class="chapter" data-kind="${escapeHtml(kind)}" data-source="${escapeHtml(
         path.relative(compileDir, file)
       )}">\n${html}</section>`
     )
