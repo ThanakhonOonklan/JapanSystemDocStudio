@@ -443,6 +443,10 @@ module.exports = {
     },
   ],
 
+  // Documentation Studio REA: single-user mode. When set, every visitor is
+  // automatically logged in as this user and sharing/email routes are blocked.
+  singleUserEmail: process.env.OVERLEAF_SINGLE_USER_EMAIL || undefined,
+
   disableChat: process.env.OVERLEAF_DISABLE_CHAT === 'true',
   disableLinkSharing: process.env.OVERLEAF_DISABLE_LINK_SHARING === 'true',
   safeCompilers,

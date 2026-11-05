@@ -725,8 +725,18 @@ function _loginAsyncHandlers(req, user, anonymousAnalyticsId, isNewUser) {
   return (user._login_req_ip = req.ip)
 }
 
+/**
+ * Log `user` into the current session without redirecting. Used by the
+ * single-user auto-login middleware.
+ */
+async function establishSession(user, req) {
+  user._login_req_ip = req.ip
+  await _afterLoginSessionSetupAsync(req, user)
+}
+
 AuthenticationController.promises = {
   finishLogin: AuthenticationController._finishLoginAsync,
+  establishSession,
 }
 
 export default AuthenticationController

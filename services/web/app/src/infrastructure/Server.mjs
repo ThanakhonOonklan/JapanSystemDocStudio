@@ -37,6 +37,10 @@ import http from 'node:http'
 import { fileURLToPath } from 'node:url'
 import serveStaticWrapper from './ServeStaticWrapper.mjs'
 import { handleValidationError } from '@overleaf/validation-tools'
+import {
+  singleUserBlockMiddleware,
+  singleUserAutoLoginMiddleware,
+} from './SingleUserMiddleware.mjs'
 
 const { hasAdminAccess } = AdminAuthorizationHelper
 const sessionsRedisClient = UserSessionsRedis.client()
@@ -227,6 +231,10 @@ Modules.hooks.fire('passportSetup', passport, err => {
     logger.err({ err }, 'error setting up passport in modules')
   }
 })
+
+// Single-user mode (no-ops unless OVERLEAF_SINGLE_USER_EMAIL is set)
+webRouter.use(singleUserBlockMiddleware)
+webRouter.use(singleUserAutoLoginMiddleware)
 
 await Modules.applyNonCsrfRouter(webRouter, privateApiRouter, publicApiRouter)
 

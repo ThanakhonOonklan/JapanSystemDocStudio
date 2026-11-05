@@ -118,6 +118,9 @@ ENV OPTIMISE_PDF="true"
 # The chat service has been removed; hide chat/comments routes in web
 ENV OVERLEAF_DISABLE_CHAT="true"
 
+# Single-user local use: no link sharing
+ENV OVERLEAF_DISABLE_LINK_SHARING="true"
+
 ENV REQ_VALIDATION_MODE=enforce-log
 
 # Phusion Image timeouts before sending SIGKILL to processes

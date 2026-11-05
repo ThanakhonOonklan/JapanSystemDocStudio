@@ -45,6 +45,9 @@ services:
       ENABLED_LINKED_FILE_TYPES: "project_file,project_output_file"
       ENABLE_CONVERSIONS: "true"
       EMAIL_CONFIRMATION_DISABLED: "true"
+      # Single-user mode: everyone reaching the app is logged in as this user.
+      # Create the user once with the create-user script (see PLAN.md / M1).
+      OVERLEAF_SINGLE_USER_EMAIL: ${DOCSTUDIO_ADMIN_EMAIL:-admin@docstudio.test}
       # Required secret. Kept in .env (git-ignored); generate once and keep it stable.
       OVERLEAF_INVITE_TOKEN_SECRET: ${OVERLEAF_INVITE_TOKEN_SECRET:?set OVERLEAF_INVITE_TOKEN_SECRET in .env}
 
