@@ -1,14 +1,15 @@
 #!/bin/bash
 
-NODE_PARAMS=""
+# Documentation Studio REA: cap the V8 heap so one service cannot balloon.
+NODE_PARAMS="--max-old-space-size=640"
 if [ "$DEBUG_NODE" == "true" ]; then
     echo "running debug - web"
-    NODE_PARAMS="--inspect=0.0.0.0:40000"
+    NODE_PARAMS="$NODE_PARAMS --inspect=0.0.0.0:40000"
 fi
 
 source /etc/overleaf/env.sh
+# One process serves both the public web app and the private API (port 3000).
 export LISTEN_ADDRESS=127.0.0.1
-export ENABLED_SERVICES="web"
-export WEB_PORT="4000"
+export ENABLED_SERVICES="web,api"
 
 exec /sbin/setuser www-data /usr/bin/node $NODE_PARAMS /overleaf/services/web/app.mjs >> /var/log/overleaf/web.log 2>&1

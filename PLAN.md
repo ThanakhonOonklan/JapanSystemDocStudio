@@ -201,7 +201,9 @@ chapters:
 | **L2 ผู้ใช้** | สร้างผู้ใช้เดียวอัตโนมัติตอนบูต (ไม่ต้องมีสคริปต์ `create-user`/launchpad) ลบ route, หน้า pug, controller และ module ที่เกี่ยวกับ login/register/reset/activate/settings/sessions/อีเมล/admin/subscription/group/referral/beta ลบ `SingleUserMiddleware` ในรูปแบบ "ซ่อน" แล้วเปลี่ยนเป็นการล็อกอินคงที่ | เปิดเว็บใหม่ (volume ว่าง) แล้วเข้าหน้ารวมโปรเจกต์ได้เลย ไม่มีหน้า login |
 | **L3 หน้ารวมโปรเจกต์** | ลบ Tags, Archive, Trash; ปุ่มลบ = ลบถาวร (ต้องเขียนเส้นทางลบจริงทันที: docs, ไฟล์, mongo, history) พร้อมกล่องยืนยัน | ลบโปรเจกต์แล้วข้อมูลหายจาก mongo, docstore และ filestore |
 | **L4 โค้ดที่อนุมัติ** | ลบจริง: comments/track changes/review panel/chat stub, spell check + dictionary, analytics/tracking/cookie banner/ระบบอีเมล, Help | build ผ่านและ editor ทำงานปกติ ขนาด bundle ลดลง (วัดก่อน-หลัง) |
-| **L5 โครงสร้าง** | ตัด TeX Live ออกจาก `Dockerfile-base` · รวม `web` + `web-api` · ตั้ง `--max-old-space-size` ต่อ service | วัด RAM/ขนาด image ก่อน-หลัง และ compile Markdown ยังได้ |
+| **L5 โครงสร้าง** ✅ | ตัด TeX Live ออกจาก `Dockerfile-base` · รวม `web` + `web-api` · ตั้ง `--max-old-space-size` ต่อ service | วัด RAM/ขนาด image ก่อน-หลัง และ compile Markdown ยังได้ |
+
+> ผล L5 (วัดจริง): image 6.41 → **5.74 GB**, base 1.47 → 1.17 GB; process `web` เหลือตัวเดียว (~347 MB เทียบกับ 224+215 MB) ตัวเลข **RAM idle หลังบูตไม่ได้ลดลง** คือ ~1.10 GiB เทียบกับ baseline ~1.03 GB เพราะ process อื่นๆ ใหญ่ขึ้นเล็กน้อยและรวม page cache การประหยัด RAM ที่เหลือต้องมาจาก L1b (หยุด project-history ~140 MB) ค่า heap cap ผ่านการทดสอบเบา (compile longbook 3.2 วินาทีไม่มี OOM) ผลข้างเคียง: ปุ่ม Word count ใช้ไม่ได้เพราะต้องใช้ `texcount` (ต้องเขียนตัวนับคำ Markdown แทน)
 | **L6 ถามก่อนลบ (ยังไม่ได้ถาม)** | รายการเล็กๆ ที่ยังไม่ได้ขออนุญาต: ตัวเลือก Editor (Vim/Emacs keybindings, auto-close brackets, PDF viewer), ปุ่ม detach PDF, Raw logs/Other logs and files, Clear cached files, layout/focus mode, ฯลฯ — จะเสนอรายการให้ยืนยันก่อน | ได้รับคำยืนยันก่อนลบ |
 
 ### 9.4 เทมเพลต "รายงานปริญญานิพนธ์ KMUTNB"

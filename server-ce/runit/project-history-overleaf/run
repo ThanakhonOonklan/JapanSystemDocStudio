@@ -1,9 +1,10 @@
 #!/bin/bash
 
-NODE_PARAMS=""
+# Documentation Studio REA: cap the V8 heap so one service cannot balloon.
+NODE_PARAMS="--max-old-space-size=192"
 if [ "$DEBUG_NODE" == "true" ]; then
     echo "running debug - project-history"
-    NODE_PARAMS="--inspect=0.0.0.0:30540"
+    NODE_PARAMS="$NODE_PARAMS --inspect=0.0.0.0:30540"
 fi
 
 source /etc/overleaf/env.sh
