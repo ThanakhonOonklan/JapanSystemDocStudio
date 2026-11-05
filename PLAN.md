@@ -197,7 +197,9 @@ chapters:
 | ชุด | งาน | วิธีตรวจ |
 |---|---|---|
 | **L1 ประวัติ** | ลบปุ่มและเมนู history, label, restore, หน้าเปรียบเทียบเวอร์ชัน, route/endpoint และ cron ที่เกี่ยวข้องฝั่ง `web` **ยังไม่แตะ** `history-v1`/`project-history` (compile ดึงไฟล์จาก history-v1) | แก้ไฟล์ → อัปโหลดรูป → compile → copy → import zip ยังผ่าน |
-| **L1b ถอด project-history (ทดลอง)** | หยุด `project-history` แล้วทดสอบชุดเดียวกับ L1 ถ้าผ่านค่อยลบ service ถ้าพังให้เก็บไว้และบันทึกเหตุผล | ชุดทดสอบเดียวกับ L1 |
+| **L1b ถอด project-history (ทดลอง)** ❌ เก็บไว้ | หยุด `project-history` แล้วทดสอบชุดเดียวกับ L1 ถ้าผ่านค่อยลบ service ถ้าพังให้เก็บไว้และบันทึกเหตุผล | ชุดทดสอบเดียวกับ L1 |
+
+> ผล L1b: หยุด `project-history` แล้ว **สร้างโปรเจกต์ไม่ได้** (`POST /project/new` ได้ 500, `ECONNREFUSED 127.0.0.1:3054`) เพราะ `web` เรียก `POST :3054/project` เพื่อตั้งต้นประวัติของโปรเจกต์ใหม่ และ `document-updater`/`ClsiManager`/`TpdsUpdateSender`/`DocumentController` ก็อ้างถึง service นี้ จึงต้องแก้โค้ดฝั่ง `web` หลายจุดถึงจะถอดได้ ประหยัด RAM แค่ ~176 MB เก็บไว้ก่อน ถ้าจะทำต่อให้ทำเป็นงานแยก (stub การเรียกใน `HistoryManager` + `DocumentUpdaterHandler` แล้วทดสอบ edit/upload/compile/copy/zip)
 | **L2 ผู้ใช้** | สร้างผู้ใช้เดียวอัตโนมัติตอนบูต (ไม่ต้องมีสคริปต์ `create-user`/launchpad) ลบ route, หน้า pug, controller และ module ที่เกี่ยวกับ login/register/reset/activate/settings/sessions/อีเมล/admin/subscription/group/referral/beta ลบ `SingleUserMiddleware` ในรูปแบบ "ซ่อน" แล้วเปลี่ยนเป็นการล็อกอินคงที่ | เปิดเว็บใหม่ (volume ว่าง) แล้วเข้าหน้ารวมโปรเจกต์ได้เลย ไม่มีหน้า login |
 | **L3 หน้ารวมโปรเจกต์** | ลบ Tags, Archive, Trash; ปุ่มลบ = ลบถาวร (ต้องเขียนเส้นทางลบจริงทันที: docs, ไฟล์, mongo, history) พร้อมกล่องยืนยัน | ลบโปรเจกต์แล้วข้อมูลหายจาก mongo, docstore และ filestore |
 | **L4 โค้ดที่อนุมัติ** | ลบจริง: comments/track changes/review panel/chat stub, spell check + dictionary, analytics/tracking/cookie banner/ระบบอีเมล, Help | build ผ่านและ editor ทำงานปกติ ขนาด bundle ลดลง (วัดก่อน-หลัง) |
