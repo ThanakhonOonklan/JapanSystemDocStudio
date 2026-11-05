@@ -108,12 +108,10 @@ const shortcuts: Record<LayoutOption, string[] | null> = isMac
 
 export default function ChangeLayoutOptions() {
   const {
-    detachIsLinked,
     detachRole,
     view,
     pdfLayout,
     handleChangeLayout,
-    handleDetach,
     focusMode,
     setFocusMode,
   } = useLayoutContext()
@@ -122,15 +120,11 @@ export default function ChangeLayoutOptions() {
   const { sendEvent } = useEditorAnalytics()
   const focusModeEnabled = useFeatureFlag('focus-mode')
 
-  const detachable = 'BroadcastChannel' in window
-
   const activeLayoutOption = getActiveLayoutOption({
     pdfLayout,
     view,
     detachRole,
   })
-
-  const waitingForDetachedLink = !detachIsLinked && detachRole === 'detacher'
 
   return (
     <>
@@ -164,18 +158,6 @@ export default function ChangeLayoutOptions() {
         }
       >
         {t('pdf_only')}
-      </LayoutDropdownItem>
-      <LayoutDropdownItem
-        onClick={() => handleDetach()}
-        active={activeLayoutOption === 'detachedPdf' && detachIsLinked}
-        disabled={!detachable}
-        leadingIcon="open_in_new"
-        trailingIcon={
-          shortcuts.detachedPdf && <Shortcut keys={shortcuts.detachedPdf} />
-        }
-        processing={waitingForDetachedLink}
-      >
-        {t('open_pdf_in_separate_tab')}
       </LayoutDropdownItem>
       {focusModeEnabled && (
         <>

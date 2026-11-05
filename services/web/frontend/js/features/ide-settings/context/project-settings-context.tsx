@@ -75,9 +75,7 @@ export const ProjectSettingsProvider: FC<React.PropsWithChildren> = ({
   } = useProjectWideSettings()
 
   const {
-    autoComplete,
     setAutoComplete,
-    autoPairDelimiters,
     setAutoPairDelimiters,
     syntaxValidation,
     setSyntaxValidation,
@@ -91,7 +89,6 @@ export const ProjectSettingsProvider: FC<React.PropsWithChildren> = ({
     setEditorDarkTheme,
     overallTheme,
     setOverallTheme,
-    mode,
     setMode,
     fontSize,
     setFontSize,
@@ -101,15 +98,11 @@ export const ProjectSettingsProvider: FC<React.PropsWithChildren> = ({
     setLineHeight,
     pdfViewer,
     setPdfViewer,
-    mathPreview,
     setMathPreview,
-    breadcrumbs,
     setBreadcrumbs,
     editorTabs,
     setEditorTabs,
-    nonBlinkingCursor,
     setNonBlinkingCursor,
-    darkModePdf,
     setDarkModePdf,
     floatingMenu,
     setFloatingMenu,
@@ -120,6 +113,16 @@ export const ProjectSettingsProvider: FC<React.PropsWithChildren> = ({
     papers,
     setPapers,
   } = useUserWideSettings()
+
+  // Documentation Studio REA: these editor options were removed from the UI
+  // and are fixed off (Markdown manuals do not need them).
+  const autoComplete = false
+  const autoPairDelimiters = false
+  const mode: UserSettings['mode'] = 'none'
+  const mathPreview = false
+  const breadcrumbs = false
+  const nonBlinkingCursor = false
+  const darkModePdf = false
 
   useProjectWideSettingsSocketListener()
 

@@ -7,35 +7,17 @@ import {
   useState,
 } from 'react'
 import { useLayoutContext } from '@/shared/context/layout-context'
-import AutoCloseBracketsSetting from '@/features/ide-settings/components/editor-settings/auto-close-brackets-setting'
-import AutoCompleteSetting from '@/features/ide-settings/components/editor-settings/auto-complete-setting'
-import CodeCheckSetting from '@/features/ide-settings/components/editor-settings/code-check-setting'
 import PreviewTabsSetting from '@/features/ide-settings/components/editor-settings/preview-tabs-setting'
-import KeybindingSetting from '@/features/ide-settings/components/editor-settings/keybinding-setting'
 import PDFViewerSetting from '@/features/ide-settings/components/editor-settings/pdf-viewer-setting'
 import importOverleafModules from '../../../../macros/import-overleaf-module.macro'
 import { useTranslation } from 'react-i18next'
-import BreadcrumbsSetting from '@/features/ide-settings/components/editor-settings/breadcrumbs-setting'
-import NonBlinkingCursorSetting from '@/features/ide-settings/components/editor-settings/non-blinking-cursor-setting'
-import MathPreviewSetting from '@/features/ide-settings/components/editor-settings/math-preview-setting'
-import RootDocumentSetting from '@/features/ide-settings/components/compiler-settings/root-document-setting'
-import CompilerSetting from '@/features/ide-settings/components/compiler-settings/compiler-setting'
-import ImageNameSetting from '@/features/ide-settings/components/compiler-settings/image-name-setting'
-import DraftSetting from '@/features/ide-settings/components/compiler-settings/draft-setting'
-import StopOnFirstErrorSetting from '@/features/ide-settings/components/compiler-settings/stop-on-first-error-setting'
-import AutoCompileSetting from '@/features/ide-settings/components/compiler-settings/auto-compile-setting'
 import OverallThemeSetting from '@/features/ide-settings/components/appearance-settings/overall-theme-setting'
-import EditorThemeSetting from '@/features/ide-settings/components/appearance-settings/editor-theme-setting'
 import FontSizeSetting from '@/features/ide-settings/components/appearance-settings/font-size-setting'
 import LineHeightSetting from '@/features/ide-settings/components/appearance-settings/line-height-setting'
 import FontFamilySetting from '@/features/ide-settings/components/appearance-settings/font-family-setting'
-import DarkModePdfSetting from '@/features/ide-settings/components/appearance-settings/dark-mode-pdf-setting'
-import RootBibDocumentSetting from '../components/reference-settings/root-bib-document-setting'
-import ReferenceFormatSetting from '../components/reference-settings/reference-format-setting'
 
 import { useProjectSettingsContext } from '@/features/ide-settings/context/project-settings-context'
 import { useFeatureFlag } from '@/shared/context/split-test-context'
-import ProjectNotificationsSetting from '@/features/ide-settings/components/editor-settings/project-notifications-setting'
 import getMeta from '@/utils/meta'
 import type {
   SettingsEntry,
@@ -45,12 +27,7 @@ import type {
 import EditorTabsSetting from '../components/editor-settings/editor-tabs-setting'
 import FloatingMenuSetting from '../components/editor-settings/floating-menu-setting'
 import useEventListener from '@/shared/hooks/use-event-listener'
-import OptimizeCompileSetting from '../components/compiler-settings/optimize-compile-setting'
 
-const [referenceSearchSettingModule] = importOverleafModules(
-  'referenceSearchSetting'
-)
-const ReferenceSearchSetting = referenceSearchSettingModule?.import.default
 
 const editorTabExtraSectionHooks: SettingsSectionHook[] = importOverleafModules(
   'settingsModalEditorTabSections'
@@ -82,7 +59,6 @@ export const SettingsModalProvider: FC<React.PropsWithChildren> = ({
   children,
 }) => {
   const { t } = useTranslation()
-  const { isOverleaf } = getMeta('ol-ExposedSettings')
   const { overallTheme, floatingMenu } = useProjectSettingsContext()
   const [settingToFocus, setSettingToFocus] = useState<string | undefined>(
     undefined
@@ -97,7 +73,6 @@ export const SettingsModalProvider: FC<React.PropsWithChildren> = ({
 
   const { settingsShown, setSettingsShown } = useLayoutContext()
 
-  const hasEmailNotifications = useFeatureFlag('email-notifications')
   const hasToolbarMigration = useFeatureFlag('writefull-toolbar-migration')
 
   const editorTabExtraSections = useSlotSections(editorTabExtraSectionHooks)
@@ -113,34 +88,12 @@ export const SettingsModalProvider: FC<React.PropsWithChildren> = ({
             key: 'general',
             settings: [
               {
-                key: 'autoComplete',
-                component: <AutoCompleteSetting />,
-              },
-              {
-                key: 'autoPairDelimiters',
-                component: <AutoCloseBracketsSetting />,
-              },
-              {
-                key: 'nonBlinkingCursor',
-                component: <NonBlinkingCursorSetting />,
-              },
-              {
-                // LaTeX syntax validation
-                key: 'syntaxValidation',
-                component: <CodeCheckSetting />,
-                hidden: true,
-              },
-              {
                 key: 'editorTabs',
                 component: <EditorTabsSetting />,
               },
               {
                 key: 'previewTabs',
                 component: <PreviewTabsSetting />,
-              },
-              {
-                key: 'mode',
-                component: <KeybindingSetting />,
               },
               {
                 key: 'pdfViewer',
@@ -153,96 +106,7 @@ export const SettingsModalProvider: FC<React.PropsWithChildren> = ({
               },
             ],
           },
-          {
-            key: 'tools',
-            title: t('tools'),
-            settings: [
-              {
-                key: 'breadcrumbs-setting',
-                component: <BreadcrumbsSetting />,
-                hidden: true, // follows the LaTeX document structure
-              },
-              {
-                key: 'mathPreview',
-                component: <MathPreviewSetting />,
-                hidden: true, // LaTeX math
-              },
-            ],
-          },
           ...editorTabExtraSections,
-        ],
-      },
-      {
-        key: 'compiler',
-        title: t('compiler'),
-        icon: 'picture_as_pdf',
-        sections: [
-          {
-            key: 'general',
-            settings: [
-              {
-                key: 'rootDocId',
-                component: <RootDocumentSetting />,
-              },
-              // LaTeX-only options: Markdown books are built by md-compile
-              {
-                key: 'compiler',
-                component: <CompilerSetting />,
-                hidden: true,
-              },
-              {
-                key: 'imageName',
-                component: <ImageNameSetting />,
-                hidden: true,
-              },
-              {
-                key: 'draft',
-                component: <DraftSetting />,
-                hidden: true,
-              },
-              {
-                key: 'stopOnFirstError',
-                component: <StopOnFirstErrorSetting />,
-                hidden: true,
-              },
-              {
-                key: 'autoCompile',
-                component: <AutoCompileSetting />,
-              },
-              {
-                key: 'optimizeCompiles',
-                component: <OptimizeCompileSetting />,
-                hidden: true,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        key: 'references',
-        title: t('references'),
-        icon: 'book_5',
-        hidden: true, // bibliographies (BibTeX) are not used
-        sections: [
-          {
-            key: 'general',
-            settings: [
-              {
-                key: 'mainBibliographyDocId',
-                component: <RootBibDocumentSetting />,
-              },
-              {
-                key: 'referenceFormat',
-                component: <ReferenceFormatSetting />,
-                hidden: true, // Hide this setting for now, as it is not yet implemented its usage
-              },
-              {
-                key: 'write-and-cite-settings',
-                component: <ReferenceSearchSetting />,
-                hidden: !ReferenceSearchSetting,
-              },
-            ],
-          },
         ],
       },
       {
@@ -256,15 +120,6 @@ export const SettingsModalProvider: FC<React.PropsWithChildren> = ({
               {
                 key: 'overallTheme',
                 component: <OverallThemeSetting />,
-              },
-              {
-                key: 'editorTheme',
-                component: <EditorThemeSetting />,
-              },
-              {
-                key: 'pdfDarkMode',
-                component: <DarkModePdfSetting />,
-                hidden: overallTheme === 'light-',
               },
               {
                 key: 'fontSize',
@@ -282,45 +137,10 @@ export const SettingsModalProvider: FC<React.PropsWithChildren> = ({
           },
         ],
       },
-
-      {
-        key: 'project_notifications',
-        title: t('project_notifications'),
-        icon: 'notifications' as const,
-        sections: [
-          {
-            key: 'general',
-            settings: [
-              {
-                key: 'projectNotifications',
-                component: <ProjectNotificationsSetting />,
-              },
-            ],
-          },
-        ],
-        hidden: !hasEmailNotifications,
-      },
-
-      {
-        key: 'account_settings',
-        title: t('account_settings'),
-        icon: 'settings',
-        href: '/user/settings',
-        hidden: true, // single-user: no password, e-mail or login settings
-      },
-      {
-        key: 'subscription',
-        title: t('subscription'),
-        icon: 'account_balance',
-        href: '/user/subscription',
-        hidden: !isOverleaf,
-      },
     ],
     [
       t,
       overallTheme,
-      hasEmailNotifications,
-      isOverleaf,
       editorTabExtraSections,
       hasToolbarMigration,
       floatingMenu,

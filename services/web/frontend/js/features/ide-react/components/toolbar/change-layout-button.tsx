@@ -22,20 +22,13 @@ export default function ChangeLayoutButton() {
   )
 
   const {
-    detachIsLinked,
-    detachRole,
     handleChangeLayout,
-    handleDetach,
     focusMode,
     setFocusMode,
   } = useLayoutContext()
 
   const { sendEvent } = useEditorAnalytics()
   const focusModeEnabled = useFeatureFlag('focus-mode')
-
-  const detachable = 'BroadcastChannel' in window
-
-  const waitingForDetachedLink = !detachIsLinked && detachRole === 'detacher'
 
   useCommandProvider(
     () => [
@@ -54,12 +47,6 @@ export default function ChangeLayoutButton() {
         handler: () => handleChangeLayout('flat', 'pdf'),
         label: t('pdf_only'),
       },
-      {
-        id: 'change-layout-detached-pdf',
-        handler: () => handleDetach(),
-        disabled: !detachable || waitingForDetachedLink,
-        label: t('pdf_in_different_tab'),
-      },
       ...(focusModeEnabled
         ? [
             {
@@ -76,9 +63,6 @@ export default function ChangeLayoutButton() {
     [
       handleChangeLayout,
       t,
-      detachable,
-      handleDetach,
-      waitingForDetachedLink,
       focusModeEnabled,
       focusMode,
       setFocusMode,

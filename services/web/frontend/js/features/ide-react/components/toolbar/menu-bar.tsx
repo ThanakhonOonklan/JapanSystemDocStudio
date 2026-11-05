@@ -213,22 +213,7 @@ export const ToolbarMenuBar = () => {
     []
   )
 
-  const {
-    mathPreview,
-    setMathPreview,
-    breadcrumbs,
-    setBreadcrumbs,
-    editorTabs,
-    setEditorTabs,
-  } = useProjectSettingsContext()
-
-  const toggleMathPreview = useCallback(() => {
-    setMathPreview(!mathPreview)
-  }, [setMathPreview, mathPreview])
-
-  const toggleBreadcrumbs = useCallback(() => {
-    setBreadcrumbs(!breadcrumbs)
-  }, [setBreadcrumbs, breadcrumbs])
+  const { editorTabs, setEditorTabs } = useProjectSettingsContext()
 
   const toggleEditorTabs = useCallback(() => {
     setEditorTabs(!editorTabs)
@@ -257,28 +242,12 @@ export const ToolbarMenuBar = () => {
           <OLDropdownDivider />
           <OLDropdownHeader>{t('editor_settings')}</OLDropdownHeader>
           <MenuBarOption
-            eventKey="show_breadcrumbs"
-            title={t('show_breadcrumbs')}
-            leadingIcon={
-              breadcrumbs ? 'check' : <OLDropdownItem.EmptyLeadingIcon />
-            }
-            onClick={toggleBreadcrumbs}
-          />
-          <MenuBarOption
             eventKey="show_editor_tabs"
             title={t('show_editor_tabs')}
             leadingIcon={
               editorTabs ? 'check' : <OLDropdownItem.EmptyLeadingIcon />
             }
             onClick={toggleEditorTabs}
-          />
-          <MenuBarOption
-            eventKey="show_equation_preview"
-            title={t('show_equation_preview')}
-            leadingIcon={
-              mathPreview ? 'check' : <OLDropdownItem.EmptyLeadingIcon />
-            }
-            onClick={toggleMathPreview}
           />
           <CommandSection
             section={commandPaletteMenuSectionStructure}
