@@ -1,5 +1,4 @@
 import { memo } from 'react'
-import InlineTags from './cells/inline-tags'
 import OwnerCell from './cells/owner-cell'
 import LastUpdatedCell from './cells/last-updated-cell'
 import ActionsCell from './cells/actions-cell'
@@ -24,8 +23,7 @@ function ProjectListTableRow({ project, selected }: ProjectListTableRowProps) {
       <td className="dash-cell-name">
         <a href={`/project/${project.id}`} translate="no">
           {project.name}
-        </a>{' '}
-        <InlineTags className="d-none d-md-inline" projectId={project.id} />
+        </a>
       </td>
       <td className="dash-cell-date-owner pb-0 d-md-none">
         <LastUpdatedCell project={project} />
@@ -36,9 +34,6 @@ function ProjectListTableRow({ project, selected }: ProjectListTableRowProps) {
       </td>
       <td className="dash-cell-date d-none d-md-table-cell">
         <LastUpdatedCell project={project} />
-      </td>
-      <td className="dash-cell-tag pt-0 d-md-none">
-        <InlineTags projectId={project.id} />
       </td>
       <td className="dash-cell-actions">
         <div className="d-none d-lg-block">

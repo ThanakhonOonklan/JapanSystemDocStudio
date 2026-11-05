@@ -4,7 +4,6 @@ import {
   Filter,
   useProjectListContext,
 } from '../../context/project-list-context'
-import TagsList from './tags-list'
 import ProjectsFilterMenu from '../projects-filter-menu'
 import { Folder } from '@phosphor-icons/react'
 import { ActivePage } from '../../util/navigation-state'
@@ -58,21 +57,6 @@ export default function SidebarFilters({
         text={t('projects')}
         icon={<Folder size={20} />}
       />
-      <SidebarFilter
-        activePage={activePage}
-        filter="owned"
-        text={t('your_projects')}
-      />
-      {/* Documentation Studio REA: single-user, nothing is shared with you */}
-      <SidebarFilter
-        activePage={activePage}
-        filter="archived"
-        text={t('archived_projects')}
-      />
-      <li aria-hidden="true">
-        <hr />
-      </li>
-      <TagsList />
     </ul>
   )
 }

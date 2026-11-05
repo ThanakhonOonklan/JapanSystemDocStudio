@@ -42,7 +42,7 @@ function DeleteProjectButton({ project, children }: DeleteProjectButtonProps) {
     removeProjectFromView(project)
   }, [project, removeProjectFromView])
 
-  if (!project.trashed || !isOwner) return null
+  if (!isOwner) return null
 
   return (
     <>

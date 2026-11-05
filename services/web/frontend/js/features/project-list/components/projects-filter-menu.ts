@@ -12,11 +12,8 @@ function ProjectsFilterMenu({
   filter,
   activePage,
 }: ProjectsMenuFilterType) {
-  const { filter: activeFilter, selectedTagId } = useProjectListContext()
-  const isActive =
-    selectedTagId === undefined &&
-    filter === activeFilter &&
-    activePage === 'projects'
+  const { filter: activeFilter } = useProjectListContext()
+  const isActive = filter === activeFilter && activePage === 'projects'
 
   return children(isActive)
 }

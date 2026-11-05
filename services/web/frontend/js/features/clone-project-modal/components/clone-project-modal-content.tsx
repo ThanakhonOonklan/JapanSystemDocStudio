@@ -1,8 +1,7 @@
 /* eslint-disable jsx-a11y/no-autofocus */
-import { FormEvent, useCallback, useMemo, useState } from 'react'
+import { FormEvent, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { postJSON, FetchError } from '@/infrastructure/fetch-json.ts'
-import { CloneProjectTag } from './clone-project-tag'
 import {
   OLModalBody,
   OLModalFooter,
@@ -15,9 +14,7 @@ import OLFormGroup from '@/shared/components/ol/ol-form-group'
 import OLFormControl from '@/shared/components/ol/ol-form-control'
 import OLFormLabel from '@/shared/components/ol/ol-form-label'
 import OLButton from '@/shared/components/ol/ol-button'
-import { Tag } from '../../../../../app/src/Features/Tags/types'
 import getMeta from '@/utils/meta.ts'
-import { useFeatureFlag } from '@/shared/context/split-test-context'
 
 export default function CloneProjectModalContent({
   handleHide,
@@ -26,26 +23,21 @@ export default function CloneProjectModalContent({
   handleAfterCloned,
   projectId,
   projectName,
-  projectTags,
 }: {
   handleHide: () => void
   inFlight: boolean
   setInFlight: (inFlight: boolean) => void
-  handleAfterCloned: (clonedProject: any, tags: Tag[]) => void
+  handleAfterCloned: (clonedProject: any) => void
   projectId: string
   projectName: string
-  projectTags: Tag[]
 }) {
   const { t } = useTranslation()
   const { maxUploadSize } = getMeta('ol-ExposedSettings')
-  const themed = useFeatureFlag('themed-modals')
 
   const [error, setError] = useState<FetchError | null>(null)
   const [clonedProjectName, setClonedProjectName] = useState(
     `${projectName} (Copy)`
   )
-
-  const [clonedProjectTags, setClonedProjectTags] = useState(projectTags)
 
   // valid if the cloned project has a name
   const valid = useMemo(
@@ -68,12 +60,11 @@ export default function CloneProjectModalContent({
     postJSON(`/project/${projectId}/clone`, {
       body: {
         projectName: clonedProjectName,
-        tags: clonedProjectTags.map(tag => ({ id: tag._id })),
       },
     })
       .then(data => {
         // open the cloned project
-        handleAfterCloned(data, clonedProjectTags)
+        handleAfterCloned(data)
       })
       .catch(err => {
         setError(err)
@@ -82,10 +73,6 @@ export default function CloneProjectModalContent({
         setInFlight(false)
       })
   }
-
-  const removeTag = useCallback((tag: Tag) => {
-    setClonedProjectTags(value => value.filter(item => item._id !== tag._id))
-  }, [])
 
   return (
     <>
@@ -105,25 +92,6 @@ export default function CloneProjectModalContent({
               autoFocus
             />
           </OLFormGroup>
-
-          {clonedProjectTags.length > 0 && (
-            <OLFormGroup
-              controlId="clone-project-tags-list"
-              className="clone-project-tag"
-            >
-              <OLFormLabel>{t('tags')}: </OLFormLabel>
-              <div role="listbox" id="clone-project-tags-list">
-                {clonedProjectTags.map(tag => (
-                  <CloneProjectTag
-                    key={tag._id}
-                    tag={tag}
-                    removeTag={removeTag}
-                    themed={themed}
-                  />
-                ))}
-              </div>
-            </OLFormGroup>
-          )}
         </OLForm>
 
         {error && (

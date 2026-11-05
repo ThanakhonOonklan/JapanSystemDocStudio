@@ -7,11 +7,6 @@ import {
 } from '@/shared/components/ol/ol-dropdown-menu'
 import CopyProjectButton from '../table/cells/action-buttons/copy-project-button'
 import DownloadProjectButton from '../table/cells/action-buttons/download-project-button'
-import ArchiveProjectButton from '../table/cells/action-buttons/archive-project-button'
-import TrashProjectButton from '../table/cells/action-buttons/trash-project-button'
-import UnarchiveProjectButton from '../table/cells/action-buttons/unarchive-project-button'
-import UntrashProjectButton from '../table/cells/action-buttons/untrash-project-button'
-import LeaveProjectButton from '../table/cells/action-buttons/leave-project-button'
 import DeleteProjectButton from '../table/cells/action-buttons/delete-project-button'
 import { Project } from '../../../../../../types/project/dashboard/api'
 import CompileAndDownloadProjectPDFButton from '../table/cells/action-buttons/compile-and-download-project-pdf-button'
@@ -103,76 +98,6 @@ function ActionsDropdown({ project }: ActionDropdownProps) {
             </li>
           )}
         </CompileAndDownloadProjectPDFButton>
-        <ArchiveProjectButton project={project}>
-          {(text, handleOpenModal) => (
-            <li role="none">
-              <OLDropdownItem
-                as="button"
-                tabIndex={-1}
-                onClick={handleOpenModal}
-                leadingIcon="inbox"
-              >
-                {text}
-              </OLDropdownItem>
-            </li>
-          )}
-        </ArchiveProjectButton>
-        <TrashProjectButton project={project}>
-          {(text, handleOpenModal) => (
-            <li role="none">
-              <OLDropdownItem
-                as="button"
-                tabIndex={-1}
-                onClick={handleOpenModal}
-                leadingIcon="delete"
-              >
-                {text}
-              </OLDropdownItem>
-            </li>
-          )}
-        </TrashProjectButton>
-        <UnarchiveProjectButton project={project}>
-          {(text, unarchiveProject) => (
-            <li role="none">
-              <OLDropdownItem
-                as="button"
-                tabIndex={-1}
-                onClick={unarchiveProject}
-                leadingIcon="restore_page"
-              >
-                {text}
-              </OLDropdownItem>
-            </li>
-          )}
-        </UnarchiveProjectButton>
-        <UntrashProjectButton project={project}>
-          {(text, untrashProject) => (
-            <li role="none">
-              <OLDropdownItem
-                as="button"
-                tabIndex={-1}
-                onClick={untrashProject}
-                leadingIcon="restore_page"
-              >
-                {text}
-              </OLDropdownItem>
-            </li>
-          )}
-        </UntrashProjectButton>
-        <LeaveProjectButton project={project}>
-          {(text, handleOpenModal) => (
-            <li role="none">
-              <OLDropdownItem
-                as="button"
-                tabIndex={-1}
-                onClick={handleOpenModal}
-                leadingIcon="logout"
-              >
-                {text}
-              </OLDropdownItem>
-            </li>
-          )}
-        </LeaveProjectButton>
         <DeleteProjectButton project={project}>
           {(text, handleOpenModal) => (
             <li role="none">

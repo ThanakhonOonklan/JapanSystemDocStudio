@@ -70,10 +70,6 @@ function NewProjectButton({
   const markdownImportEnabled =
     useFeatureFlag('import-markdown') &&
     getMeta('ol-ExposedSettings').enablePandocConversions
-  const { selectedTagId, tags } = useProjectListContext()
-  const initialTags = selectedTagId
-    ? tags.filter(tag => tag._id === selectedTagId)
-    : []
   const sendTrackingEvent = useCallback(
     ({
       dropdownMenu,
@@ -321,7 +317,6 @@ function NewProjectButton({
       <NewProjectButtonModal
         modal={modal}
         onHide={() => setModal(null)}
-        initialTags={initialTags}
       />
     </>
   )

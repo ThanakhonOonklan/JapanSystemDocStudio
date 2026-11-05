@@ -133,9 +133,6 @@ function ProjectListTable() {
               onClick={() => handleSort('lastUpdated')}
             />
           </th>
-          <th className="dash-cell-tag d-md-none" aria-label={t('tags')}>
-            {t('tags')}
-          </th>
           <th className="dash-cell-actions" aria-label={t('actions')}>
             {t('actions')}
           </th>

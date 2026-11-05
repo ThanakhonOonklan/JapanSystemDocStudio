@@ -289,6 +289,9 @@ const _ProjectController = {
       ipAddress: req.ip,
       deletedReason: DeletedProjectReasons.USER,
     })
+    // Documentation Studio REA: no trash and no 90 day retention. Destroy the
+    // project's docs, files and history right away.
+    await ProjectDeleter.promises.expireDeletedProject(projectId)
     ProjectAuditLogHandler.addEntryIfManagedInBackground(
       projectId,
       'project-deleted',

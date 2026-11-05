@@ -6,20 +6,17 @@ import useIsMounted from '../../../../../../shared/hooks/use-is-mounted'
 import { useProjectListContext } from '../../../../context/project-list-context'
 import * as eventTracking from '../../../../../../infrastructure/event-tracking'
 import { ClonedProject } from '../../../../../../../../types/project/dashboard/api'
-import { useProjectTags } from '@/features/project-list/hooks/use-project-tags'
 import { isSmallDevice } from '../../../../../../infrastructure/event-tracking'
 
 function CopyProjectMenuItem() {
   const {
     addClonedProjectToViewData,
-    addProjectToTagInView,
     toggleSelectedProject,
     selectedProjects,
   } = useProjectListContext()
   const { t } = useTranslation()
   const [showModal, setShowModal] = useState(false)
   const isMounted = useIsMounted()
-  const projectTags = useProjectTags(selectedProjects[0]?.id)
 
   const handleOpenModal = useCallback(() => {
     setShowModal(true)
@@ -32,7 +29,7 @@ function CopyProjectMenuItem() {
   }, [isMounted])
 
   const handleAfterCloned = useCallback(
-    (clonedProject: ClonedProject, tags: { _id: string }[]) => {
+    (clonedProject: ClonedProject) => {
       const project = selectedProjects[0]
       eventTracking.sendMB('project-list-page-interaction', {
         action: 'clone',
@@ -40,9 +37,6 @@ function CopyProjectMenuItem() {
         isSmallDevice,
       })
       addClonedProjectToViewData(clonedProject)
-      for (const tag of tags) {
-        addProjectToTagInView(tag._id, clonedProject.project_id)
-      }
       toggleSelectedProject(project.id, false)
 
       if (isMounted.current) {
@@ -53,8 +47,7 @@ function CopyProjectMenuItem() {
       isMounted,
       selectedProjects,
       addClonedProjectToViewData,
-      addProjectToTagInView,
-      toggleSelectedProject,
+        toggleSelectedProject,
     ]
   )
 
@@ -73,7 +66,6 @@ function CopyProjectMenuItem() {
         handleAfterCloned={handleAfterCloned}
         projectId={selectedProjects[0].id}
         projectName={selectedProjects[0].name}
-        projectTags={projectTags}
       />
     </>
   )

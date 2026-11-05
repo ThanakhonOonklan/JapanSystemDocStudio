@@ -14,13 +14,5 @@ export function getOwnerName(project: Project) {
 }
 
 export function isDeletableProject(project: Project) {
-  return project.accessLevel === 'owner' && project.trashed
-}
-
-export function isLeavableProject(project: Project) {
-  return project.accessLevel !== 'owner' && project.trashed
-}
-
-export function isArchivedOrTrashed(project: Project) {
-  return project.archived || project.trashed
+  return project.accessLevel === 'owner'
 }

@@ -10,7 +10,6 @@ import NavigationDropdown from './dropdown/navigation-dropdown'
 import SortByDropdown from './dropdown/sort-by-dropdown'
 import ProjectTools from './table/project-tools/project-tools'
 import ProjectListTitle from './title/project-list-title'
-import TrashPageTabs from './trash/trash-page-tabs'
 import LoadMore from './load-more'
 import OLCol from '@/shared/components/ol/ol-col'
 import OLRow from '@/shared/components/ol/ol-row'
@@ -37,26 +36,18 @@ export function ProjectListDsNav() {
     searchText,
     setSearchText,
     selectedProjects,
-    filter,
-    tags,
-    selectedTagId,
     currentFilterProjectsCount,
   } = useProjectListContext()
   const activeOverallTheme = useActiveOverallTheme()
   const isSharedWorkspaceEnabled = useFeatureFlag('shared-workspace')
 
-  const selectedTag = tags.find(tag => tag._id === selectedTagId)
-  const showTrashHeader = filter === 'trashed'
-  const showNewProjectButton =
-    filter !== 'shared' && filter !== 'archived' && filter !== 'trashed'
+  const showNewProjectButton = true
 
   const tableTopArea = (
     <div className="pt-2 pb-3 d-md-none d-flex gap-2">
       <SearchForm
         inputValue={searchText}
         setInputValue={setSearchText}
-        filter={filter}
-        selectedTag={selectedTag}
         className="overflow-hidden flex-grow-1"
       />
       {showNewProjectButton && (
@@ -71,9 +62,7 @@ export function ProjectListDsNav() {
 
   return (
     <div
-      className={classNames('project-ds-nav-page', 'website-redesign', {
-        'ds-nav-hides-top-navbar': showTrashHeader,
-      })}
+      className={classNames('project-ds-nav-page', 'website-redesign')}
     >
       <SystemMessages />
       <DefaultNavbar
@@ -97,45 +86,25 @@ export function ProjectListDsNav() {
               <UserNotifications />
               <main aria-labelledby="main-content">
                 <div className="project-list-header-row">
-                  {showTrashHeader ? (
-                    <h1
-                      id="main-content"
-                      tabIndex={-1}
-                      className="project-list-title text-truncate d-none d-md-block mb-0"
-                    >
-                      {t('trash')}
-                    </h1>
-                  ) : (
-                    <ProjectListTitle
-                      filter={filter}
-                      selectedTag={selectedTag}
-                      selectedTagId={selectedTagId}
-                      className="text-truncate d-none d-md-block"
-                    />
-                  )}
+                  <ProjectListTitle className="text-truncate d-none d-md-block" />
                   <div className="project-tools">
                     <div className="d-none d-md-block">
                       {selectedProjects.length === 0 ? (
-                        showTrashHeader ? null : (
-                          <CurrentPlanWidget />
-                        )
+                        <CurrentPlanWidget />
                       ) : (
                         <ProjectTools />
                       )}
                     </div>
                     <div className="d-md-none">
-                      {!showTrashHeader && <CurrentPlanWidget />}
+                      <CurrentPlanWidget />
                     </div>
                   </div>
                 </div>
-                {showTrashHeader && <TrashPageTabs activeTab="projects" />}
-                {isSharedWorkspaceEnabled &&
-                selectedTagId === undefined &&
-                currentFilterProjectsCount === 0 ? (
+                {isSharedWorkspaceEnabled && currentFilterProjectsCount === 0 ? (
                   <>
                     <ProjectsToolbarMobile />
                     <NoProjects
-                      activeSection={filter}
+                      activeSection="all"
                       showNewProjectButton={showNewProjectButton}
                     />
                   </>
@@ -146,8 +115,6 @@ export function ProjectListDsNav() {
                         <SearchForm
                           inputValue={searchText}
                           setInputValue={setSearchText}
-                          filter={filter}
-                          selectedTag={selectedTag}
                         />
                       </OLCol>
                       {showNewProjectButton && (

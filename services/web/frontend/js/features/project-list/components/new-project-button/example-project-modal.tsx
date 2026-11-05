@@ -1,17 +1,12 @@
 import { OLModal } from '@/shared/components/ol/ol-modal'
 import ModalContentNewProjectForm from './modal-content-new-project-form'
-import { Tag } from '../../../../../../app/src/Features/Tags/types'
 import { useFeatureFlag } from '@/shared/context/split-test-context'
 
 type ExampleProjectModalProps = {
   onHide: () => void
-  initialTags?: Tag[]
 }
 
-function ExampleProjectModal({
-  onHide,
-  initialTags,
-}: ExampleProjectModalProps) {
+function ExampleProjectModal({ onHide }: ExampleProjectModalProps) {
   const themed = useFeatureFlag('themed-modals')
 
   return (
@@ -27,7 +22,7 @@ function ExampleProjectModal({
       <ModalContentNewProjectForm
         onCancel={onHide}
         template="example"
-        initialTags={initialTags}
+       
       />
     </OLModal>
   )

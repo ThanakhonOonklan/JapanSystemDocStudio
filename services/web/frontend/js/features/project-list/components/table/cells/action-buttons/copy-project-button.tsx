@@ -8,7 +8,6 @@ import {
   ClonedProject,
   Project,
 } from '../../../../../../../../types/project/dashboard/api'
-import { useProjectTags } from '@/features/project-list/hooks/use-project-tags'
 import { isSmallDevice } from '../../../../../../infrastructure/event-tracking'
 import OLTooltip from '@/shared/components/ol/ol-tooltip'
 import OLIconButton from '@/shared/components/ol/ol-icon-button'
@@ -27,7 +26,6 @@ type CopyButtonProps = {
 function CopyProjectButton({ project, children }: CopyButtonProps) {
   const {
     addClonedProjectToViewData,
-    addProjectToTagInView,
     toggleSelectedProject,
     updateProjectViewData,
   } = useProjectListContext()
@@ -35,7 +33,6 @@ function CopyProjectButton({ project, children }: CopyButtonProps) {
   const text = t('copy')
   const [showModal, setShowModal] = useState(false)
   const isMounted = useIsMounted()
-  const projectTags = useProjectTags(project.id)
 
   const handleOpenModal = useCallback(
     <T extends React.MouseEvent>(e?: T, onOpen?: (e?: T) => void) => {
@@ -52,24 +49,20 @@ function CopyProjectButton({ project, children }: CopyButtonProps) {
   }, [isMounted])
 
   const handleAfterCloned = useCallback(
-    (clonedProject: ClonedProject, tags: { _id: string }[]) => {
+    (clonedProject: ClonedProject) => {
       eventTracking.sendMB('project-list-page-interaction', {
         action: 'clone',
         projectId: project.id,
         isSmallDevice,
       })
       addClonedProjectToViewData(clonedProject)
-      for (const tag of tags) {
-        addProjectToTagInView(tag._id, clonedProject.project_id)
-      }
       toggleSelectedProject(project.id, false)
       updateProjectViewData({ ...project })
       setShowModal(false)
     },
     [
       addClonedProjectToViewData,
-      addProjectToTagInView,
-      project,
+        project,
       toggleSelectedProject,
       updateProjectViewData,
     ]
@@ -86,7 +79,6 @@ function CopyProjectButton({ project, children }: CopyButtonProps) {
         handleAfterCloned={handleAfterCloned}
         projectId={project.id}
         projectName={project.name}
-        projectTags={projectTags}
       />
     </>
   )

@@ -9,12 +9,7 @@ import { Project } from '../../../../../../../../types/project/dashboard/api'
 
 function DeleteProjectsButton() {
   const { t } = useTranslation()
-  const {
-    selectedProjects,
-    removeProjectFromView,
-    hasLeavableProjectsSelected,
-    hasDeletableProjectsSelected,
-  } = useProjectListContext()
+  const { selectedProjects, removeProjectFromView } = useProjectListContext()
   const [showModal, setShowModal] = useState(false)
   const isMounted = useIsMounted()
 
@@ -36,7 +31,7 @@ function DeleteProjectsButton() {
 
   return (
     <>
-      {hasDeletableProjectsSelected && !hasLeavableProjectsSelected && (
+      {selectedProjects.length > 0 && (
         <OLButton variant="danger" onClick={handleOpenModal}>
           {t('delete')}
         </OLButton>
