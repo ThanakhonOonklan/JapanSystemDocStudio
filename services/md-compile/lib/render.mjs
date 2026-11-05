@@ -64,12 +64,21 @@ function newState({ lang, numbering, log }) {
     headings: [], // { level, id, number, text }
     labels: new Map(), // id -> { kind, number, text }
     ids: new Set(),
+    // headings, figures and tables in document order, used to compare
+    // the structure of different languages
+    structure: [], // { file, line, kind, level?, id, explicit }
+    refs: [], // { id, file, line } for every @reference in the text
   }
 }
 
-function claimId(bs, id, where) {
+// 1-based line in the file of a block token (front matter included)
+function lineOf(token, env) {
+  return token?.map ? token.map[0] + 1 + env.lineOffset : undefined
+}
+
+function claimId(bs, id, env, line) {
   if (bs.ids.has(id)) {
-    bs.log.warn(`${where}: duplicate id "${id}"`)
+    bs.log.warn(`duplicate id #${id}`, { file: env.file, line })
   }
   bs.ids.add(id)
 }
@@ -90,7 +99,7 @@ function handleHeading(tokens, i, env, Token) {
   const open = tokens[i]
   const inline = tokens[i + 1]
   const level = Number(open.tag.slice(1))
-  const where = path.relative(env.compileDir, env.file)
+  const line = lineOf(open, env)
 
   const classes = (open.attrGet('class') || '').split(/\s+/)
   const numbered = bs.numbering && level <= 3 && !classes.includes('unnumbered')
@@ -116,11 +125,20 @@ function handleHeading(tokens, i, env, Token) {
   }
 
   let id = open.attrGet('id')
+  const explicit = Boolean(id)
   if (!id) {
     id = `sec-auto-${++bs.anonymous}`
     open.attrSet('id', id)
   }
-  claimId(bs, id, where)
+  claimId(bs, id, env, line)
+  bs.structure.push({
+    file: env.file,
+    line,
+    kind: 'heading',
+    level,
+    id,
+    explicit,
+  })
 
   const text = plainText(inline)
   if (number && inline) {
@@ -156,13 +174,15 @@ function handleFigure(tokens, i, env, Token) {
   const inline = tokens[i + 1]
   const close = tokens[i + 2]
   const image = inline.children[0]
-  const where = path.relative(env.compileDir, env.file)
+  const line = lineOf(open, env)
 
   let id = image.attrGet('id')
+  const explicit = Boolean(id)
   // the id belongs on the <figure>, not on the <img>
   image.attrs = (image.attrs || []).filter(([name]) => name !== 'id')
   if (!id) id = `fig-auto-${++bs.anonymous}`
-  claimId(bs, id, where)
+  claimId(bs, id, env, line)
+  bs.structure.push({ file: env.file, line, kind: 'figure', id, explicit })
 
   const number = localNumber(bs, ++bs.figure)
   const caption = image.content.trim()
@@ -185,7 +205,6 @@ function handleFigure(tokens, i, env, Token) {
 function handleTable(tokens, i, env) {
   const bs = env.state
   const open = tokens[i]
-  const where = path.relative(env.compileDir, env.file)
 
   let depth = 0
   let j = i
@@ -208,8 +227,11 @@ function handleTable(tokens, i, env) {
 
   const caption = text.replace(/^:\s+/, '').trim()
   let id = paragraph.attrGet('id')
+  const explicit = Boolean(id)
   if (!id) id = `tbl-auto-${++bs.anonymous}`
-  claimId(bs, id, where)
+  const line = lineOf(open, env)
+  claimId(bs, id, env, line)
+  bs.structure.push({ file: env.file, line, kind: 'table', id, explicit })
   const number = localNumber(bs, ++bs.table)
 
   tokens.splice(j + 1, 3) // the caption paragraph is not rendered on its own
@@ -238,14 +260,24 @@ function createMarkdown() {
     state.pos += 1 + id.length
     return true
   })
-  md.renderer.rules.xref = (tokens, idx) =>
-    `${REF_START}${tokens[idx].content}${REF_END}`
+  md.renderer.rules.xref = (tokens, idx, options, env) => {
+    const id = tokens[idx].content
+    env.state.refs.push({ id, file: env.file, line: tokens[idx].meta?.line })
+    return `${REF_START}${id}${REF_END}`
+  }
 
   md.core.ruler.after('curly_attributes', 'book_structure', state => {
     const { tokens, env } = state
     for (let i = 0; i < tokens.length; i++) {
       const token = tokens[i]
-      if (token.type === 'heading_open') {
+      if (token.type === 'inline') {
+        // remember where images and references are, for warnings
+        for (const child of token.children || []) {
+          if (child.type === 'image' || child.type === 'xref') {
+            child.meta = { line: lineOf(token, env) }
+          }
+        }
+      } else if (token.type === 'heading_open') {
         handleHeading(tokens, i, env, state.Token)
       } else if (token.type === 'paragraph_open' && isFigureParagraph(tokens, i)) {
         handleFigure(tokens, i, env, state.Token)
@@ -270,12 +302,12 @@ function createMarkdown() {
     const token = tokens[idx]
     const src = token.attrGet('src') || ''
     const { compileDir, baseDir, log, file } = env
-    const where = path.relative(compileDir, file)
+    const location = { file, line: token.meta?.line }
 
     if (src.startsWith('data:image/')) {
       // inline images are fine
     } else if (URL_SCHEME.test(src) || src.startsWith('//')) {
-      log.warn(`${where}: external image is not loaded: ${src}`)
+      log.warn(`external image is not loaded: ${src}`, location)
       token.attrSet('src', BLANK_IMAGE)
     } else {
       let absolute
@@ -285,10 +317,10 @@ function createMarkdown() {
         absolute = path.resolve(baseDir, src)
       }
       if (!isInside(compileDir, absolute)) {
-        log.warn(`${where}: image outside the project is not loaded: ${src}`)
+        log.warn(`image outside the project is not loaded: ${src}`, location)
         token.attrSet('src', BLANK_IMAGE)
       } else if (!fs.existsSync(absolute)) {
-        log.warn(`${where}: image not found: ${src}`)
+        log.warn(`image not found: ${src}`, location)
         token.attrSet('src', BLANK_IMAGE)
       } else {
         token.attrSet('src', pathToFileURL(absolute).href)
@@ -307,13 +339,15 @@ function referenceText(label, t) {
 }
 
 function resolveReferences(html, bs) {
+  for (const ref of bs.refs) {
+    if (!bs.labels.has(ref.id) && PREFIXED_REF.test(ref.id)) {
+      bs.log.warn(`unknown reference @${ref.id}`, ref)
+    }
+  }
   const pattern = new RegExp(`${REF_START}([^${REF_END}]+)${REF_END}`, 'g')
   return html.replace(pattern, (_match, id) => {
     const label = bs.labels.get(id)
-    if (!label) {
-      if (PREFIXED_REF.test(id)) bs.log.warn(`unknown reference @${id}`)
-      return `@${id}`
-    }
+    if (!label) return `@${id}`
     return `<a class="xref" href="#${id}">${escapeHtml(referenceText(label, bs.t))}</a>`
   })
 }
@@ -321,7 +355,9 @@ function resolveReferences(html, bs) {
 /**
  * Render the chapters of one language.
  *
- * @returns {{ html: string, headings: Array<{ level: number, id: string, number?: string, text: string }> }}
+ * @returns {{ html: string,
+ *             headings: Array<{ level: number, id: string, number?: string, text: string }>,
+ *             structure: Array<{ file: string, line?: number, kind: 'heading' | 'figure' | 'table', level?: number, id: string, explicit: boolean }> }}
  */
 export function renderChapters({
   files,
@@ -335,11 +371,12 @@ export function renderChapters({
   const parts = []
   for (const file of files) {
     const source = fs.readFileSync(file, 'utf8')
-    const { body } = parseFrontMatter(source)
+    const { body, lineOffset } = parseFrontMatter(source)
     const html = md.render(body, {
       compileDir,
       baseDir: path.dirname(file),
       file,
+      lineOffset,
       log,
       state,
     })
@@ -352,6 +389,7 @@ export function renderChapters({
   return {
     html: resolveReferences(parts.join('\n'), state),
     headings: state.headings,
+    structure: state.structure,
   }
 }
 

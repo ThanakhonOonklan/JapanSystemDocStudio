@@ -53,7 +53,7 @@ async function renderOne(browser, { htmlPath, pdfPath, label }, log, timeoutMs) 
       const flow = await window.PagedPolyfill.preview()
       return flow.total
     })
-    log.info(`[${label}] laid out ${pages} page(s)`)
+    log.info(`[${label}] laid out ${pages} pages`)
 
     await page.pdf({
       path: pdfPath,
@@ -62,7 +62,7 @@ async function renderOne(browser, { htmlPath, pdfPath, label }, log, timeoutMs) 
     })
 
     const { size } = await fs.stat(pdfPath)
-    log.info(`[${label}] wrote ${pdfPath.split(/[\\/]/).pop()} (${size} bytes)`)
+    log.info(`[${label}] wrote ${pdfPath.split(/[\\/]/).pop()}, ${size} bytes`)
   } finally {
     await context.close()
   }

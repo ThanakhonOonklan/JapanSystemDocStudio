@@ -25,16 +25,25 @@ import { resolveInside } from './paths.mjs'
 const LANGUAGE_DIRS = ['th', 'en']
 const FRONT_MATTER = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/
 
+/**
+ * Split optional YAML front matter from the Markdown body.
+ * `lineOffset` is the number of lines removed, so that line numbers in the
+ * body can be mapped back to the file.
+ */
 export function parseFrontMatter(text) {
   const match = FRONT_MATTER.exec(text)
-  if (!match) return { data: {}, body: text }
+  if (!match) return { data: {}, body: text, lineOffset: 0 }
   let data = {}
   try {
     data = yaml.load(match[1]) || {}
   } catch {
     // leave data empty; the caller can report a missing title
   }
-  return { data: typeof data === 'object' ? data : {}, body: text.slice(match[0].length) }
+  return {
+    data: typeof data === 'object' ? data : {},
+    body: text.slice(match[0].length),
+    lineOffset: match[0].split('\n').length - 1,
+  }
 }
 
 /**
@@ -71,13 +80,17 @@ function pickOptions(source) {
     numbering: source?.numbering !== false,
     cover: source?.cover !== false,
     css: typeof source?.css === 'string' ? source.css : undefined,
+    // how to treat differences between the languages: warn (default), strict
+    // (they fail the build) or off
+    parity: ['off', 'strict'].includes(source?.parity) ? source.parity : 'warn',
   }
 }
 
 /**
  * @returns {{ defaultLanguage: string,
- *             options: { toc: boolean, tocDepth: number, numbering: boolean, cover: boolean, css?: string },
- *             languages: Array<{ code: string, title?: string, meta: Record<string, string>, files: string[] }> }}
+ *             options: { toc: boolean, tocDepth: number, numbering: boolean, cover: boolean, css?: string, parity: 'warn' | 'strict' | 'off' },
+ *             languages: Array<{ code: string, dir?: string, title?: string, meta: Record<string, string>,
+ *                                files: string[], chapters: Array<{ name: string, file: string }> }> }}
  */
 export function loadProject(compileDir, mainFile, log) {
   const mainPath = resolveInside(compileDir, compileDir, mainFile)
@@ -109,6 +122,7 @@ function loadSingleFile(compileDir, mainPath) {
         title: pickTitle(data.title, code) || heading?.[1],
         meta: pickMeta(data, code),
         files: [mainPath],
+        chapters: [{ name: path.basename(mainPath), file: mainPath }],
       },
     ],
   }
@@ -137,27 +151,43 @@ function loadBook(compileDir, bookPath, log) {
     c == null ? (book.defaultLanguage || 'th') : String(c)
   )
 
+  const bookLines = fs.readFileSync(bookPath, 'utf8').split('\n')
+  const lineInBook = chapter => {
+    const index = bookLines.findIndex(
+      l => /^\s*-\s/.test(l) && l.includes(chapter)
+    )
+    return index >= 0 ? index + 1 : undefined
+  }
+
   const languages = codes.map(code => {
     // chapters live in <code>/ when that folder exists, otherwise next to book.yaml
     const langDir = path.join(baseDir, code)
-    const dir = fs.existsSync(langDir) ? langDir : baseDir
+    const hasDir = fs.existsSync(langDir)
+    const dir = hasDir ? langDir : baseDir
     const files = []
+    const chapters = []
     for (const chapter of book.chapters) {
       if (typeof chapter !== 'string') {
         throw new Error('"chapters" must contain file names')
       }
       const file = resolveInside(compileDir, dir, chapter)
       if (!fs.existsSync(file)) {
-        log.warn(`[${code}] chapter not found: ${path.relative(compileDir, file)}`)
+        log.warn(
+          `chapter not found for ${code}: ${path.relative(compileDir, file)}`,
+          { file: bookPath, line: lineInBook(chapter) }
+        )
         continue
       }
       files.push(file)
+      chapters.push({ name: chapter, file })
     }
     return {
       code,
+      dir: hasDir ? langDir : undefined,
       title: pickTitle(book.title, code),
       meta: pickMeta(book, code),
       files,
+      chapters,
     }
   })
 

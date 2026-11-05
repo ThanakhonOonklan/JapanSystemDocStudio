@@ -152,7 +152,7 @@ test('unknown prefixed references and duplicate ids are reported', () => {
       const { html } = renderChapters({ files: [a], compileDir: dir, log })
       assert.equal(log.warnings, 2)
       assert.match(log.toString(), /unknown reference @fig-missing/)
-      assert.match(log.toString(), /duplicate id "same"/)
+      assert.match(log.toString(), /duplicate id #same/)
       assert.match(html, /@plain/)
     }
   )

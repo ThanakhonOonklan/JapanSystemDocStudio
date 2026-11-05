@@ -24,6 +24,7 @@ import {
   renderToc,
 } from './lib/render.mjs'
 import { renderPdfs } from './lib/pdf.mjs'
+import { checkParity } from './lib/parity.mjs'
 import { isInside } from './lib/paths.mjs'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
@@ -51,7 +52,7 @@ async function main() {
     return 2
   }
   const compileDir = path.resolve(compileDirArg)
-  const log = new Log()
+  const log = new Log(compileDir)
   log.info(`Documentation Studio markdown compiler ${VERSION}`)
   log.info(`Root file: ${mainFile}`)
 
@@ -71,17 +72,22 @@ async function main() {
     const jobs = []
     for (const language of project.languages) {
       if (language.files.length === 0) {
-        log.error(`[${language.code}] no chapters to build`)
+        log.error(`no chapters to build for ${language.code}`)
         continue
       }
-      log.info(`[${language.code}] ${language.files.length} file(s)`)
-      const { html: body, headings } = renderChapters({
+      log.info(`[${language.code}] ${language.files.length} files`)
+      const {
+        html: body,
+        headings,
+        structure,
+      } = renderChapters({
         files: language.files,
         compileDir,
         log,
         lang: language.code,
         numbering: project.options.numbering,
       })
+      language.structure = structure
       const cover = project.options.cover
         ? renderCover({
             title: language.title,
@@ -120,8 +126,25 @@ async function main() {
       })
     }
 
+    // do the th/en versions have the same headings, figures and tables?
+    if (project.options.parity !== 'off' && project.languages.length > 1) {
+      const strict = project.options.parity === 'strict'
+      const differences = checkParity({
+        languages: project.languages.filter(l => l.structure),
+        reference: project.defaultLanguage,
+        compileDir,
+        report: (message, location) =>
+          strict ? log.error(message, location) : log.warn(message, location),
+      })
+      log.info(
+        differences === 0
+          ? 'Languages have the same structure.'
+          : `Languages differ in ${differences} places.`
+      )
+    }
+
     if (log.errors > 0 || jobs.length === 0) {
-      throw new Error('nothing to build')
+      throw new Error('the build was stopped because of the errors above')
     }
     await renderPdfs(jobs, log, { timeoutMs: TIMEOUT_MS })
 
