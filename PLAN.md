@@ -26,11 +26,10 @@ Overleaf เป็น monorepo มีหลาย service อยู่ใน `se
 | `filestore` / `history-v1` / `project-history` | เก็บไฟล์รูปและประวัติการแก้ไข | **เก็บไว้** เพราะการอัปโหลดรูปพึ่งส่วนนี้ |
 | `clsi` | compile LaTeX เป็น PDF | **แทนที่** ด้วย service ใหม่ `md-compile` ที่ใช้ API แบบเดียวกัน |
 | `chat` | แชตในโปรเจกต์ | **ตัดออก** |
-| `contacts` | รายชื่อผู้ร่วมงาน | **ตัดออก** |
 | `notifications` | การแจ้งเตือน | **ตัดออก** |
-| `spelling` | ตรวจคำสะกด | **ตัดออก** (ใช้ตัวตรวจของเบราว์เซอร์แทน) |
-| `references` | ดัชนีไฟล์ `.bib` | **ตัดออก** |
 | `git-bridge` | Git sync (Java) | **ตัดออก** |
+
+> หมายเหตุหลัง M0: Overleaf เวอร์ชันปัจจุบัน (upstream `e039ad26c5`, 2026-09-17) ไม่มี service `contacts`, `spelling` และ `references` แล้ว จึงเหลือ service ที่ต้องตัดเพียง 3 ตัว
 | MongoDB, Redis | ฐานข้อมูล | **เก็บไว้** ใน Docker ส่วนการตัดออกเป็นงานระยะยาว (ข้อ 6) |
 
 > หลักการคือ ช่วงแรกให้ "ตัดของที่ไม่ใช้" อย่างเดียว ยังไม่รื้อแกนกลาง เพื่อให้ระบบรันได้ตลอดทาง
@@ -127,9 +126,9 @@ chapters:
 
 | ระยะ | งาน | เสร็จเมื่อ |
 |---|---|---|
-| **M0 เตรียมเครื่อง** | ติดตั้ง Docker Desktop + WSL2 (แนะนำ RAM 8 GB ขึ้นไป) แล้วดึงโค้ด Overleaf เข้ามาใน repo นี้ (`git remote add upstream`) | มีโค้ด Overleaf อยู่ใน repo พร้อมประวัติ |
-| **M1 รันของเดิม** | รัน Overleaf CE ผ่าน `develop/` (docker compose) โดยยังไม่แก้อะไร | เปิด `localhost` ได้ สร้างโปรเจกต์ได้ และ compile LaTeX ได้ |
-| **M2 ตัด service** | ลบ `chat`, `contacts`, `notifications`, `spelling`, `references` และ `git-bridge` ออกจาก compose และโค้ดที่เรียกใช้ | ระบบรันได้โดยไม่มี error ใน log |
+| **M0 เตรียมเครื่อง** ✅ | ติดตั้ง Docker Desktop + WSL2 (แนะนำ RAM 8 GB ขึ้นไป) แล้วดึงโค้ด Overleaf เข้ามาใน repo นี้ (`git remote add upstream`) | มีโค้ด Overleaf อยู่ใน repo พร้อมประวัติ (branch `m0/import-overleaf`) |
+| **M1 รันของเดิม** | ติดตั้ง Ubuntu บน WSL2 (สำหรับ `make` และ `bash`) แล้ว build image จากซอร์สด้วย `server-ce/Makefile` (`make build-base` และ `make build-community`) จากนั้นรันด้วย `docker-compose.yml` ที่ root โดยปิดบรรทัด `SANDBOXED_COMPILES*` ก่อน เพราะเป็นของ Server Pro | เปิด `localhost` ได้ สร้างโปรเจกต์ได้ และ compile LaTeX ได้ |
+| **M2 ตัด service** | ลบ `chat`, `notifications` และ `git-bridge` ออกจาก `server-ce` (runit, Dockerfile) และโค้ดใน `web` ที่เรียกใช้ | ระบบรันได้โดยไม่มี error ใน log |
 | **M3 ผู้ใช้คนเดียว** | ตัดการสมัคร การแชร์ และอีเมลออก แล้วเปลี่ยนเป็นล็อกอินอัตโนมัติ | เปิดเว็บแล้วเข้าหน้ารวมโปรเจกต์ได้ทันที |
 | **M4 md-compile** | สร้าง service ใหม่แทน `clsi` ให้ root ของโปรเจกต์เป็น `book.yaml` และกด Recompile แล้วได้ PDF | โปรเจกต์ตัวอย่างได้ PDF ไทยที่ตัดคำถูกต้อง |
 | **M5 แม่แบบเอกสาร** | ทำหน้าปก สารบัญ เลขหัวข้อ เลขรูปและตาราง หัวและท้ายกระดาษ และแม่แบบโปรเจกต์ใหม่ | ทุกเล่มออกมารูปแบบเดียวกัน |
