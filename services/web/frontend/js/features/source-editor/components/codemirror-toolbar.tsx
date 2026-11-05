@@ -24,15 +24,11 @@ import { language } from '@codemirror/language'
 import { minimumListDepthForSelection } from '../utils/tree-operations/ancestors'
 import { debugConsole } from '@/utils/debugging'
 import { useTranslation } from 'react-i18next'
-import ReviewPanelHeader from '@/features/review-panel/components/review-panel-header'
-import useReviewPanelLayout from '@/features/review-panel/hooks/use-review-panel-layout'
 import Breadcrumbs from '@/features/source-editor/extensions/breadcrumbs'
 import classNames from 'classnames'
 import { useUserSettingsContext } from '@/shared/context/user-settings-context'
 import importOverleafModules from '../../../../macros/import-overleaf-module.macro'
 import { useLayoutContext } from '@/shared/context/layout-context'
-import ReviewPanelHeaderBuffer from '@/features/review-panel/components/review-panel-header-buffer'
-import { useAreTabsEnabled } from '@/features/ide-react/hooks/use-are-tabs-enabled'
 import { ToolbarLayout } from './toolbar/toolbar-layout'
 
 const sourceEditorToolbarComponents = importOverleafModules(
@@ -67,8 +63,6 @@ const Toolbar = memo(function Toolbar() {
   const visual = isVisual(view)
 
   const listDepth = minimumListDepthForSelection(state)
-
-  const { showHeader: showReviewPanelHeader } = useReviewPanelLayout()
 
   const {
     open: overflowOpen,
@@ -159,7 +153,6 @@ const Toolbar = memo(function Toolbar() {
   }, [buildOverflow, insideTable, resizeRef])
 
   const showActions = !state.readOnly && !insideTable
-  const tabsVisible = useAreTabsEnabled()
 
   if (focusMode) {
     return null
@@ -167,18 +160,9 @@ const Toolbar = memo(function Toolbar() {
 
   return (
     <>
-      {showReviewPanelHeader &&
-        (tabsVisible ? <ReviewPanelHeaderBuffer /> : <ReviewPanelHeader />)}
       <div
         id="ol-cm-toolbar-wrapper"
-        className={classNames('ol-cm-toolbar-wrapper', {
-          'ol-cm-toolbar-wrapper-indented': showReviewPanelHeader,
-          // The border is only needed when the header is flush with the
-          // toolbar, which is the case when tabs are disabled and the review
-          // panel is shown
-          'ol-cm-toolbar-wrapper-needs-border':
-            showReviewPanelHeader && !tabsVisible,
-        })}
+        className="ol-cm-toolbar-wrapper"
       >
         <div
           role="toolbar"

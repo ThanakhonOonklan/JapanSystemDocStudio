@@ -3,7 +3,6 @@ import Features from './infrastructure/Features.mjs'
 import ProjectController from './Features/Project/ProjectController.mjs'
 import ProjectApiController from './Features/Project/ProjectApiController.mjs'
 import ProjectListController from './Features/Project/ProjectListController.mjs'
-import SpellingController from './Features/Spelling/SpellingController.mjs'
 import EditorRouter from './Features/Editor/EditorRouter.mjs'
 import Settings from '@overleaf/settings'
 import TpdsController from './Features/ThirdPartyDataStore/TpdsController.mjs'
@@ -24,7 +23,6 @@ import FileStoreController from './Features/FileStore/FileStoreController.mjs'
 import DocumentUpdaterController from './Features/DocumentUpdater/DocumentUpdaterController.mjs'
 import HistoryRouter from './Features/History/HistoryRouter.mjs'
 import ExportsController from './Features/Exports/ExportsController.mjs'
-import ChatController from './Features/Chat/ChatController.mjs'
 import Modules from './infrastructure/Modules.mjs'
 import {
   RateLimiter,
@@ -38,8 +36,6 @@ import AuthorizationMiddleware from './Features/Authorization/AuthorizationMiddl
 import MetaController from './Features/Metadata/MetaController.mjs'
 import LinkedFilesRouter from './Features/LinkedFiles/LinkedFilesRouter.mjs'
 import SystemMessageController from './Features/SystemMessages/SystemMessageController.mjs'
-import AnalyticsRegistrationSourceMiddleware from './Features/Analytics/AnalyticsRegistrationSourceMiddleware.mjs'
-import AnalyticsUTMTrackingMiddleware from './Features/Analytics/AnalyticsUTMTrackingMiddleware.mjs'
 import UnsupportedBrowserMiddleware from './infrastructure/UnsupportedBrowserMiddleware.mjs'
 import logger from '@overleaf/logger'
 import _ from 'lodash'
@@ -203,9 +199,6 @@ async function initialize(webRouter, privateApiRouter, publicApiRouter) {
   if (!Settings.allowPublicAccess) {
     webRouter.all('*', AuthenticationController.requireGlobalLogin)
   }
-
-  webRouter.get('*', AnalyticsRegistrationSourceMiddleware.setInbound())
-  webRouter.get('*', AnalyticsUTMTrackingMiddleware.recordUTMTags())
 
   if (process.env.NODE_ENV === 'development' && global.__coverage__) {
     // Expose code coverage via an endpoint when running with code coverage enabled
@@ -655,52 +648,6 @@ async function initialize(webRouter, privateApiRouter, publicApiRouter) {
     AuthenticationController.requirePrivateApiAuth(),
     TpdsController.deleteProjectContents
   )
-
-  webRouter.post(
-    '/spelling/learn',
-    AuthenticationController.requireLogin(),
-    SpellingController.learn
-  )
-
-  webRouter.post(
-    '/spelling/unlearn',
-    AuthenticationController.requireLogin(),
-    SpellingController.unlearn
-  )
-
-  if (Features.hasFeature('chat')) {
-    webRouter.get(
-      '/project/:project_id/messages',
-      AuthorizationMiddleware.blockRestrictedUserFromProject,
-      AuthorizationMiddleware.ensureUserCanReadProject,
-      PermissionsController.requirePermission('chat'),
-      ChatController.getMessages
-    )
-    webRouter.post(
-      '/project/:project_id/messages',
-      AuthorizationMiddleware.blockRestrictedUserFromProject,
-      AuthorizationMiddleware.ensureUserCanReadProject,
-      PermissionsController.requirePermission('chat'),
-      RateLimiterMiddleware.rateLimit(rateLimiters.sendChatMessage),
-      ChatController.sendMessage
-    )
-    webRouter.delete(
-      '/project/:project_id/messages/:message_id',
-      AuthorizationMiddleware.blockRestrictedUserFromProject,
-      AuthorizationMiddleware.ensureUserCanReadProject,
-      AuthorizationMiddleware.ensureUserIsMessageAuthor,
-      PermissionsController.requirePermission('chat'),
-      ChatController.deleteMessage
-    )
-    webRouter.post(
-      '/project/:project_id/messages/:message_id/edit',
-      AuthorizationMiddleware.blockRestrictedUserFromProject,
-      AuthorizationMiddleware.ensureUserCanReadProject,
-      AuthorizationMiddleware.ensureUserIsMessageAuthor,
-      PermissionsController.requirePermission('chat'),
-      ChatController.editMessage
-    )
-  }
 
   webRouter.post(
     '/project/:Project_id/references/indexAll',

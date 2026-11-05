@@ -21,7 +21,6 @@ import { autoComplete } from './auto-complete'
 import { editable } from './editable'
 import { autoPair } from './auto-pair'
 import { phrases } from './phrases'
-import { spelling } from './spelling'
 import { symbolPalette } from './symbol-palette'
 import { search } from './search'
 import { filterCharacters } from './filter-characters'
@@ -151,7 +150,6 @@ export const createExtensions = (options: Record<string, any>): Extension[] => [
   editable(),
   search(options.initialSearchQuery),
   phrases(options.phrases),
-  spelling(options.spelling),
   shortcuts,
   symbolPalette(),
   // NOTE: `emptyLineFiller` needs to be before `trackChanges`,

@@ -22,7 +22,6 @@ import SidebarDsNav from '@/features/project-list/components/sidebar/sidebar-ds-
 import SystemMessages from '@/shared/components/system-messages'
 import overleafLogo from '@/shared/svgs/overleaf-a-ds-solution-mallard.svg'
 import overleafLogoDark from '@/shared/svgs/overleaf-a-ds-solution-mallard-dark.svg'
-import CookieBanner from '@/shared/components/cookie-banner'
 import NoProjects from '@/features/project-list/components/no-projects'
 import { useActiveOverallTheme } from '@/shared/hooks/use-active-overall-theme'
 import { useFeatureFlag } from '@/shared/context/split-test-context'
@@ -146,7 +145,6 @@ export function ProjectListDsNav() {
             </div>
             <Footer {...footerProps} />
           </div>
-          <CookieBanner />
         </div>
       </div>
     </div>

@@ -38,7 +38,6 @@ import LocalsHelper from '../SplitTests/LocalsHelper.mjs'
 import SplitTestHandler from '../SplitTests/SplitTestHandler.mjs'
 import SplitTestSessionHandler from '../SplitTests/SplitTestSessionHandler.mjs'
 import FeaturesUpdater from '../Subscription/FeaturesUpdater.mjs'
-import SpellingHandler from '../Spelling/SpellingHandler.mjs'
 import AdminAuthorizationHelper from '../Helpers/AdminAuthorizationHelper.mjs'
 import InstitutionsFeatures from '../Institutions/InstitutionsFeatures.mjs'
 import InstitutionsGetter from '../Institutions/InstitutionsGetter.mjs'
@@ -671,7 +670,6 @@ const _ProjectController = {
               ? user
               : await ProjectController._refreshFeatures(req, user)
           })(),
-          learnedWords: SpellingHandler.promises.getUserDictionary(userId),
           projectTags: TagsHandler.promises.getTagsForProject(
             userId,
             projectId
@@ -754,7 +752,6 @@ const _ProjectController = {
 
       const {
         user,
-        learnedWords,
         projectTags,
         userHasInstitutionLicence,
         subscription,
@@ -1159,7 +1156,6 @@ const _ProjectController = {
           Settings.adminOnlyLogin || project.name.startsWith('Debug: '),
         defaultLatexCompiler: Settings.defaultLatexCompiler,
         languages: Settings.languages,
-        learnedWords,
         editorThemes: THEME_LIST,
         legacyEditorThemes: LEGACY_THEME_LIST,
         maxDocLength: Settings.max_doc_length,
@@ -1502,7 +1498,6 @@ const defaultSettingsForAnonymousUser = userId => ({
 
 const defaultUserValues = () => ({
   user: defaultSettingsForAnonymousUser(null),
-  learnedWords: [],
   projectTags: [],
   userHasInstitutionLicence: false,
   affiliations: [],

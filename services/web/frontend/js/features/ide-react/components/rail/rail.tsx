@@ -7,12 +7,9 @@ import {
   useRailContext,
 } from '@/features/ide-react/context/rail-context'
 import FileTreeOutlinePanel from '@/features/file-tree/components/file-tree-outline-panel'
-import ChatPane from '@/features/chat/components/chat-pane'
-import ChatIndicator from '@/features/chat/components/chat-indicator'
 import getMeta from '@/utils/meta'
 import classNames from 'classnames'
 import IntegrationsPanel from '@/features/integrations-panel/integrations-panel'
-import { useChatContext } from '@/features/chat/context/chat-context'
 import { useEditorAnalytics } from '@/shared/hooks/use-editor-analytics'
 import {
   FullProjectSearchPanel,
@@ -21,7 +18,6 @@ import {
 import { sendSearchEvent } from '@/features/event-tracking/search-events'
 import { useProjectContext } from '@/shared/context/project-context'
 import { useCommandProvider } from '@/features/ide-react/hooks/use-command-provider'
-import RailHelpDropdown from './rail-help-dropdown'
 import RailTab from './rail-tab'
 import RailActionElement, { RailAction } from './rail-action-element'
 import { RailElement } from '@/features/ide-react/util/rail-types'
@@ -75,8 +71,6 @@ export const RailLayout = () => {
 
   const { view, setSettingsShown, focusMode } = useLayoutContext()
 
-  const { markMessagesAsRead } = useChatContext()
-
   useEventListener(
     'ui:select-rail-tab',
     useCallback(
@@ -119,30 +113,10 @@ export const RailLayout = () => {
         component: <IntegrationsPanel />,
         hide: !isOverleaf && !gitBridgeEnabled,
       },
-      {
-        key: 'review-panel',
-        icon: 'rate_review',
-        title: t('review_panel'),
-        component: null,
-        hide: !features.trackChangesVisible,
-        disabled: view !== 'editor',
-      },
-      {
-        key: 'chat',
-        icon: 'forum',
-        component: <ChatPane />,
-        indicator: <ChatIndicator />,
-        title: t('chat'),
-        hide:
-          !getMeta('ol-capabilities')?.includes('chat') ||
-          isRestrictedTokenMember,
-      },
       ...moduleRailEntries,
     ],
     [
       t,
-      features.trackChangesVisible,
-      view,
       isRestrictedTokenMember,
       isOverleaf,
       gitBridgeEnabled,
@@ -151,12 +125,6 @@ export const RailLayout = () => {
 
   const railActions: RailAction[] = useMemo(
     () => [
-      {
-        key: 'support',
-        icon: 'help',
-        title: t('help'),
-        dropdown: <RailHelpDropdown />,
-      },
       ...moduleRailActions,
       {
         key: 'settings',
@@ -214,13 +182,9 @@ export const RailLayout = () => {
             location: 'rail',
           })
         }
-
-        if (key === 'chat') {
-          markMessagesAsRead()
-        }
       }
     },
-    [openTab, togglePane, selectedTab, railTabs, sendEvent, markMessagesAsRead]
+    [openTab, togglePane, selectedTab, railTabs, sendEvent]
   )
 
   useEffect(() => {
@@ -234,7 +198,7 @@ export const RailLayout = () => {
     }
   }, [railTabs, selectedTab, openTab, isOpen])
 
-  const isReviewPanelOpen = selectedTab === 'review-panel' && isOpen
+  const isReviewPanelOpen = false
 
   const { tabsInRail, tabsInOverflow, tabWrapperRef } =
     useRailOverflow(railTabs)

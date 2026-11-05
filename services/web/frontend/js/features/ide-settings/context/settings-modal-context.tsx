@@ -14,8 +14,6 @@ import PreviewTabsSetting from '@/features/ide-settings/components/editor-settin
 import KeybindingSetting from '@/features/ide-settings/components/editor-settings/keybinding-setting'
 import PDFViewerSetting from '@/features/ide-settings/components/editor-settings/pdf-viewer-setting'
 import importOverleafModules from '../../../../macros/import-overleaf-module.macro'
-import SpellCheckSetting from '@/features/ide-settings/components/editor-settings/spell-check-setting'
-import DictionarySetting from '@/features/ide-settings/components/editor-settings/dictionary-setting'
 import { useTranslation } from 'react-i18next'
 import BreadcrumbsSetting from '@/features/ide-settings/components/editor-settings/breadcrumbs-setting'
 import NonBlinkingCursorSetting from '@/features/ide-settings/components/editor-settings/non-blinking-cursor-setting'
@@ -60,8 +58,6 @@ const editorTabExtraSectionHooks: SettingsSectionHook[] = importOverleafModules(
   .map((m: any) => m?.import?.default)
   .filter((h: unknown): h is SettingsSectionHook => typeof h === 'function')
 
-const spellcheckExtraSectionHooks: SettingsSectionHook[] =
-  importOverleafModules('settingsModalSpellcheckSections')
     .map((m: any) => m?.import?.default)
     .filter((h: unknown): h is SettingsSectionHook => typeof h === 'function')
 
@@ -105,7 +101,6 @@ export const SettingsModalProvider: FC<React.PropsWithChildren> = ({
   const hasToolbarMigration = useFeatureFlag('writefull-toolbar-migration')
 
   const editorTabExtraSections = useSlotSections(editorTabExtraSectionHooks)
-  const spellcheckExtraSections = useSlotSections(spellcheckExtraSectionHooks)
 
   const allSettingsTabs: SettingsEntry[] = useMemo(
     () => [
@@ -175,29 +170,6 @@ export const SettingsModalProvider: FC<React.PropsWithChildren> = ({
             ],
           },
           ...editorTabExtraSections,
-        ],
-      },
-      {
-        key: 'spelling_and_language',
-        title: t('spelling_and_language'),
-        icon: 'spellcheck',
-        hidden: true, // hunspell dictionaries do not cover Thai
-        sections: [
-          {
-            key: 'spellcheck',
-            title: t('spellcheck'),
-            settings: [
-              {
-                key: 'spellCheckLanguage',
-                component: <SpellCheckSetting />,
-              },
-              {
-                key: 'dictionary-settings',
-                component: <DictionarySetting />,
-              },
-            ],
-          },
-          ...spellcheckExtraSections,
         ],
       },
       {
@@ -350,7 +322,6 @@ export const SettingsModalProvider: FC<React.PropsWithChildren> = ({
       hasEmailNotifications,
       isOverleaf,
       editorTabExtraSections,
-      spellcheckExtraSections,
       hasToolbarMigration,
       floatingMenu,
     ]

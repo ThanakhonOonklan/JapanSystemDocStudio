@@ -1,5 +1,4 @@
 import React, { ElementType, FC, PropsWithChildren } from 'react'
-import { ChatProvider } from '@/features/chat/context/chat-context'
 import { ChangesUsersProvider } from '@/shared/context/changes-users-context'
 import { ConnectionProvider } from './connection-context'
 import { DeepLinkProvider } from '@/features/ide-react/context/deep-link-context'
@@ -48,7 +47,6 @@ export const ReactContextRoot: FC<
   }>
 > = ({ children, providers = {} }) => {
   const Providers = {
-    ChatProvider,
     ChangesUsersProvider,
     ConnectionProvider,
     DeepLinkProvider,
@@ -127,8 +125,7 @@ export const ReactContextRoot: FC<
                                                     <Providers.ReferencesProvider>
                                                       <Providers.LocalCompileProvider>
                                                         <Providers.DetachCompileProvider>
-                                                          <Providers.ChatProvider>
-                                                            <Providers.FileTreeOpenProvider>
+                                                                                                                      <Providers.FileTreeOpenProvider>
                                                               <Providers.TabsProvider>
                                                                 <Providers.OnlineUsersProvider>
                                                                   <Providers.MetadataProvider>
@@ -147,8 +144,7 @@ export const ReactContextRoot: FC<
                                                                 </Providers.OnlineUsersProvider>
                                                               </Providers.TabsProvider>
                                                             </Providers.FileTreeOpenProvider>
-                                                          </Providers.ChatProvider>
-                                                        </Providers.DetachCompileProvider>
+                                                                                                                  </Providers.DetachCompileProvider>
                                                       </Providers.LocalCompileProvider>
                                                     </Providers.ReferencesProvider>
                                                   </Providers.UnsavedDocsProvider>

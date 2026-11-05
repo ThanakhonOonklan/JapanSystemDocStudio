@@ -26,7 +26,6 @@ import { setAutoPair } from '../extensions/auto-pair'
 import { setAutoComplete } from '../extensions/auto-complete'
 import { usePhrases } from './use-phrases'
 import { setPhrases } from '../extensions/phrases'
-import { setSpellCheckLanguage } from '../extensions/spelling'
 import { setKeybindings } from '../extensions/keybindings'
 import { Highlight } from '../../../../../types/highlight'
 import { EditorView } from '@codemirror/view'
@@ -45,10 +44,6 @@ import { useUserContext } from '@/shared/context/user-context'
 import { useReferencesContext } from '@/features/ide-react/context/references-context'
 import { setMathPreview } from '@/features/source-editor/extensions/math-preview'
 import { setNonBlinkingCursor } from '@/features/source-editor/extensions/non-blinking-cursor'
-import { useRangesContext } from '@/features/review-panel/context/ranges-context'
-import { updateRanges } from '@/features/source-editor/extensions/ranges'
-import { useThreadsContext } from '@/features/review-panel/context/threads-context'
-import { useHunspell } from '@/features/source-editor/hooks/use-hunspell'
 import { Permissions } from '@/features/ide-react/types/permissions'
 import { GotoOffsetOptions } from '@/features/ide-react/context/editor-manager-context'
 import { GotoLineOptions } from '@/features/ide-react/types/goto-line-options'
@@ -100,23 +95,13 @@ function useCodeMirrorScope(view: EditorView) {
 
   const { onlineUserCursorHighlights } = useOnlineUsersContext()
 
-  const { project, features: projectFeatures } = useProjectContext()
-  let spellCheckLanguage = project?.spellCheckLanguage || ''
-  // spell check is off when read-only
-  if (!permissions.write && !permissions.trackedWrite) {
-    spellCheckLanguage = ''
-  }
-
-  const hunspellManager = useHunspell(spellCheckLanguage)
-
+  const { features: projectFeatures } = useProjectContext()
   const { showVisual: visual, trackChanges } = useEditorPropertiesContext()
 
   const { referenceKeys, searchLocalReferences } = useReferencesContext()
 
   const { setEditorSelection } = useEditorSelectionContext()
 
-  const ranges = useRangesContext()
-  const threads = useThreadsContext()
 
   // build the translation phrases
   const phrases = usePhrases()
@@ -189,14 +174,6 @@ function useCodeMirrorScope(view: EditorView) {
     }
   }, [view, currentDocument])
 
-  useEffect(() => {
-    if (ranges && threads) {
-      window.setTimeout(() => {
-        view.dispatch(updateRanges({ ranges, threads }))
-      })
-    }
-  }, [view, ranges, threads])
-
   const docNameRef = useRef(openDocName)
 
   useEffect(() => {
@@ -210,21 +187,6 @@ function useCodeMirrorScope(view: EditorView) {
       }
     }
   }, [userId, currentDocument, trackChanges])
-
-  const spellingRef = useRef({
-    spellCheckLanguage,
-    hunspellManager,
-  })
-
-  useEffect(() => {
-    spellingRef.current = {
-      spellCheckLanguage,
-      hunspellManager,
-    }
-    window.setTimeout(() => {
-      view.dispatch(setSpellCheckLanguage(spellingRef.current))
-    })
-  }, [view, spellCheckLanguage, hunspellManager])
 
   const projectFeaturesRef = useRef(projectFeatures)
 
@@ -361,7 +323,6 @@ function useCodeMirrorScope(view: EditorView) {
           metadata: metadataRef.current,
           settings: settingsRef.current,
           phrases: phrasesRef.current,
-          spelling: spellingRef.current,
           showVisual: showVisualRef.current,
           previewByPath: previewByPathRef.current,
           currentDocFolder: dirnameRef.current(currentDocument.doc_id),

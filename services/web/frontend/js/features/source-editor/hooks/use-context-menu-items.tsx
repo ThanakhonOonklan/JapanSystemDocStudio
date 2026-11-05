@@ -3,8 +3,6 @@ import {
   useCodeMirrorViewContext,
 } from '@/features/source-editor/components/codemirror-context'
 import { usePermissionsContext } from '@/features/ide-react/context/permissions-context'
-import { useEditorPropertiesContext } from '@/features/ide-react/context/editor-properties-context'
-import { useProjectContext } from '@/shared/context/project-context'
 import useSynctex from '@/features/pdf-preview/hooks/use-synctex'
 import { useDetachCompileContext } from '@/shared/context/detach-compile-context'
 import { useLayoutContext } from '@/shared/context/layout-context'
@@ -28,21 +26,16 @@ import {
 } from '../commands/clipboard'
 import { showClipboardPasteErrorToast } from '../components/clipboard-toasts'
 import { isVisual } from '../extensions/visual/visual'
-import { useEditorContext } from '@/shared/context/editor-context'
-import { useTrackingChangesMode } from '@/shared/hooks/use-tracking-changes-mode'
 import {
   sendContextMenuEvent,
   ContextMenuItemSegmentation,
 } from '../utils/context-menu-analytics'
-import { isCursorOnEmptyLine } from '../utils/is-cursor-on-empty-line'
 import { selectAll } from '@codemirror/commands'
-import { useTrackedChangesActions } from '@/features/review-panel/hooks/use-tracked-changes-actions'
 
 export const useContextMenuItems = () => {
   const view = useCodeMirrorViewContext()
   const state = useCodeMirrorStateContext()
   const permissions = usePermissionsContext()
-  const { wantTrackChanges } = useEditorPropertiesContext()
   const { syncToPdf, syncToPdfInFlight, canSyncToPdf } = useSynctex()
   const { pdfUrl, pdfViewer } = useDetachCompileContext()
   const {
@@ -55,13 +48,7 @@ export const useContextMenuItems = () => {
   const visualPreviewEnabled = useFeatureFlag('visual-preview')
   const { t } = useTranslation()
   const { shortcuts } = useCommandRegistry()
-  const { features } = useProjectContext()
   const requestedPdfSyncRef = useRef(false)
-  const { setUpgradeTrackChangesModal } = useEditorContext()
-  const trackingChangesMode = useTrackingChangesMode()
-  const isReview = trackingChangesMode === 'review'
-  const { changesInSelection, acceptChangesHandler, rejectChangesHandler } =
-    useTrackedChangesActions()
   const { openDocWithId } = useEditorManagerContext()
   const { findEntityByPath } = useFileTreePathContext()
   const { commandName, commandDefinition } = useContextMenuCommandDefinition()
@@ -161,37 +148,6 @@ export const useContextMenuItems = () => {
   const handleDelete = wrapForContextMenu('delete', () =>
     commands.deleteSelection(view)
   )
-
-  const handleToggleTrackChanges = wrapForContextMenu(
-    wantTrackChanges ? 'back-to-editing' : 'suggest-edits',
-    () => {
-      // Matching the logic in review toggle to ensure consistency for server pro
-      if (!features.trackChanges && !isReview) {
-        setUpgradeTrackChangesModal({
-          show: true,
-          location: 'editor-context-menu',
-        })
-        return true
-      }
-      window.dispatchEvent(new Event('toggle-track-changes'))
-      return true
-    }
-  )
-
-  const handleComment = wrapForContextMenu('comment', () => {
-    commands.addComment('editor-context-menu')
-    return true
-  })
-
-  const handleAcceptChanges = wrapForContextMenu('accept-changes', () => {
-    acceptChangesHandler()
-    return true
-  })
-
-  const handleRejectChanges = wrapForContextMenu('reject-changes', () => {
-    rejectChangesHandler()
-    return true
-  })
 
   const handleJumpToDefinition = wrapForContextMenu(
     'jump-to-definition',
@@ -293,35 +249,6 @@ export const useContextMenuItems = () => {
         disabled: !commandDefinition,
         separatorAbove: !jumpToLocationInPdfEnabled,
         show: Boolean(commandName),
-        shortcut: undefined,
-      },
-      {
-        label: wantTrackChanges ? t('back_to_editing') : t('suggest_edits'),
-        handler: handleToggleTrackChanges,
-        disabled: false,
-        separatorAbove: true,
-        show: canEdit && features.trackChangesVisible,
-        shortcut: getShortcut('toggle-track-changes'),
-      },
-      {
-        label: t('comment'),
-        handler: handleComment,
-        disabled: isCursorOnEmptyLine(state),
-        show: permissions.comment && !focusMode,
-        shortcut: getShortcut('insert-comment'),
-      },
-      {
-        label: t('accept_selected_changes'),
-        handler: handleAcceptChanges,
-        disabled: false,
-        show: permissions.write && changesInSelection.length > 0,
-        shortcut: undefined,
-      },
-      {
-        label: t('reject_selected_changes'),
-        handler: handleRejectChanges,
-        disabled: false,
-        show: permissions.write && changesInSelection.length > 0,
         shortcut: undefined,
       },
     ].filter(item => item.show),

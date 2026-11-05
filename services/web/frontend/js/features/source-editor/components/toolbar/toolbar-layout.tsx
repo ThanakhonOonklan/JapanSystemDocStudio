@@ -5,9 +5,7 @@ import { undo, redo } from '@codemirror/commands'
 import { useTranslation } from 'react-i18next'
 import { isMac } from '@/shared/utils/os'
 import { useCodeMirrorStateContext } from '@/features/source-editor/components/codemirror-context'
-import { useProjectContext } from '@/shared/context/project-context'
 import EditorSwitch from '@/features/source-editor/components/editor-switch'
-import ReviewModeSwitcher from '@/features/review-panel/components/review-mode-switcher'
 import { ToggleSearchButton } from './toggle-search-button'
 import SwitchToPDFButton from '../switch-to-pdf-button'
 import importOverleafModules from '../../../../../macros/import-overleaf-module.macro'
@@ -82,19 +80,11 @@ function Right({
   const state = useCodeMirrorStateContext()
   const visualPreviewEnabled = useFeatureFlag('visual-preview')
   const isToolbarMigration = useFeatureFlag('writefull-toolbar-migration')
-  const { features } = useProjectContext()
   const networkIsStalled = useIsNetworkStalled()
   return (
     <div className="ol-toolbar-layout-right">
       {networkIsStalled && <DownloadFileButton />}
       {!visualPreviewEnabled && <EditorSwitch />}
-      {/* trackChangesVisible controls provider/UI availability; trackChanges
-          (checked inside the switcher) controls the actual feature entitlement.
-          Users with trackChangesVisible:true but trackChanges:false see the
-          switcher and get an upgrade modal when clicking "Reviewing". */}
-      {isToolbarMigration &&
-        canUseWritefull !== false &&
-        features.trackChangesVisible && <ReviewModeSwitcher />}
       {!isToolbarMigration && (
         <div
           style={{

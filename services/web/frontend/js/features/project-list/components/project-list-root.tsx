@@ -18,7 +18,6 @@ import Footer from '@/shared/components/footer/footer'
 import WelcomePageContent from '@/features/project-list/components/welcome-page-content'
 import { ProjectListDsNav } from '@/features/project-list/components/project-list-ds-nav'
 import { DsNavStyleProvider } from '@/features/project-list/components/use-is-ds-nav'
-import CookieBanner from '@/shared/components/cookie-banner'
 import useThemedPage from '@/shared/hooks/use-themed-page'
 import { UserSettingsProvider } from '@/shared/context/user-settings-context'
 import { TutorialProvider } from '@/shared/context/tutorial-context'
@@ -101,7 +100,6 @@ function ProjectListPageContent() {
         <DefaultPageContentWrapper>
           <WelcomePageContent />
         </DefaultPageContentWrapper>
-        <CookieBanner />
       </>
     )
   }

@@ -417,12 +417,6 @@ module.exports = {
           toType: 'dir',
           context: mathjaxDir,
         },
-        {
-          from: '*',
-          to: `js/dictionaries/${PackageVersions.version.dictionaries}`,
-          toType: 'dir',
-          context: `${dictionariesDir}/dictionaries`,
-        },
         // Copy Pyodide runtime assets from the npm package so the loader is
         // always available. Python package wheels are fetched separately by
         // scripts/fetch-pyodide-packages.mjs into the same directory on disk.

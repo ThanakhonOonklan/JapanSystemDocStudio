@@ -9,13 +9,6 @@ import { CodemirrorOutline } from './codemirror-outline'
 import { CodeMirrorCommandTooltip } from './codemirror-command-tooltip'
 import importOverleafModules from '../../../../macros/import-overleaf-module.macro'
 import { FigureModal } from './figure-modal/figure-modal'
-import { ReviewPanelProviders } from '@/features/review-panel/context/review-panel-providers'
-import { ReviewPanelRoot } from '@/features/review-panel/components/review-panel-root'
-import ReviewPanelTabsHeaderPortal from '@/features/review-panel/components/review-panel-tabs-header-portal'
-import ReviewTooltipMenu from '@/features/review-panel/components/review-tooltip-menu'
-import DeepLink from '@/features/review-panel/components/deep-link'
-import EditorFloatingMenu from '@/features/editor-floating-menu/editor-floating-menu'
-import AddCommentCommand from '@/features/editor-floating-menu/components/add-comment-command'
 import {
   CodeMirrorStateContext,
   CodeMirrorViewContext,
@@ -24,11 +17,9 @@ import MathPreviewTooltip from './math-preview-tooltip'
 import { getVisualEditorComponent } from '../utils/visual-editor'
 import EditorContextMenu from './editor-context-menu'
 import { useToolbarMenuBarEditorCommands } from '@/features/source-editor/hooks/use-toolbar-menu-editor-commands'
-import { useProjectContext } from '@/shared/context/project-context'
 import { useFeatureFlag } from '@/shared/context/split-test-context'
 import { useEditorOpenDocContext } from '@/features/ide-react/context/editor-open-doc-context'
 import { useEditorPropertiesContext } from '@/features/ide-react/context/editor-properties-context'
-import UpgradeTrackChangesModal from '@/features/review-panel/components/upgrade-track-changes-modal'
 
 // TODO: remove this when definitely no longer used
 export * from './codemirror-context'
@@ -95,12 +86,8 @@ function CodeMirrorEditorComponents({
   VisualEditor,
 }: CodeMirrorEditorComponentsProps) {
   useToolbarMenuBarEditorCommands()
-  const { features } = useProjectContext()
-  const writefullToolbarMigrationEnabled = useFeatureFlag(
-    'writefull-toolbar-migration'
-  )
   return (
-    <ReviewPanelProviders>
+    <>
       <CodemirrorOutline />
       <CodeMirrorView hidden={hidden} />
       <FigureModal />
@@ -110,19 +97,6 @@ function CodeMirrorEditorComponents({
 
       <MathPreviewTooltip />
       <EditorContextMenu />
-      <DeepLink />
-      {features.trackChangesVisible &&
-        (writefullToolbarMigrationEnabled ? (
-          <>
-            <AddCommentCommand />
-            <EditorFloatingMenu />
-          </>
-        ) : (
-          <ReviewTooltipMenu />
-        ))}
-      {features.trackChangesVisible && <ReviewPanelTabsHeaderPortal />}
-      {features.trackChangesVisible && <ReviewPanelRoot />}
-      {features.trackChangesVisible && <UpgradeTrackChangesModal />}
 
       {sourceEditorComponents.map(
         ({ import: { default: Component }, path }) => (
@@ -134,7 +108,7 @@ function CodeMirrorEditorComponents({
           <VisualEditor />
         </Suspense>
       )}
-    </ReviewPanelProviders>
+    </>
   )
 }
 

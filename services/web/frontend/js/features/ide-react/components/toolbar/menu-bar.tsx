@@ -15,7 +15,6 @@ import CommandDropdown, {
   MenuSectionStructure,
   MenuStructure,
 } from './command-dropdown'
-import { useRailContext } from '../../context/rail-context'
 import useIsNetworkStalled from '@/features/ide-react/hooks/use-is-network-stalled'
 import WordCountModal from '@/features/word-count-modal/components/word-count-modal'
 import { isSplitTestEnabled } from '@/utils/splitTestUtils'
@@ -25,7 +24,6 @@ import getMeta from '@/utils/meta'
 import EditorCloneProjectModalWrapper from '@/features/clone-project-modal/components/editor-clone-project-modal-wrapper'
 import useOpenProject from '@/shared/hooks/use-open-project'
 import importOverleafModules from '../../../../../macros/import-overleaf-module.macro'
-import ReviewModeOptions from './review-mode-options'
 
 const menubarExtraComponents = importOverleafModules(
   'menubarExtraComponents'
@@ -48,8 +46,6 @@ export const ToolbarMenuBar = () => {
   const openProject = useOpenProject()
 
   const anonymous = getMeta('ol-anonymous')
-  const showSupport = getMeta('ol-showSupport')
-  const showDocumentation = getMeta('ol-wikiEnabled')
 
   useCommandProvider(
     () => [
@@ -238,13 +234,6 @@ export const ToolbarMenuBar = () => {
     setEditorTabs(!editorTabs)
   }, [setEditorTabs, editorTabs])
 
-  const { setActiveModal } = useRailContext()
-  const openKeyboardShortcutsModal = useCallback(() => {
-    setActiveModal('keyboard-shortcuts')
-  }, [setActiveModal])
-  const openContactUsModal = useCallback(() => {
-    setActiveModal('contact-us')
-  }, [setActiveModal])
 
   return (
     <>
@@ -265,7 +254,6 @@ export const ToolbarMenuBar = () => {
           className="ide-redesign-toolbar-dropdown-toggle-subdued ide-redesign-toolbar-button-subdued"
         >
           <ChangeLayoutOptions />
-          <ReviewModeOptions />
           <OLDropdownDivider />
           <OLDropdownHeader>{t('editor_settings')}</OLDropdownHeader>
           <MenuBarOption
@@ -306,36 +294,6 @@ export const ToolbarMenuBar = () => {
           title={t('format')}
           id="format"
         />
-        <MenuBarDropdown
-          title={t('help')}
-          id="help"
-          className="ide-redesign-toolbar-dropdown-toggle-subdued ide-redesign-toolbar-button-subdued"
-        >
-          <MenuBarOption
-            eventKey="keyboard_shortcuts"
-            title={t('keyboard_shortcuts')}
-            onClick={openKeyboardShortcutsModal}
-          />
-          {showDocumentation && (
-            <MenuBarOption
-              title={t('documentation')}
-              eventKey="documentation"
-              href="/learn"
-              target="_blank"
-              rel="noopener noreferrer"
-            />
-          )}
-          {showSupport && (
-            <>
-              <OLDropdownDivider />
-              <MenuBarOption
-                eventKey="contact_us"
-                title={t('contact_us')}
-                onClick={openContactUsModal}
-              />
-            </>
-          )}
-        </MenuBarDropdown>
       </MenuBar>
       <WordCountModal
         show={showWordCountModal}

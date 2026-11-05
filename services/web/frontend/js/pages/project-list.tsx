@@ -1,7 +1,6 @@
 import './../utils/meta'
 import '../utils/webpack-public-path'
 import './../infrastructure/error-reporter'
-import './../infrastructure/mixpanel-autocapture'
 import '@/i18n'
 import '../features/link-helpers/slow-link'
 import { createRoot } from 'react-dom/client'
