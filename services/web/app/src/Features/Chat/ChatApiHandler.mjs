@@ -1,275 +1,185 @@
 // @ts-check
 
-import { fetchJson, fetchNothing } from '@overleaf/fetch-utils'
+// Documentation Studio REA: the standalone `chat` service has been removed.
+//
+// This module keeps the same interface as the original HTTP client so that
+// the rest of `web` (project deletion/duplication, document loading, history
+// restore, authorization) keeps working, but every call is now answered
+// locally with an empty result. Chat messages and comment threads are not
+// stored anywhere.
 
-import settings from '@overleaf/settings'
 import { callbackify } from 'node:util'
 
+const CHAT_REMOVED = 'chat service has been removed'
+
 /**
- * @param {any} projectId
- * @param {any} threadId
+ * Used by AuthorizationManager to check thread ownership for reviewers.
+ * There are no threads, so we always reject (access is denied).
+ *
+ * @param {any} _projectId
+ * @param {any} _threadId
  */
-async function getThread(projectId, threadId) {
-  return await fetchJson(chatApiUrl(`/project/${projectId}/thread/${threadId}`))
+async function getThread(_projectId, _threadId) {
+  throw new Error(CHAT_REMOVED)
 }
 
 /**
- * @param {any} projectId
- * @param {any} threadId
- * @param {any} messageId
+ * @param {any} _projectId
+ * @param {any} _threadId
+ * @param {any} _messageId
  */
-async function getThreadMessage(projectId, threadId, messageId) {
-  return await fetchJson(
-    chatApiUrl(`/project/${projectId}/thread/${threadId}/messages/${messageId}`)
-  )
+async function getThreadMessage(_projectId, _threadId, _messageId) {
+  throw new Error(CHAT_REMOVED)
 }
 
 /**
- * @param {any} projectId
+ * @param {any} _projectId
  */
-async function getThreads(projectId) {
-  return await fetchJson(chatApiUrl(`/project/${projectId}/threads`))
+async function getThreads(_projectId) {
+  return {}
 }
 
 /**
- * @param {any} projectId
+ * @param {any} _projectId
  */
-async function destroyProject(projectId) {
-  await fetchNothing(chatApiUrl(`/project/${projectId}`), { method: 'DELETE' })
+async function destroyProject(_projectId) {}
+
+/**
+ * @param {any} _projectId
+ * @param {any} _userId
+ * @param {any} _content
+ */
+async function sendGlobalMessage(_projectId, _userId, _content) {
+  throw new Error(CHAT_REMOVED)
 }
 
 /**
- * @param {any} projectId
- * @param {any} userId
- * @param {any} content
+ * @param {any} _projectId
+ * @param {any} _limit
+ * @param {any} _before
  */
-async function sendGlobalMessage(projectId, userId, content) {
-  const message = await fetchJson(
-    chatApiUrl(`/project/${projectId}/messages`),
-    {
-      method: 'POST',
-      json: { user_id: userId, content },
-    }
-  )
-  return message
+async function getGlobalMessages(_projectId, _limit, _before) {
+  return []
 }
 
 /**
- * @param {any} projectId
- * @param {any} limit
- * @param {any} before
+ * @param {any} _projectId
+ * @param {any} _messageId
  */
-async function getGlobalMessages(projectId, limit, before) {
-  const url = chatApiUrl(`/project/${projectId}/messages`)
-  if (limit != null) {
-    url.searchParams.set('limit', limit)
-  }
-  if (before != null) {
-    url.searchParams.set('before', before)
-  }
-
-  return await fetchJson(url)
+async function getGlobalMessage(_projectId, _messageId) {
+  throw new Error(CHAT_REMOVED)
 }
 
 /**
- * @param {any} projectId
- * @param {any} messageId
+ * @param {any} _projectId
+ * @param {any} _threadId
+ * @param {any} _userId
+ * @param {any} _content
  */
-async function getGlobalMessage(projectId, messageId) {
-  return await fetchJson(
-    chatApiUrl(`/project/${projectId}/messages/${messageId}`)
-  )
+async function sendComment(_projectId, _threadId, _userId, _content) {
+  throw new Error(CHAT_REMOVED)
 }
 
 /**
- * @param {any} projectId
- * @param {any} threadId
- * @param {any} userId
- * @param {any} content
+ * @param {any} _projectId
+ * @param {any} _threadId
+ * @param {any} _userId
  */
-async function sendComment(projectId, threadId, userId, content) {
-  const comment = await fetchJson(
-    chatApiUrl(`/project/${projectId}/thread/${threadId}/messages`),
-    {
-      method: 'POST',
-      json: { user_id: userId, content },
-    }
-  )
-  return comment
+async function resolveThread(_projectId, _threadId, _userId) {}
+
+/**
+ * @param {any} _projectId
+ * @param {any} _threadId
+ */
+async function reopenThread(_projectId, _threadId) {}
+
+/**
+ * @param {any} _projectId
+ * @param {any} _threadId
+ */
+async function deleteThread(_projectId, _threadId) {}
+
+/**
+ * @param {any} _projectId
+ * @param {any} _threadId
+ * @param {any} _messageId
+ * @param {any} _userId
+ * @param {any} _content
+ */
+async function editMessage(
+  _projectId,
+  _threadId,
+  _messageId,
+  _userId,
+  _content
+) {}
+
+/**
+ * @param {any} _projectId
+ * @param {any} _messageId
+ * @param {any} _userId
+ * @param {any} _content
+ */
+async function editGlobalMessage(_projectId, _messageId, _userId, _content) {}
+
+/**
+ * @param {any} _projectId
+ * @param {any} _threadId
+ * @param {any} _messageId
+ */
+async function deleteMessage(_projectId, _threadId, _messageId) {}
+
+/**
+ * @param {any} _projectId
+ * @param {any} _threadId
+ * @param {any} _userId
+ * @param {any} _messageId
+ */
+async function deleteUserMessage(_projectId, _threadId, _userId, _messageId) {}
+
+/**
+ * @param {any} _projectId
+ * @param {any} _messageId
+ */
+async function deleteGlobalMessage(_projectId, _messageId) {}
+
+/**
+ * Called on every document load.
+ *
+ * @param {any} _projectId
+ * @return {Promise<string[]>}
+ */
+async function getResolvedThreadIds(_projectId) {
+  return []
 }
 
 /**
- * @param {any} projectId
- * @param {any} threadId
- * @param {any} userId
+ * Called when restoring a document from history that contains comments.
+ * Returns no duplicated threads, so comments are simply dropped.
+ *
+ * @param {any} _projectId
+ * @param {any} _threads
+ * @return {Promise<{ newThreads: Record<string, any> }>}
  */
-async function resolveThread(projectId, threadId, userId) {
-  await fetchNothing(
-    chatApiUrl(`/project/${projectId}/thread/${threadId}/resolve`),
-    {
-      method: 'POST',
-      json: { user_id: userId },
-    }
-  )
+async function duplicateCommentThreads(_projectId, _threads) {
+  return { newThreads: {} }
 }
 
 /**
- * @param {any} projectId
- * @param {any} threadId
+ * @param {any} _projectId
+ * @param {any} _threads
+ * @return {Promise<Record<string, any>>}
  */
-async function reopenThread(projectId, threadId) {
-  await fetchNothing(
-    chatApiUrl(`/project/${projectId}/thread/${threadId}/reopen`),
-    { method: 'POST' }
-  )
+async function generateThreadData(_projectId, _threads) {
+  return {}
 }
 
 /**
- * @param {any} projectId
- * @param {any} threadId
- */
-async function deleteThread(projectId, threadId) {
-  await fetchNothing(chatApiUrl(`/project/${projectId}/thread/${threadId}`), {
-    method: 'DELETE',
-  })
-}
-
-/**
- * @param {any} projectId
- * @param {any} threadId
- * @param {any} messageId
- * @param {any} userId
- * @param {any} content
- */
-async function editMessage(projectId, threadId, messageId, userId, content) {
-  await fetchNothing(
-    chatApiUrl(
-      `/project/${projectId}/thread/${threadId}/messages/${messageId}/edit`
-    ),
-    {
-      method: 'POST',
-      json: { content, userId },
-    }
-  )
-}
-
-/**
- * @param {any} projectId
- * @param {any} messageId
- * @param {any} userId
- * @param {any} content
- */
-async function editGlobalMessage(projectId, messageId, userId, content) {
-  await fetchNothing(
-    chatApiUrl(`/project/${projectId}/messages/${messageId}/edit`),
-    {
-      method: 'POST',
-      json: { content, userId },
-    }
-  )
-}
-
-/**
- * @param {any} projectId
- * @param {any} threadId
- * @param {any} messageId
- */
-async function deleteMessage(projectId, threadId, messageId) {
-  await fetchNothing(
-    chatApiUrl(
-      `/project/${projectId}/thread/${threadId}/messages/${messageId}`
-    ),
-    { method: 'DELETE' }
-  )
-}
-
-/**
- * @param {any} projectId
- * @param {any} threadId
- * @param {any} userId
- * @param {any} messageId
- */
-async function deleteUserMessage(projectId, threadId, userId, messageId) {
-  await fetchNothing(
-    chatApiUrl(
-      `/project/${projectId}/thread/${threadId}/user/${userId}/messages/${messageId}`
-    ),
-    { method: 'DELETE' }
-  )
-}
-
-/**
- * @param {any} projectId
- * @param {any} messageId
- */
-async function deleteGlobalMessage(projectId, messageId) {
-  await fetchNothing(
-    chatApiUrl(`/project/${projectId}/messages/${messageId}`),
-    { method: 'DELETE' }
-  )
-}
-
-/**
- * @param {any} projectId
- */
-async function getResolvedThreadIds(projectId) {
-  const body = await fetchJson(
-    chatApiUrl(`/project/${projectId}/resolved-thread-ids`)
-  )
-  return body.resolvedThreadIds
-}
-
-/**
- * @param {any} projectId
- * @param {any} threads
- */
-async function duplicateCommentThreads(projectId, threads) {
-  return await fetchJson(
-    chatApiUrl(`/project/${projectId}/duplicate-comment-threads`),
-    {
-      method: 'POST',
-      json: {
-        threads,
-      },
-    }
-  )
-}
-
-/**
- * @param {any} projectId
- * @param {any} threads
- */
-async function generateThreadData(projectId, threads) {
-  return await fetchJson(
-    chatApiUrl(`/project/${projectId}/generate-thread-data`),
-    {
-      method: 'POST',
-      json: { threads },
-    }
-  )
-}
-
-/**
- * @param {string} sourceProjectId
- * @param {string} targetProjectId
+ * @param {string} _sourceProjectId
+ * @param {string} _targetProjectId
  * @return {Promise<void>}
  */
-async function cloneCommentThreads(sourceProjectId, targetProjectId) {
-  await fetchNothing(
-    chatApiUrl(`/project/${sourceProjectId}/clone-comment-threads`),
-    {
-      method: 'POST',
-      json: { targetProjectId },
-    }
-  )
-}
-
-/**
- * @param {any} path
- */
-function chatApiUrl(path) {
-  return new URL(path, settings.apis.chat.internal_url)
-}
+async function cloneCommentThreads(_sourceProjectId, _targetProjectId) {}
 
 export default {
   getThread: callbackify(getThread),

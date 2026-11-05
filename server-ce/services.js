@@ -18,12 +18,6 @@ module.exports = [
     name: 'docstore',
   },
   {
-    name: 'chat',
-  },
-  {
-    name: 'notifications',
-  },
-  {
     name: 'project-history',
   },
   {

@@ -115,6 +115,9 @@ ENV OVERLEAF_APP_NAME="Overleaf Community Edition"
 
 ENV OPTIMISE_PDF="true"
 
+# The chat service has been removed; hide chat/comments routes in web
+ENV OVERLEAF_DISABLE_CHAT="true"
+
 ENV REQ_VALIDATION_MODE=enforce-log
 
 # Phusion Image timeouts before sending SIGKILL to processes

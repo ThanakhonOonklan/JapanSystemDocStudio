@@ -282,6 +282,11 @@ const settings = {
       sendProjectStructureOps: true,
       url: 'http://127.0.0.1:3054',
     },
+    // The notifications service has been removed. An undefined url makes
+    // NotificationsHandler skip all calls.
+    notifications: {
+      url: undefined,
+    },
     v1_history: {
       url: process.env.V1_HISTORY_URL || 'http://127.0.0.1:3100/api',
       user: 'staging',
