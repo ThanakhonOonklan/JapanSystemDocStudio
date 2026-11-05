@@ -6,6 +6,10 @@ import { useEditorOpenDocContext } from '@/features/ide-react/context/editor-ope
 import { useEditorPropertiesContext } from '@/features/ide-react/context/editor-properties-context'
 import { getFileExtension } from '../utils/file'
 import { isVisualEditorAvailable } from '../utils/visual-editor'
+import {
+  setBilingualEnabled,
+  useBilingualEnabled,
+} from '@/features/bilingual/bilingual-store'
 
 function EditorSwitch() {
   const { t } = useTranslation()
@@ -42,7 +46,9 @@ function EditorSwitch() {
     <div
       className="editor-toggle-switch"
       aria-label={t('toolbar_code_visual_editor_switch')}
+      style={{ display: 'flex', alignItems: 'center', gap: 8 }}
     >
+      <BilingualToggle />
       <form>
         <fieldset className="toggle-switch">
           <legend className="visually-hidden">Editor mode.</legend>
@@ -68,6 +74,32 @@ function EditorSwitch() {
         </fieldset>
       </form>
     </div>
+  )
+}
+
+// Documentation Studio REA: show the Thai and English versions side by side.
+const BilingualToggle: FC = () => {
+  const on = useBilingualEnabled()
+  return (
+    <button
+      type="button"
+      aria-pressed={on}
+      title="Edit the Thai and English versions side by side"
+      onClick={() => setBilingualEnabled(!on)}
+      style={{
+        font: 'inherit',
+        fontSize: 12,
+        padding: '2px 8px',
+        borderRadius: 4,
+        cursor: 'pointer',
+        color: 'inherit',
+        border: '1px solid currentColor',
+        background: on ? 'rgba(128, 128, 128, 0.35)' : 'transparent',
+        whiteSpace: 'nowrap',
+      }}
+    >
+      TH | EN
+    </button>
   )
 }
 

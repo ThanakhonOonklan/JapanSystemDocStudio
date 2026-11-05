@@ -139,7 +139,7 @@ async function main() {
       log.info(
         differences === 0
           ? 'Languages have the same structure.'
-          : `Languages differ in ${differences} places.`
+          : `Languages differ in ${differences} ${differences === 1 ? 'place' : 'places'}.`
       )
     }
 

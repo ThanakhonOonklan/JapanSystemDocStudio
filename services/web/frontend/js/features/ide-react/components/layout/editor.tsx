@@ -12,6 +12,9 @@ import { useEditorPropertiesContext } from '@/features/ide-react/context/editor-
 import { isSplitTestEnabled } from '@/utils/splitTestUtils'
 import importOverleafModules from '../../../../../macros/import-overleaf-module.macro'
 import { useFeatureFlag } from '@/shared/context/split-test-context.tsx'
+import { HorizontalResizeHandle } from '@/features/ide-react/components/resize/horizontal-resize-handle'
+import { CounterpartPane } from '@/features/bilingual/counterpart-pane'
+import { useBilingualEnabled } from '@/features/bilingual/bilingual-store'
 
 const [pythonRunnerModule] = importOverleafModules('pythonRunner') as {
   import: { PythonEditorSplit: FC }
@@ -24,6 +27,7 @@ export const Editor = () => {
   const { currentDocumentId, currentDocument } = useEditorOpenDocContext()
 
   const drawEnabled = useFeatureFlag('symbol-recognition')
+  const bilingual = useBilingualEnabled()
 
   if (!currentDocumentId) {
     return null
@@ -52,14 +56,37 @@ export const Editor = () => {
           order={1}
           className="ide-redesign-editor-panel"
         >
-          {pythonRunnerModule &&
-          isPythonDocument &&
-          isSplitTestEnabled('overleaf-code') ? (
-            <pythonRunnerModule.import.PythonEditorSplit />
-          ) : (
-            <SourceEditor />
-          )}
-          {isLoading && <EditorLoadingPane />}
+          {/* Documentation Studio REA: optional Thai/English side-by-side.
+              The main editor always sits in the first panel, so switching
+              the translation view on or off does not remount it. */}
+          <PanelGroup
+            autoSaveId="docstudio-bilingual-editor"
+            direction="horizontal"
+          >
+            <Panel
+              id="docstudio-bilingual-main"
+              order={1}
+              minSize={25}
+              style={{ position: 'relative' }}
+            >
+              {pythonRunnerModule &&
+              isPythonDocument &&
+              isSplitTestEnabled('overleaf-code') ? (
+                <pythonRunnerModule.import.PythonEditorSplit />
+              ) : (
+                <SourceEditor />
+              )}
+              {isLoading && <EditorLoadingPane />}
+            </Panel>
+            {bilingual && (
+              <>
+                <HorizontalResizeHandle id="docstudio-bilingual-handle" />
+                <Panel id="docstudio-bilingual-counterpart" order={2} minSize={25}>
+                  <CounterpartPane />
+                </Panel>
+              </>
+            )}
+          </PanelGroup>
         </Panel>
         {showSymbolPalette && (
           <>
