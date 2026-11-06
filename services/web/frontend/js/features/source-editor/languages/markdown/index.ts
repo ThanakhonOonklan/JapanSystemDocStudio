@@ -4,12 +4,8 @@ import { referenceCompletions, snippetCompletions } from './completions'
 import { languages } from '../index'
 import { Strikethrough, Table } from '@lezer/markdown'
 import { Math } from './math'
-import {
-  HighlightStyle,
-  LanguageSupport,
-  syntaxHighlighting,
-} from '@codemirror/language'
-import { tags } from '@lezer/highlight'
+import { LanguageSupport } from '@codemirror/language'
+import { markdownColours } from './highlight'
 
 export const markdown = () => {
   const { language, support } = markdownLanguage({
@@ -20,17 +16,9 @@ export const markdown = () => {
   return new LanguageSupport(language, [
     support,
     shortcuts(),
-    syntaxHighlighting(markdownHighlightStyle),
+    markdownColours(),
     // Documentation Studio REA: @references and /snippets
     language.data.of({ autocomplete: referenceCompletions }),
     language.data.of({ autocomplete: snippetCompletions }),
   ])
 }
-
-const markdownHighlightStyle = HighlightStyle.define([
-  { tag: tags.link, textDecoration: 'underline' },
-  { tag: tags.heading, textDecoration: 'underline', fontWeight: 'bold' },
-  { tag: tags.emphasis, fontStyle: 'italic' },
-  { tag: tags.strong, fontWeight: 'bold' },
-  { tag: tags.strikethrough, textDecoration: 'line-through' },
-])

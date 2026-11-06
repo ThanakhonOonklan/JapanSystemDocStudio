@@ -61,6 +61,13 @@ export const languages = [
     },
   }),
   LanguageDescription.of({
+    name: 'yaml',
+    extensions: ['yaml', 'yml'],
+    load: () => {
+      return import('./yaml').then(m => m.yaml())
+    },
+  }),
+  LanguageDescription.of({
     name: 'python',
     extensions: ['py'],
     load: () => {
