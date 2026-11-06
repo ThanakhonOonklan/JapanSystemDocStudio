@@ -87,7 +87,13 @@ function pickOptions(source, template = TEMPLATES.default) {
   return {
     template: template.name,
     toc: flag('toc'),
-    tocDepth: Math.min(Math.max(parseInt(source?.tocDepth, 10) || 3, 1), 4),
+    tocDepth: Math.min(
+      Math.max(parseInt(source?.tocDepth, 10) || defaults.tocDepth || 3, 1),
+      4
+    ),
+    // list of figures / list of tables (only shown when there are any)
+    lof: flag('lof'),
+    lot: flag('lot'),
     numbering: flag('numbering'),
     cover: flag('cover'),
     chapterHeading: source?.chapterHeading ?? defaults.chapterHeading ?? 'number',

@@ -20,6 +20,8 @@ const userManual = {
   css: path.join(here, 'templates', 'user-manual.css'),
   defaults: {
     chapterHeading: 'label-break',
+    // chapters and sections in the contents, like the reference report
+    tocDepth: 2,
     // figures and tables are numbered "chapter-n" (ภาพที่ 4-8)
     numberSeparator: '-',
   },

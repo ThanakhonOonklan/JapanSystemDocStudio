@@ -30,7 +30,7 @@ test('book.yaml: detects th/ and en/ and the default language', () => {
   assert.equal(project.languages[0].meta.date, '5 พฤศจิกายน 2569')
   assert.equal(project.languages[1].meta.date, '5 November 2026')
   assert.equal(project.options.toc, true)
-  assert.equal(project.options.tocDepth, 3)
+  assert.equal(project.options.tocDepth, 2) // user-manual: chapters and sections
   assert.equal(log.warnings, 0)
 })
 

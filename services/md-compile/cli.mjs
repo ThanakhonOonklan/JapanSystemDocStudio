@@ -17,7 +17,8 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { Log } from './lib/log.mjs'
 import { loadProject } from './lib/project.mjs'
-import { buildDocument, renderChapters, renderToc } from './lib/render.mjs'
+import { buildDocument, renderChapters } from './lib/render.mjs'
+import { renderContents } from './lib/contents.mjs'
 import { renderCover } from './lib/cover.mjs'
 import { renderPdfs } from './lib/pdf.mjs'
 import { checkParity } from './lib/parity.mjs'
@@ -102,6 +103,8 @@ async function main() {
       const {
         html: body,
         headings,
+        figures,
+        tables,
         structure,
       } = renderChapters({
         files: language.files,
@@ -117,13 +120,17 @@ async function main() {
       const cover = project.options.cover
         ? renderCover({ cover: language.cover, lang: language.code })
         : ''
-      const toc = project.options.toc
-        ? renderToc({
-            headings,
-            depth: project.options.tocDepth,
-            lang: language.code,
-          })
-        : ''
+      const contents = renderContents({
+        headings,
+        figures,
+        tables,
+        depth: project.options.tocDepth,
+        lang: language.code,
+        chapterHeading: project.options.chapterHeading,
+        toc: project.options.toc,
+        lof: project.options.lof,
+        lot: project.options.lot,
+      })
       const htmlPath = path.join(tmp, `${language.code}.html`)
       fs.writeFileSync(
         htmlPath,
@@ -131,7 +138,7 @@ async function main() {
           lang: language.code,
           title: language.title,
           cover,
-          toc,
+          contents,
           body,
           css: css + customCss,
         })
@@ -145,7 +152,11 @@ async function main() {
           multiple ? `output-${language.code}.pdf` : 'output.pdf'
         ),
         label: language.code,
-        pageLabels,
+        // front matter: ก ข ค in Thai, i ii iii in other languages
+        pageLabels: pageLabels && {
+          frontStyle: language.code.startsWith('th') ? 'thai' : 'roman',
+          ...pageLabels,
+        },
       })
     }
 

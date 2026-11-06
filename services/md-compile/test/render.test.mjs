@@ -4,7 +4,9 @@ import os from 'node:os'
 import path from 'node:path'
 import { test } from 'node:test'
 import { Log } from '../lib/log.mjs'
-import { renderChapters, renderToc } from '../lib/render.mjs'
+import { renderChapters } from '../lib/render.mjs'
+import { renderContents } from '../lib/contents.mjs'
+import { computePageLabels, roman } from '../lib/page-labels.mjs'
 import { pickCover, renderCover } from '../lib/cover.mjs'
 
 function withProject(files, fn) {
@@ -159,21 +161,41 @@ test('unknown prefixed references and duplicate ids are reported', () => {
   )
 })
 
-test('toc lists headings up to the requested depth', () => {
+test('contents: chapters as "บทที่ N", sections indented, lists of figures and tables', () => {
   const headings = [
     { level: 1, id: 'a', number: '1', text: 'One' },
     { level: 2, id: 'b', number: '1.1', text: 'Two & more' },
     { level: 3, id: 'c', number: '1.1.1', text: 'Three' },
   ]
-  const toc = renderToc({ headings, depth: 2, lang: 'en' })
-  assert.match(toc, /Contents/)
-  assert.match(
-    toc,
-    /<a href="#b"><span class="toc-text"><span class="num">1\.1<\/span> Two &amp; more<\/span><span class="toc-fill"><\/span><\/a>/
+  const figures = [{ id: 'fig-a', number: '1-1', text: 'Login page' }]
+  const html = renderContents({ headings, figures, depth: 2, lang: 'th', chapterHeading: 'label-break' })
+  // the contents and the list of figures, no list of tables (there are none)
+  assert.match(html, /<section class="contents contents-toc" id="contents" data-kind="front" data-contents="toc" data-title="สารบัญ" data-continued="\(ต่อ\)" data-head-left="" data-head-right="หน้า">/)
+  assert.match(html, /data-contents="lof" data-title="สารบัญภาพ"[^>]*data-head-left="ภาพที่"/)
+  assert.doesNotMatch(html, /data-contents="lot"/)
+  // the contents pages are entries too
+  assert.match(html, /<a href="#contents"><span class="contents-text">สารบัญ<\/span><span class="contents-page" data-target="contents"><\/span><\/a>/)
+  assert.match(html, /href="#list-of-figures"><span class="contents-text">สารบัญภาพ/)
+  assert.match(html, /<li class="contents-entry contents-1"><a href="#a"><span class="contents-num">บทที่ 1<\/span><span class="contents-text">One<\/span>/)
+  assert.match(html, /<li class="contents-entry contents-2"><a href="#b"><span class="contents-num">1\.1<\/span><span class="contents-text">Two &amp; more<\/span>/)
+  assert.doesNotMatch(html, /Three/)
+  assert.match(html, /contents-item"><a href="#fig-a"><span class="contents-num">1-1<\/span><span class="contents-text">Login page/)
+  const en = renderContents({ headings, figures, depth: 3, lang: 'en', lof: false })
+  assert.match(en, /data-title="Contents" data-continued="\(continued\)"[^>]*data-head-right="Page"/)
+  assert.match(en, /<span class="contents-num">1<\/span>/) // no label without label-break
+  assert.match(en, /Three/)
+  assert.doesNotMatch(en, /List of Figures/)
+  assert.equal(renderContents({ headings: [], depth: 3, lang: 'en' }), '')
+})
+
+test('page labels keep the number of pages that do not print one', () => {
+  const labels = computePageLabels(
+    [{ kind: 'cover' }, { kind: 'front' }, { kind: 'front' }, { kind: 'chapter', chapterStart: true }, { kind: 'chapter' }],
+    { frontStyle: 'roman' }
   )
-  assert.doesNotMatch(toc, /Three/)
-  assert.match(renderToc({ headings, depth: 2, lang: 'th' }), /สารบัญ/)
-  assert.equal(renderToc({ headings: [], depth: 3, lang: 'en' }), '')
+  assert.deepEqual(labels.map(l => l.text), ['', 'i', 'ii', '', '2'])
+  assert.deepEqual(labels.map(l => l.number), ['', 'i', 'ii', '1', '2'])
+  assert.equal(roman(14), 'xiv')
 })
 
 test('cover: texts per language, images inside the project, primary colour', () => {

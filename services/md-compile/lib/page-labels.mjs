@@ -25,10 +25,31 @@ export function thaiLetter(n) {
   return text
 }
 
+const ROMAN = [
+  [1000, 'm'], [900, 'cm'], [500, 'd'], [400, 'cd'], [100, 'c'], [90, 'xc'],
+  [50, 'l'], [40, 'xl'], [10, 'x'], [9, 'ix'], [5, 'v'], [4, 'iv'], [1, 'i'],
+]
+
+/** 1 -> i, 4 -> iv, 14 -> xiv */
+export function roman(n) {
+  if (!Number.isInteger(n) || n < 1) return ''
+  let text = ''
+  let rest = n
+  for (const [value, letters] of ROMAN) {
+    while (rest >= value) {
+      text += letters
+      rest -= value
+    }
+  }
+  return text
+}
+
 /**
  * @param {Array<{ kind: string, chapterStart?: boolean }>} pages in page order
- * @param {{ frontStart?: number, mainStart?: number }} config
- * @returns {Array<{ text: string, position: 'top-right' | 'bottom-center' | null }>}
+ * @param {{ frontStart?: number, mainStart?: number, frontStyle?: 'thai' | 'roman' }} config
+ * @returns {Array<{ text: string, number: string, position: 'top-right' | 'bottom-center' | null }>}
+ *   text: what is printed on the page; number: the page's number even when
+ *   it is not printed (used by the contents pages)
  *
  * kind `cover`            no number, not counted
  * kind `front`            Thai letters at the bottom centre, from frontStart
@@ -40,18 +61,22 @@ export function thaiLetter(n) {
 export function computePageLabels(pages, config = {}) {
   const frontStart = config.frontStart ?? 1
   const mainStart = config.mainStart ?? 1
+  // Thai letters (ก ข ค) or lower-case roman numerals (i ii iii)
+  const format = { front: config.frontStyle === 'roman' ? roman : thaiLetter }
   let front = frontStart
   let main = mainStart
   return pages.map(page => {
     if (page.kind === 'cover') {
-      return { text: '', position: null }
+      return { text: '', number: '', position: null }
     }
     if (page.kind === 'front') {
-      return { text: thaiLetter(front++), position: 'bottom-center' }
+      const letter = format.front(front++)
+      return { text: letter, number: letter, position: 'bottom-center' }
     }
-    const number = main++
+    const number = String(main++)
     return {
-      text: page.chapterStart ? '' : String(number),
+      text: page.chapterStart ? '' : number,
+      number,
       position: 'top-right',
     }
   })

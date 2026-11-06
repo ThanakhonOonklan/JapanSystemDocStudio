@@ -352,34 +352,81 @@ blockquote {
   line-height: 1.2;
 }
 
-/* ---- Contents (refined in U3) ---------------------------------------- */
+/* ---- Contents pages (สารบัญ / สารบัญภาพ / สารบัญตาราง) ----------------- */
 
-.toc { break-after: page; }
-
-.toc-title {
-  text-align: center;
-  font-size: 20pt;
-  margin: 0 0 12pt;
+/* Every contents page keeps a band of 0.8in above the text for the title
+   and the column header: on the first page they are the section's own
+   heading (pulled up into the band), on the following pages the page
+   decorator (lib/pdf.mjs) draws "สารบัญ (ต่อ)" and the header there. */
+@page contents {
+  margin-top: 2.3in;
 }
 
-.toc ul { list-style: none; margin: 0; padding: 0; }
-.toc li { margin: 0; }
+.contents {
+  page: contents;
+  break-before: page;
+}
 
-.toc li a {
+.contents-title {
+  text-align: center;
+  font-size: 18pt;
+  font-weight: 700;
+  line-height: 1.15;
+  margin: 0 0 0.13in;
+}
+
+.contents > .contents-title { margin-top: -0.8in; }
+
+.contents-head {
+  display: flex;
+  justify-content: space-between;
+  line-height: 1.15;
+  margin: 0 0 0.12in;
+}
+
+.contents-continued {
+  position: absolute;
+  top: -0.8in;
+  left: 0;
+  right: 0;
+  font-family: "THSarabunNew", "Noto Sans Thai", sans-serif;
+  font-size: 16pt;
+}
+
+.contents ul { list-style: none; margin: 0; padding: 0; }
+
+.contents-entry {
+  margin: 0 0 3pt;
+  break-inside: avoid;
+}
+
+.contents-entry a {
   display: flex;
   align-items: baseline;
+  color: #000;
 }
 
-.toc .toc-text { flex: 0 1 auto; }
-.toc .toc-fill { flex: 1 1 auto; }
+.contents-num { flex: none; }
+/* a long title wraps under itself, not under the number */
+.contents-text { flex: 1 1 auto; }
 
-.toc li a::after {
-  content: target-counter(attr(href url), page);
+.contents-page {
   flex: none;
-  padding-left: 6pt;
+  min-width: 2.2em;
+  padding-left: 0.5em;
+  text-align: right;
 }
 
-.toc .toc-2 { padding-left: 2.6em; }
-.toc .toc-3 { padding-left: 4.4em; }
-.toc .toc-4 { padding-left: 6.2em; }
-.toc .num { display: inline-block; min-width: 2em; }
+/* "บทที่ 1  บทนำ" */
+.contents-1 .contents-num { margin-right: 0.6em; }
+/* 1.1  section */
+.contents-2 { padding-left: 1.3cm; }
+.contents-2 .contents-num { width: 1cm; }
+/* 1.1.1  subsection */
+.contents-3 { padding-left: 2.3cm; }
+.contents-3 .contents-num { width: 1.3cm; }
+.contents-4 { padding-left: 3.6cm; }
+.contents-4 .contents-num { width: 1.6cm; }
+/* figures and tables: "1-1   caption" */
+.contents-item { padding-left: 0.45cm; }
+.contents-item .contents-num { width: 1.15cm; }

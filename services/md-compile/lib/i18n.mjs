@@ -4,6 +4,10 @@
 const STRINGS = {
   th: {
     contents: 'สารบัญ',
+    listOfFigures: 'สารบัญภาพ',
+    listOfTables: 'สารบัญตาราง',
+    page: 'หน้า',
+    continued: '(ต่อ)',
     chapter: 'บทที่',
     section: 'หัวข้อ',
     figure: 'ภาพที่',
@@ -17,6 +21,10 @@ const STRINGS = {
   },
   en: {
     contents: 'Contents',
+    listOfFigures: 'List of Figures',
+    listOfTables: 'List of Tables',
+    page: 'Page',
+    continued: '(continued)',
     chapter: 'Chapter',
     section: 'Section',
     figure: 'Figure',

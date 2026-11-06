@@ -70,6 +70,8 @@ function newState({ lang, numbering, chapterHeading, numberSeparator, log }) {
     table: 0,
     anonymous: 0,
     headings: [], // { level, id, number, text }
+    figures: [], // { id, number, text }
+    tables: [], // { id, number, text }
     labels: new Map(), // id -> { kind, number, text }
     ids: new Set(),
     // headings, figures and tables in document order, used to compare
@@ -237,6 +239,7 @@ function handleFigure(tokens, i, env, Token) {
     )
   )
   bs.labels.set(id, { kind: 'figure', number, text: caption })
+  bs.figures.push({ id, number, text: caption })
 }
 
 function handleTable(tokens, i, env) {
@@ -274,6 +277,7 @@ function handleTable(tokens, i, env) {
   tokens.splice(j + 1, 3) // the caption paragraph is not rendered on its own
   open.meta = { id, number, caption, label: `${bs.t.table} ${number}` }
   bs.labels.set(id, { kind: 'table', number, text: caption })
+  bs.tables.push({ id, number, text: caption })
 }
 
 // Number the items of ordered lists in the HTML ("3", nested "3.1") so the
@@ -531,38 +535,16 @@ export function renderChapters({
   return {
     html: resolveReferences(parts.join('\n'), state),
     headings: state.headings,
+    figures: state.figures,
+    tables: state.tables,
     structure: state.structure,
   }
 }
 
 /**
- * Table of contents (page numbers are filled in by Paged.js).
- */
-export function renderToc({ headings, depth, lang }) {
-  const t = strings(lang)
-  const items = headings
-    .filter(h => h.level <= depth)
-    .map(
-      h =>
-        // the dotted filler is drawn by CSS; the page number comes from
-        // target-counter() on the link's ::after
-        `<li class="toc-${h.level}"><a href="#${escapeHtml(h.id)}"><span class="toc-text">${
-          h.number ? `<span class="num">${escapeHtml(h.number)}</span> ` : ''
-        }${escapeHtml(h.text)}</span><span class="toc-fill"></span></a></li>`
-    )
-  if (items.length === 0) return ''
-  return `<nav class="toc" data-kind="front">
-<h2 class="toc-title">${escapeHtml(t.contents)}</h2>
-<ul>
-${items.join('\n')}
-</ul>
-</nav>`
-}
-
-/**
  * Wrap rendered content into a complete HTML document.
  */
-export function buildDocument({ lang, title, cover, toc, body, css }) {
+export function buildDocument({ lang, title, cover, contents, body, css }) {
   return `<!doctype html>
 <html lang="${escapeHtml(lang)}">
 <head>
@@ -575,7 +557,7 @@ ${css}
 </head>
 <body>
 ${cover || ''}
-${toc || ''}
+${contents || ''}
 ${body}
 </body>
 </html>

@@ -39,7 +39,9 @@ export async function renderPdfs(jobs, log, { timeoutMs }) {
 /**
  * Write the page numbers of templates that have their own rules: ask the page
  * which part of the book each page belongs to, compute the labels, and put
- * them into the margin boxes.
+ * them into the margin boxes. Then fill in the contents pages (the page of
+ * every entry) and repeat their title, "(ต่อ)" and column header on the
+ * pages after the first.
  */
 async function applyPageLabels(page, config) {
   const pages = await page.evaluate(() =>
@@ -53,11 +55,12 @@ async function applyPageLabels(page, config) {
   )
   const labels = computePageLabels(pages, config)
   await page.evaluate(labels => {
+    const allPages = [...document.querySelectorAll('.pagedjs_page')]
     const boxes = {
       'top-right': '.pagedjs_margin-top-right',
       'bottom-center': '.pagedjs_margin-bottom-center',
     }
-    document.querySelectorAll('.pagedjs_page').forEach((pg, index) => {
+    allPages.forEach((pg, index) => {
       for (const [position, selector] of Object.entries(boxes)) {
         const box = pg.querySelector(`${selector} .pagedjs_margin-content`)
         if (box) {
@@ -66,6 +69,48 @@ async function applyPageLabels(page, config) {
         }
       }
     })
+
+    // the page of each contents entry
+    const pageOf = id => {
+      const target = document.getElementById(id)
+      const pg = target?.closest('.pagedjs_page')
+      return pg ? allPages.indexOf(pg) : -1
+    }
+    for (const span of document.querySelectorAll('.contents-page[data-target]')) {
+      const index = pageOf(span.dataset.target)
+      span.textContent = index >= 0 ? labels[index].number : ''
+    }
+
+    // pages after the first of a contents section: draw the title with
+    // "(ต่อ)" and the column header in the space the stylesheet keeps free
+    // above the text (.contents-continued)
+    const seen = new Set()
+    for (const pg of allPages) {
+      const fragment = pg.querySelector('.pagedjs_page_content [data-contents]')
+      if (!fragment) continue
+      const kind = fragment.dataset.contents
+      if (!seen.has(kind)) {
+        seen.add(kind)
+        continue
+      }
+      const area = pg.querySelector('.pagedjs_area')
+      if (!area) continue
+      const header = document.createElement('div')
+      header.className = `contents-continued contents-${kind}`
+      const title = document.createElement('div')
+      title.className = 'contents-title'
+      title.textContent = `${fragment.dataset.title}  ${fragment.dataset.continued}`
+      const head = document.createElement('div')
+      head.className = 'contents-head'
+      for (const text of [fragment.dataset.headLeft, fragment.dataset.headRight]) {
+        const span = document.createElement('span')
+        span.textContent = text || ''
+        head.appendChild(span)
+      }
+      header.append(title, head)
+      area.style.position = 'relative'
+      area.appendChild(header)
+    }
   }, labels)
 }
 
