@@ -1,0 +1,32 @@
+# คู่มือการใช้งาน ระบบบริหารจัดการโรงงาน (ตัวอย่างฉบับเต็ม)
+# ข้อความทุกช่องเขียนแยกไทย (th) / อังกฤษ (en) ได้
+title:
+  th: คู่มือการใช้งาน
+  en: User Manual
+author: Japan System
+cover:
+  logo: images/logo.svg                 # โลโก้บนปก
+  organization: Refrigerator Factory    # ชื่อหน่วยงานใต้โลโก้
+  subtitle:
+    th: USER MANUAL
+  system:
+    th: ระบบบริหารจัดการโรงงาน
+    en: Factory Management System
+  description:
+    th:
+      - ใบเสนอราคา ใบสั่งผลิต สต็อก จัดซื้อ และบัญชี
+    en:
+      - Quotations, production orders, stock, purchasing and accounts
+  preparedBy: Japan System              # ใต้คำว่า "จัดทำโดย"
+  background: images/cover-bg.svg       # ภาพพื้นหลังเต็มหน้า (ลบบรรทัดนี้ถ้าไม่ใช้)
+theme:
+  primary: "#1a8ad6"                    # สีหลักบนปก
+defaultLanguage: th
+# tocDepth: 3      # แสดงหัวข้อ 1.1.1 ในสารบัญด้วย
+chapters:
+  - 01-overview.md
+  - 02-login.md
+  - 03-quotation.md
+  - 04-production.md
+  - 05-stock-purchase.md
+  - 06-accounting.md

@@ -1,7 +1,7 @@
 /* user-manual: a user manual in the layout of a KMUTNB project report
    (Class/project_report.cls), appendix "คู่มือการใช้งานระบบ" in particular.
      - A4, margins top 1.5in, right 1in, bottom 1in, left 1.5in
-     - TH Sarabun New 16pt for Thai and English, justified, first line
+     - TH Sarabun New 16pt for Thai and English, ragged right, first line
        indented 1.3em
      - chapter: new page, "บทที่ N" and the title centred, bold
      - sections bold; subsections indented 0.8cm
@@ -66,9 +66,11 @@ section.chapter { break-before: page; }
 
 /* ---- Text ------------------------------------------------------------ */
 
+/* Ragged right: Chromium can only stretch spaces, and Thai has few of them,
+   so justified Thai lines get large holes between phrases. */
 p {
   margin: 0 0 4pt;
-  text-align: justify;
+  text-align: left;
   text-indent: 1.3em;
   orphans: 2;
   widows: 2;

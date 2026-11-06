@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="160" viewBox="0 0 240 160">
+  <path d="M40 120 V50 l20 -14 v14 l20 -14 v14 l20 -14 V120 Z" fill="none" stroke="#3b4a5a" stroke-width="6"/>
+  <rect x="120" y="40" width="60" height="80" rx="6" fill="none" stroke="#3b4a5a" stroke-width="6"/>
+  <line x1="120" y1="72" x2="180" y2="72" stroke="#3b4a5a" stroke-width="5"/>
+  <text x="200" y="85" font-family="sans-serif" font-size="40" fill="#1a8ad6">❄</text>
+  <path d="M30 138 Q120 112 210 132" fill="none" stroke="#f07c1b" stroke-width="8" stroke-linecap="round"/>
+</svg>
