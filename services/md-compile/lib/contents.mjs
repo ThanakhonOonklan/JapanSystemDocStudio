@@ -47,11 +47,12 @@ export function renderContents({
   depth,
   lang,
   chapterHeading = 'number',
+  chapterLabel,
   toc = true,
   lof = true,
   lot = true,
 }) {
-  const t = strings(lang)
+  const t = strings(lang, { chapter: chapterLabel })
   const hasLof = lof && figures.length > 0
   const hasLot = lot && tables.length > 0
   const parts = []
@@ -65,7 +66,7 @@ export function renderContents({
     for (const h of headings) {
       if (h.level > depth) continue
       let num = h.number
-      if (num && h.level === 1 && chapterHeading === 'label-break') {
+      if (num && h.level === 1 && ['label-break', 'inline'].includes(chapterHeading)) {
         num = `${t.chapter} ${num}`
       }
       items.push(entry({ level: h.level, id: h.id, num, text: h.text }))

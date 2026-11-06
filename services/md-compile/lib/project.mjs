@@ -80,12 +80,32 @@ export const KINDS = ['cover', 'front', 'chapter', 'appendix', 'back']
 // Document-level options shared by all languages. Values in book.yaml win
 // over the defaults of the template.
 function pickOptions(source, template = TEMPLATES.default) {
-  const defaults = template.defaults
+  // layout: flow = one continuous workflow: no page break between the files,
+  // steps instead of chapters, figures without numbers
+  const flow = source?.layout === 'flow'
+  const defaults = {
+    ...template.defaults,
+    ...(flow
+      ? {
+          chapterHeading: 'inline',
+          chapterBreak: false,
+          figureNumbers: false,
+          lof: false,
+        }
+      : {}),
+  }
   // true unless switched off (in book.yaml, or by the template's default)
   const flag = key =>
     source?.[key] === undefined ? defaults[key] !== false : source[key] !== false
   return {
     template: template.name,
+    layout: flow ? 'flow' : 'chapters',
+    // each file starts on a new page
+    chapterBreak: flag('chapterBreak'),
+    // "ภาพที่ 1-1" under figures; false: the caption only
+    figureNumbers: flag('figureNumbers'),
+    // label of the top-level parts, e.g. { th: ขั้นที่, en: Step }
+    chapterLabel: source?.chapterLabel,
     toc: flag('toc'),
     tocDepth: Math.min(
       Math.max(parseInt(source?.tocDepth, 10) || defaults.tocDepth || 3, 1),

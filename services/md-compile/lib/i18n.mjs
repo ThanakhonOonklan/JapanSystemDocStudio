@@ -38,7 +38,13 @@ const STRINGS = {
   },
 }
 
-export function strings(lang) {
+/**
+ * @param {string} lang
+ * @param {{ chapter?: string }} [overrides] e.g. { chapter: 'ขั้นที่' } for a
+ *        workflow whose top-level parts are steps, not chapters
+ */
+export function strings(lang, overrides = {}) {
   const base = String(lang || 'en').toLowerCase().split('-')[0]
-  return STRINGS[base] || STRINGS.en
+  const found = STRINGS[base] || STRINGS.en
+  return overrides.chapter ? { ...found, chapter: overrides.chapter } : found
 }

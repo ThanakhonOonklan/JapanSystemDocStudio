@@ -16,7 +16,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { Log } from './lib/log.mjs'
-import { loadProject } from './lib/project.mjs'
+import { loadProject, localized } from './lib/project.mjs'
 import { buildDocument, renderChapters } from './lib/render.mjs'
 import { renderContents } from './lib/contents.mjs'
 import { renderCover } from './lib/cover.mjs'
@@ -114,6 +114,9 @@ async function main() {
         numbering: project.options.numbering,
         chapterHeading: project.options.chapterHeading,
         numberSeparator: project.options.numberSeparator,
+        chapterLabel: localized(project.options.chapterLabel, language.code),
+        flow: project.options.layout === 'flow',
+        figureNumbers: project.options.figureNumbers,
         kinds: language.kinds,
       })
       language.structure = structure
@@ -127,6 +130,7 @@ async function main() {
         depth: project.options.tocDepth,
         lang: language.code,
         chapterHeading: project.options.chapterHeading,
+        chapterLabel: localized(project.options.chapterLabel, language.code),
         toc: project.options.toc,
         lof: project.options.lof,
         lot: project.options.lot,
@@ -139,6 +143,8 @@ async function main() {
           title: language.title,
           cover,
           contents,
+          flow: project.options.layout === 'flow',
+          primary: language.cover?.primary,
           body,
           css: css + customCss,
         })

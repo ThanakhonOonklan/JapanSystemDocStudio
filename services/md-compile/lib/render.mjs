@@ -56,9 +56,22 @@ function plainText(inline) {
   return text
 }
 
-function newState({ lang, numbering, chapterHeading, numberSeparator, log }) {
+function newState({
+  lang,
+  numbering,
+  chapterHeading,
+  numberSeparator,
+  chapterLabel,
+  flow,
+  figureNumbers,
+  log,
+}) {
   return {
-    t: strings(lang),
+    t: strings(lang, { chapter: chapterLabel }),
+    flow, // one continuous workflow
+    figureNumbers,
+    suppress: false, // inside an unnumbered top-level part of a flow
+    firstPart: true,
     numbering,
     chapterHeading,
     numberSeparator,
@@ -96,6 +109,8 @@ function claimId(bs, id, env, line) {
 // Number within the current chapter: "2-1" (or "2.1"), or just "1" before
 // any chapter.
 function localNumber(bs, counter) {
+  // a flow numbers figures and tables 1, 2, 3 through the whole document
+  if (bs.flow) return `${counter}`
   return bs.chapter > 0
     ? `${bs.chapter}${bs.numberSeparator}${counter}`
     : `${counter}`
@@ -115,18 +130,27 @@ function handleHeading(tokens, i, env, Token) {
   const line = lineOf(open, env)
 
   const classes = (open.attrGet('class') || '').split(/\s+/)
+  // {tag=ทางหลัก}: a small label after the heading
+  const tag = open.attrGet('tag')
+  if (tag != null) open.attrs = open.attrs.filter(([name]) => name !== 'tag')
+  // in a flow, the sections of an unnumbered top-level part are not numbered
+  // either (they would be taken for the sections of a step)
+  if (bs.flow && level === 1) bs.suppress = classes.includes('unnumbered')
   // only the chapters of the book are numbered, not the cover, front matter,
   // bibliography or appendices
   const numbered =
     bs.numbering &&
     env.kind === 'chapter' &&
     level <= 3 &&
-    !classes.includes('unnumbered')
+    !classes.includes('unnumbered') &&
+    !(bs.flow && bs.suppress)
 
   // the heading of a chapter, appendix or bibliography starts a new part:
   // the page labelling pass hides the page number on its first page
+  // (in a flow only the very first part does: the other parts follow on)
   if (level === 1 && ['chapter', 'appendix', 'back'].includes(env.kind)) {
-    open.attrSet('data-chapter-start', '1')
+    if (!bs.flow || bs.firstPart) open.attrSet('data-chapter-start', '1')
+    bs.firstPart = false
   }
 
   let number
@@ -135,8 +159,10 @@ function handleHeading(tokens, i, env, Token) {
       bs.chapter++
       bs.section = 0
       bs.subsection = 0
-      bs.figure = 0
-      bs.table = 0
+      if (!bs.flow) {
+        bs.figure = 0
+        bs.table = 0
+      }
     } else if (level === 2) {
       bs.section++
       bs.subsection = 0
@@ -167,7 +193,16 @@ function handleHeading(tokens, i, env, Token) {
 
   const text = plainText(inline)
   if (number && inline) {
-    if (level === 1 && bs.chapterHeading === 'label-break') {
+    if (level === 1 && bs.chapterHeading === 'inline') {
+      // "ขั้นที่ 1  ใบเสนอราคา" on one line
+      open.attrJoin('class', 'chapter-inline')
+      inline.children.unshift(
+        htmlInline(
+          Token,
+          `<span class="chapter-label">${escapeHtml(bs.t.chapter)} ${number}</span> `
+        )
+      )
+    } else if (level === 1 && bs.chapterHeading === 'label-break') {
       // "บทที่ 1" on one line, the title on the next
       open.attrJoin('class', 'chapter-title')
       inline.children.unshift(
@@ -181,6 +216,11 @@ function handleHeading(tokens, i, env, Token) {
         htmlInline(Token, `<span class="num">${number}</span> `)
       )
     }
+  }
+  if (tag && inline) {
+    inline.children.push(
+      htmlInline(Token, ` <span class="heading-tag">${escapeHtml(tag)}</span>`)
+    )
   }
   bs.headings.push({ level, id, number, text })
   bs.labels.set(id, {
@@ -220,8 +260,9 @@ function handleFigure(tokens, i, env, Token) {
   claimId(bs, id, env, line)
   bs.structure.push({ file: env.file, line, kind: 'figure', id, explicit })
 
-  const number = localNumber(bs, ++bs.figure)
   const caption = image.content.trim()
+  // figureNumbers: false -> the caption only, no "ภาพที่ 1-1", no list entry
+  const number = bs.figureNumbers ? localNumber(bs, ++bs.figure) : undefined
 
   open.type = 'figure_open'
   open.tag = 'figure'
@@ -235,11 +276,13 @@ function handleFigure(tokens, i, env, Token) {
   inline.children.push(
     htmlInline(
       Token,
-      `<figcaption><span class="label">${escapeHtml(bs.t.figure)} ${number}</span> ${escapeHtml(caption)}</figcaption>`
+      number === undefined
+        ? `<figcaption>${escapeHtml(caption)}</figcaption>`
+        : `<figcaption><span class="label">${escapeHtml(bs.t.figure)} ${number}</span> ${escapeHtml(caption)}</figcaption>`
     )
   )
   bs.labels.set(id, { kind: 'figure', number, text: caption })
-  bs.figures.push({ id, number, text: caption })
+  if (number !== undefined) bs.figures.push({ id, number, text: caption })
 }
 
 function handleTable(tokens, i, env) {
@@ -354,7 +397,7 @@ function noteBlock(state, startLine, endLine, silent) {
 function createMarkdown() {
   const md = new MarkdownIt({ html: false, linkify: false, typographer: false })
   md.use(markdownItAttrs, {
-    allowedAttributes: ['id', 'class', 'width', 'height'],
+    allowedAttributes: ['id', 'class', 'width', 'height', 'tag'],
   })
 
   md.block.ruler.before('fence', 'note', noteBlock, {
@@ -508,10 +551,22 @@ export function renderChapters({
   numbering = true,
   chapterHeading = 'number',
   numberSeparator = '.',
+  chapterLabel,
+  flow = false,
+  figureNumbers = true,
   kinds = new Map(),
 }) {
   const md = createMarkdown()
-  const state = newState({ lang, numbering, chapterHeading, numberSeparator, log })
+  const state = newState({
+    lang,
+    numbering,
+    chapterHeading,
+    numberSeparator,
+    chapterLabel,
+    flow,
+    figureNumbers,
+    log,
+  })
   const parts = []
   for (const file of files) {
     const source = fs.readFileSync(file, 'utf8')
@@ -544,9 +599,18 @@ export function renderChapters({
 /**
  * Wrap rendered content into a complete HTML document.
  */
-export function buildDocument({ lang, title, cover, contents, body, css }) {
+export function buildDocument({
+  lang,
+  title,
+  cover,
+  contents,
+  body,
+  css,
+  flow = false,
+  primary,
+}) {
   return `<!doctype html>
-<html lang="${escapeHtml(lang)}">
+<html lang="${escapeHtml(lang)}"${primary ? ` style="--primary: ${escapeHtml(primary)}"` : ''}>
 <head>
 <meta charset="utf-8">
 <title>${escapeHtml(title || '')}</title>
@@ -555,7 +619,7 @@ ${css}
 </style>
 <script>window.PagedConfig = { auto: false }</script>
 </head>
-<body>
+<body${flow ? ' class="flow"' : ''}>
 ${cover || ''}
 ${contents || ''}
 ${body}
