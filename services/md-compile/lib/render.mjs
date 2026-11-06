@@ -24,7 +24,7 @@ import MarkdownIt from 'markdown-it'
 import markdownItAttrs from 'markdown-it-attrs'
 import { parseFrontMatter } from './project.mjs'
 import { isInside } from './paths.mjs'
-import { strings } from './i18n.mjs'
+import { strings, numberedLabel } from './i18n.mjs'
 
 const URL_SCHEME = /^[a-z][a-z0-9+.-]*:/i
 // 1x1 transparent GIF used in place of images that cannot be loaded
@@ -199,7 +199,7 @@ function handleHeading(tokens, i, env, Token) {
       inline.children.unshift(
         htmlInline(
           Token,
-          `<span class="chapter-label">${escapeHtml(bs.t.chapter)} ${number}</span> `
+          `<span class="chapter-label">${escapeHtml(numberedLabel(bs.t.chapter, number))}</span> `
         )
       )
     } else if (level === 1 && bs.chapterHeading === 'label-break') {
@@ -208,7 +208,7 @@ function handleHeading(tokens, i, env, Token) {
       inline.children.unshift(
         htmlInline(
           Token,
-          `<span class="chapter-label">${escapeHtml(bs.t.chapter)} ${number}</span><br>`
+          `<span class="chapter-label">${escapeHtml(numberedLabel(bs.t.chapter, number))}</span><br>`
         )
       )
     } else {
@@ -355,6 +355,100 @@ function numberListItems(tokens) {
   }
 }
 
+// A paragraph that introduces a list, a screenshot or a table ("ส่วนที่แสดงให้ดู",
+// "เลื่อนลงไปล่างสุดของหน้า") must not be left alone at the bottom of a page.
+function markKeepWithNext(tokens) {
+  for (let i = 0; i < tokens.length; i++) {
+    if (tokens[i].type !== 'paragraph_open' || tokens[i + 2]?.type !== 'paragraph_close') continue
+    if (isFigureParagraph(tokens, i)) continue // a figure is not an introduction
+    const next = tokens[i + 3]
+    if (!next) continue
+    const introduces =
+      next.type === 'bullet_list_open' ||
+      next.type === 'ordered_list_open' ||
+      next.type === 'table_open' ||
+      (next.type === 'paragraph_open' && isFigureParagraph(tokens, i + 3))
+    if (introduces) tokens[i].attrJoin('class', 'keep-with-next')
+  }
+}
+
+// Index of the token that closes the block opened at `start` (or `start`
+// itself for a token that opens nothing).
+function blockEnd(tokens, start) {
+  if (tokens[start].nesting !== 1) return start
+  let depth = 0
+  for (let i = start; i < tokens.length; i++) {
+    depth += tokens[i].nesting
+    if (depth === 0) return i
+  }
+  return tokens.length - 1
+}
+
+// Paged.js does not honour `break-after: avoid`, only `break-inside: avoid`.
+// So what must stay on one page is wrapped in a <div class="keep-together">:
+//   - a heading with the text that follows it (and the lines that introduce a
+//     list or a screenshot, with that list or screenshot)
+//   - an introducing line with the list, screenshot or table it introduces
+//   - a screenshot with the numbered list that explains it
+function keepTogether(tokens, Token) {
+  const groups = [] // [firstToken, lastToken]
+  let i = 0
+  while (i < tokens.length) {
+    const token = tokens[i]
+    if (token.level !== 0) {
+      i++
+      continue
+    }
+    const isHeading = token.type === 'heading_open'
+    const isIntro =
+      token.type === 'paragraph_open' &&
+      (token.attrGet('class') || '').includes('keep-with-next')
+    if (!isHeading && !isIntro) {
+      i++
+      continue
+    }
+    let end = blockEnd(tokens, i)
+    // keep going through introductions, then take the block they introduce
+    let next = end + 1
+    while (
+      tokens[next] &&
+      tokens[next].level === 0 &&
+      tokens[next].type === 'paragraph_open' &&
+      (tokens[next].attrGet('class') || '').includes('keep-with-next')
+    ) {
+      end = blockEnd(tokens, next)
+      next = end + 1
+    }
+    if (tokens[next] && tokens[next].level === 0 && tokens[next].nesting === 1) {
+      const figure = isFigureParagraph(tokens, next)
+      end = blockEnd(tokens, next)
+      // a table keeps its caption (": Caption {#tbl-x}" in the next paragraph)
+      if (
+        tokens[end].type === 'table_close' &&
+        tokens[end + 1]?.type === 'paragraph_open' &&
+        /^:\s+\S/.test(tokens[end + 2]?.content || '')
+      ) {
+        end = blockEnd(tokens, end + 1)
+      }
+      // a screenshot stays with the numbered list that explains it
+      if (figure && ['ordered_list_open', 'bullet_list_open'].includes(tokens[end + 1]?.type)) {
+        end = blockEnd(tokens, end + 1)
+      }
+    }
+    groups.push([i, end])
+    i = end + 1
+  }
+  // insert from the end so that the indexes stay valid
+  for (const [first, last] of groups.reverse()) {
+    const close = new Token('html_block', '', 0)
+    close.content = '</div>\n'
+    const open = new Token('html_block', '', 0)
+    open.content = '<div class="keep-together">\n'
+    tokens.splice(last + 1, 0, close)
+    tokens.splice(first, 0, open)
+  }
+}
+
 // ::: note ... ::: becomes a note box. The content is ordinary Markdown.
 function noteBlock(state, startLine, endLine, silent) {
   const lineText = line =>
@@ -432,6 +526,8 @@ function createMarkdown() {
   md.core.ruler.after('curly_attributes', 'book_structure', state => {
     const { tokens, env } = state
     numberListItems(tokens)
+    markKeepWithNext(tokens)
+    keepTogether(tokens, state.Token)
     for (let i = 0; i < tokens.length; i++) {
       const token = tokens[i]
       if (
@@ -522,6 +618,7 @@ function createMarkdown() {
 function referenceText(label, t) {
   if (!label.number) return label.text
   const kind = { figure: t.figure, table: t.table, chapter: t.chapter }[label.kind]
+  if (label.kind === 'chapter') return numberedLabel(t.chapter, label.number)
   return `${kind || t.section} ${label.number}`
 }
 

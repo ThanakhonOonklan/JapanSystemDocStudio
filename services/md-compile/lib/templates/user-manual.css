@@ -79,6 +79,14 @@ p {
   widows: 2;
 }
 
+/* what belongs together stays on one page (render.mjs: keepTogether) */
+.keep-together { break-inside: avoid; }
+/* belt and braces: Paged.js sometimes lets a group break right after its
+   first line */
+.keep-together > p.keep-with-next { break-after: avoid; }
+.keep-together > p.keep-with-next + ol,
+.keep-together > p.keep-with-next + ul { break-before: avoid; }
+
 a { color: #000; text-decoration: none; }
 
 strong { font-weight: 700; }

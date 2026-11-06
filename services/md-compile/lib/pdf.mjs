@@ -114,6 +114,36 @@ async function applyPageLabels(page, config) {
   }, labels)
 }
 
+/**
+ * Find pages that end with something that belongs to what follows: a heading,
+ * or the line that introduces a list, a screenshot or a table. They are
+ * reported in the log so the author can fix the text.
+ *
+ * @returns {Promise<Array<{ page: number, kind: string, text: string }>>}
+ */
+export async function findStrandedEnds(page) {
+  return await page.evaluate(() => {
+    const issues = []
+    const pages = [...document.querySelectorAll('.pagedjs_page')]
+    pages.forEach((pg, index) => {
+      const content = pg.querySelector('.pagedjs_page_content')
+      if (!content) return
+      const blocks = [...content.querySelectorAll('h1,h2,h3,h4,p,li,figure,table,pre')]
+        // the contents pages are drawn by the page decorator
+        .filter(el => !el.closest('.contents'))
+      const last = blocks[blocks.length - 1]
+      if (!last) return
+      const text = (last.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 50)
+      if (/^H[1-4]$/.test(last.tagName)) {
+        issues.push({ page: index + 1, kind: 'heading', text })
+      } else if (last.classList.contains('keep-with-next')) {
+        issues.push({ page: index + 1, kind: 'introduction', text })
+      }
+    })
+    return issues
+  })
+}
+
 async function renderOne(
   browser,
   { htmlPath, pdfPath, label, pageLabels },
@@ -142,6 +172,12 @@ async function renderOne(
     if (pageLabels) {
       await applyPageLabels(page, pageLabels)
       log.info(`[${label}] page numbers written`)
+    }
+
+    for (const issue of await findStrandedEnds(page)) {
+      log.warn(
+        `[${label}] page ${issue.page} of the PDF ends with the ${issue.kind} "${issue.text}", the content it introduces is on the next page`
+      )
     }
 
     await page.pdf({

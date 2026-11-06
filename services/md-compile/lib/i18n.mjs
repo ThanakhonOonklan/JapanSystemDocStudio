@@ -41,10 +41,18 @@ const STRINGS = {
 /**
  * @param {string} lang
  * @param {{ chapter?: string }} [overrides] e.g. { chapter: 'ขั้นที่' } for a
- *        workflow whose top-level parts are steps, not chapters
+ *        workflow whose top-level parts are steps, not chapters; '' = the
+ *        number alone ("2  การเข้าสู่ระบบ")
  */
 export function strings(lang, overrides = {}) {
   const base = String(lang || 'en').toLowerCase().split('-')[0]
   const found = STRINGS[base] || STRINGS.en
-  return overrides.chapter ? { ...found, chapter: overrides.chapter } : found
+  return overrides.chapter !== undefined && overrides.chapter !== null
+    ? { ...found, chapter: String(overrides.chapter) }
+    : found
+}
+
+/** "บทที่ 2", or just "2" when the label is empty */
+export function numberedLabel(label, number) {
+  return label ? `${label} ${number}` : `${number}`
 }

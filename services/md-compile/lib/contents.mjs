@@ -11,7 +11,7 @@
 // is on and what label that page has (ก ข ค / 1 2 3).
 
 import { escapeHtml } from './render.mjs'
-import { strings } from './i18n.mjs'
+import { strings, numberedLabel } from './i18n.mjs'
 
 // ids of the contents pages themselves, so they can be listed too
 export const CONTENTS_IDS = { toc: 'contents', lof: 'list-of-figures', lot: 'list-of-tables' }
@@ -67,7 +67,7 @@ export function renderContents({
       if (h.level > depth) continue
       let num = h.number
       if (num && h.level === 1 && ['label-break', 'inline'].includes(chapterHeading)) {
-        num = `${t.chapter} ${num}`
+        num = numberedLabel(t.chapter, num)
       }
       items.push(entry({ level: h.level, id: h.id, num, text: h.text }))
     }
