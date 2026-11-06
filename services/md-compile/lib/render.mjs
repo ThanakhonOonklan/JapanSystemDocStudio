@@ -493,6 +493,7 @@ function createMarkdown() {
     } else if (URL_SCHEME.test(src) || src.startsWith('//')) {
       log.warn(`external image is not loaded: ${src}`, location)
       token.attrSet('src', BLANK_IMAGE)
+      token.attrSet('data-missing', '1')
     } else {
       let absolute
       try {
@@ -503,9 +504,11 @@ function createMarkdown() {
       if (!isInside(compileDir, absolute)) {
         log.warn(`image outside the project is not loaded: ${src}`, location)
         token.attrSet('src', BLANK_IMAGE)
+      token.attrSet('data-missing', '1')
       } else if (!fs.existsSync(absolute)) {
         log.warn(`image not found: ${src}`, location)
         token.attrSet('src', BLANK_IMAGE)
+      token.attrSet('data-missing', '1')
       } else {
         token.attrSet('src', pathToFileURL(absolute).href)
       }

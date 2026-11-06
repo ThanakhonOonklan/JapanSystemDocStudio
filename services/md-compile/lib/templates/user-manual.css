@@ -211,6 +211,13 @@ figure img {
    ![ชื่อภาพ](images/a.png){width=60%} */
 figure img:not([width]) { width: 90%; }
 
+/* an image that was not found keeps a screenshot-sized empty frame, so the
+   pages look like they will with the real picture */
+figure img[data-missing] {
+  aspect-ratio: 16 / 9;
+  background: #f1f4f8;
+}
+
 /* images inside a paragraph (icons) are not framed */
 p img { max-width: 100%; height: auto; vertical-align: middle; }
 
