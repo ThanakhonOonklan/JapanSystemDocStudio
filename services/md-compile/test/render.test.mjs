@@ -4,7 +4,8 @@ import os from 'node:os'
 import path from 'node:path'
 import { test } from 'node:test'
 import { Log } from '../lib/log.mjs'
-import { renderChapters, renderCover, renderToc } from '../lib/render.mjs'
+import { renderChapters, renderToc } from '../lib/render.mjs'
+import { pickCover, renderCover } from '../lib/cover.mjs'
 
 function withProject(files, fn) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mdc-render-'))
@@ -175,14 +176,50 @@ test('toc lists headings up to the requested depth', () => {
   assert.equal(renderToc({ headings: [], depth: 3, lang: 'en' }), '')
 })
 
-test('cover shows only the metadata that is set', () => {
-  const cover = renderCover({
-    title: 'My <Book>',
-    meta: { subtitle: 'Sub', version: '1.0' },
-    lang: 'en',
-  })
-  assert.match(cover, /My &lt;Book&gt;/)
-  assert.match(cover, /Version<\/dt><dd>1\.0/)
-  assert.doesNotMatch(cover, /Author/)
-  assert.equal(renderCover({ title: undefined, meta: {}, lang: 'en' }), '')
+test('cover: texts per language, images inside the project, primary colour', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mdc-cover-'))
+  try {
+    fs.mkdirSync(path.join(dir, 'images'))
+    fs.writeFileSync(path.join(dir, 'images', 'logo.png'), '')
+    const log = new Log(dir)
+    const source = {
+      author: 'Team',
+      cover: {
+        logo: 'images/logo.png',
+        background: 'images/missing.png',
+        organization: 'Factory <Co>',
+        subtitle: { th: 'USER MANUAL' },
+        system: { th: 'ระบบโรงงาน', en: 'Factory system' },
+        description: { th: ['บรรทัดหนึ่ง', 'บรรทัดสอง'], en: 'One\nTwo' },
+      },
+      theme: { primary: '#123456' },
+    }
+    const th = pickCover(source, 'th', { title: 'คู่มือ', compileDir: dir, baseDir: dir, log })
+    assert.equal(th.preparedBy, 'Team') // falls back to author
+    assert.deepEqual(th.description, ['บรรทัดหนึ่ง', 'บรรทัดสอง'])
+    assert.match(th.logo, /^file:\/\/.*logo\.png$/)
+    assert.equal(th.background, undefined)
+    assert.equal(log.warnings, 1) // the missing background
+    const html = renderCover({ cover: th, lang: 'th' })
+    assert.match(html, /style="--primary: #123456"/)
+    assert.match(html, /<p class="cover-organization">Factory &lt;Co&gt;<\/p>/)
+    assert.match(html, /<h1 class="cover-title">คู่มือ<\/h1>/)
+    assert.match(html, /<p class="cover-subtitle">USER MANUAL<\/p>/)
+    assert.match(html, /<p class="cover-prepared-label">จัดทำโดย<\/p>/)
+    assert.doesNotMatch(html, /cover-background/)
+
+    const en = pickCover(source, 'en', { title: 'Manual', compileDir: dir, baseDir: dir })
+    assert.deepEqual(en.description, ['One', 'Two'])
+    assert.equal(en.subtitle, 'USER MANUAL') // a single language value is used for all
+    assert.match(renderCover({ cover: en, lang: 'en' }), /Prepared by/)
+
+    const outside = pickCover({ cover: { logo: '../x.png' }, theme: { primary: 'red' } }, 'en', {
+      title: 'M', compileDir: dir, baseDir: dir, log,
+    })
+    assert.equal(outside.logo, undefined)
+    assert.equal(outside.primary, '#1a8ad6') // invalid colour -> default
+    assert.equal(renderCover({ cover: { title: undefined }, lang: 'en' }), '')
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true })
+  }
 })

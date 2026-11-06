@@ -22,6 +22,7 @@ import path from 'node:path'
 import yaml from 'js-yaml'
 import { resolveInside } from './paths.mjs'
 import { getTemplate, TEMPLATES } from './templates.mjs'
+import { pickCover } from './cover.mjs'
 
 const LANGUAGE_DIRS = ['th', 'en']
 const FRONT_MATTER = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/
@@ -148,6 +149,7 @@ function loadSingleFile(compileDir, mainPath, log) {
   // a single file only gets a cover page when it says so in its front matter
   options.cover = data.cover === true || (data.cover !== false && data.title != null)
   const kind = kindOf(mainPath, undefined, log)
+  const title = pickTitle(data.title, code) || heading?.[1]
   return {
     defaultLanguage: code,
     template,
@@ -155,8 +157,14 @@ function loadSingleFile(compileDir, mainPath, log) {
     languages: [
       {
         code,
-        title: pickTitle(data.title, code) || heading?.[1],
+        title,
         meta: pickMeta(data, code),
+        cover: pickCover(data, code, {
+          title,
+          compileDir,
+          baseDir: path.dirname(mainPath),
+          log,
+        }),
         files: [mainPath],
         kinds: new Map([[mainPath, kind]]),
         chapters: [{ name: path.basename(mainPath), file: mainPath, kind }],
@@ -235,6 +243,12 @@ function loadBook(compileDir, bookPath, log) {
       dir: hasDir ? langDir : undefined,
       title: pickTitle(book.title, code),
       meta: pickMeta(book, code),
+      cover: pickCover(book, code, {
+        title: pickTitle(book.title, code),
+        compileDir,
+        baseDir,
+        log: code === codes[0] ? log : undefined, // warn once, not per language
+      }),
       files,
       kinds,
       chapters,

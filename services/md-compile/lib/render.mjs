@@ -536,28 +536,6 @@ export function renderChapters({
 }
 
 /**
- * Cover page from the title and metadata of the book.
- */
-export function renderCover({ title, meta, lang }) {
-  if (!title) return ''
-  const t = strings(lang)
-  const rows = ['version', 'author', 'organization', 'date']
-    .filter(field => meta[field])
-    .map(
-      field =>
-        `<div><dt>${escapeHtml(t[field])}</dt><dd>${escapeHtml(meta[field])}</dd></div>`
-    )
-    .join('\n')
-  return `<section class="cover" data-kind="cover">
-<div class="cover-inner">
-<h1 class="cover-title">${escapeHtml(title)}</h1>
-${meta.subtitle ? `<p class="cover-subtitle">${escapeHtml(meta.subtitle)}</p>` : ''}
-${rows ? `<dl class="cover-meta">\n${rows}\n</dl>` : ''}
-</div>
-</section>`
-}
-
-/**
  * Table of contents (page numbers are filled in by Paged.js).
  */
 export function renderToc({ headings, depth, lang }) {

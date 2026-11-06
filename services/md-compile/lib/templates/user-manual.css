@@ -255,39 +255,102 @@ blockquote {
   padding: 0;
 }
 
-/* ---- Cover (refined in U2) ------------------------------------------- */
+/* ---- Cover ---------------------------------------------------------- */
 
+/* Positions follow the sample cover: logo and organisation at the top,
+   the title a little above the middle, the system and its description
+   below, a short rule in the primary colour, then "จัดทำโดย" and the
+   author. A background image, when given, fills the whole sheet. */
 .cover {
   page: cover;
+  position: relative;
+  width: 210mm;
   height: 297mm;
+  overflow: hidden;
   break-after: page;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   text-align: center;
-  padding: 0 1in;
+  color: #000;
 }
 
-.cover-inner { width: 100%; }
+.cover p { text-indent: 0; text-align: center; margin: 0; }
+
+.cover-background {
+  position: absolute;
+  inset: 0;
+  width: 210mm;
+  height: 297mm;
+  object-fit: cover;
+  z-index: 0;
+}
+
+.cover-top,
+.cover-heading,
+.cover-system,
+.cover-rule,
+.cover-bottom {
+  position: absolute;
+  left: 25mm;
+  right: 25mm;
+  z-index: 1;
+}
+
+.cover-top { top: 36mm; }
+
+.cover-logo {
+  display: block;
+  margin: 0 auto 4mm;
+  max-width: 45mm;
+  max-height: 28mm;
+  width: auto;
+  height: auto;
+}
+
+.cover-organization { font-size: 18pt; font-weight: 700; }
+
+.cover-heading { top: 100mm; }
 
 .cover-title {
-  font-size: 40pt;
-  margin: 0 0 8pt;
+  font-size: 44pt;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--primary);
+  margin: 0;
+  text-align: center;
 }
 
 .cover-subtitle {
-  font-size: 20pt;
-  text-align: center;
-  text-indent: 0;
-  margin: 0 0 24pt;
+  font-size: 22pt;
+  font-weight: 700;
+  margin-top: 1mm;
 }
 
-.cover-meta { margin: 0; }
-.cover-meta div { margin: 2pt 0; }
-.cover-meta dt { display: inline; font-weight: 700; }
-.cover-meta dt::after { content: " "; }
-.cover-meta dd { display: inline; margin: 0; }
+.cover-system { top: 158mm; }
+
+.cover-system-name,
+.cover-description {
+  font-size: 18pt;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.cover-rule {
+  top: 218mm;
+  left: 75mm;
+  right: 75mm;
+  height: 1.2mm;
+  background: var(--primary);
+}
+
+.cover-bottom { top: 236mm; }
+
+.cover-prepared-label { font-size: 16pt; font-weight: 700; }
+
+.cover-prepared-by {
+  font-size: 24pt;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1.2;
+}
 
 /* ---- Contents (refined in U3) ---------------------------------------- */
 

@@ -17,12 +17,8 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { Log } from './lib/log.mjs'
 import { loadProject } from './lib/project.mjs'
-import {
-  buildDocument,
-  renderChapters,
-  renderCover,
-  renderToc,
-} from './lib/render.mjs'
+import { buildDocument, renderChapters, renderToc } from './lib/render.mjs'
+import { renderCover } from './lib/cover.mjs'
 import { renderPdfs } from './lib/pdf.mjs'
 import { checkParity } from './lib/parity.mjs'
 import { discoverFonts, fontFaceCss, fontFamilies } from './lib/fonts.mjs'
@@ -119,11 +115,7 @@ async function main() {
       })
       language.structure = structure
       const cover = project.options.cover
-        ? renderCover({
-            title: language.title,
-            meta: language.meta,
-            lang: language.code,
-          })
+        ? renderCover({ cover: language.cover, lang: language.code })
         : ''
       const toc = project.options.toc
         ? renderToc({

@@ -1,12 +1,26 @@
 title:
   th: คู่มือการใช้งาน
   en: User Manual
-subtitle:
-  th: ระบบบริหารจัดการโรงงาน
-  en: Factory Management System
 author:
   th: ทีมเอกสาร
   en: Documentation team
+cover:
+  logo: images/logo.svg
+  organization: Refrigerator Factory
+  subtitle:
+    th: USER MANUAL
+  system:
+    th: ระบบบริหารจัดการโรงงาน
+    en: Factory Management System
+  description:
+    th:
+      - ใบเสนอราคา ใบสั่งผลิต สต็อก จัดซื้อ และบัญชี
+    en:
+      - Quotations, production orders, stock, purchasing and accounts
+  preparedBy: Japan System
+  background: images/cover-bg.svg
+theme:
+  primary: "#1a8ad6"
 defaultLanguage: th
 chapters:
   - 01-login.md

@@ -13,6 +13,7 @@ const STRINGS = {
     author: 'ผู้จัดทำ',
     organization: 'หน่วยงาน',
     date: 'วันที่',
+    preparedBy: 'จัดทำโดย',
   },
   en: {
     contents: 'Contents',
@@ -25,6 +26,7 @@ const STRINGS = {
     author: 'Author',
     organization: 'Organization',
     date: 'Date',
+    preparedBy: 'Prepared by',
   },
 }
 
