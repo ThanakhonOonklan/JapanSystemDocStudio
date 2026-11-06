@@ -62,47 +62,47 @@
     },
     "green-10": {
       "$type": "color",
-      "$value": "#eaf6ef",
+      "$value": "#e8f5f3",
       "$primitive": null
     },
     "green-15": {
       "$type": "color",
-      "$value": "#daede2",
+      "$value": "#d3ece8",
       "$primitive": null
     },
     "green-20": {
       "$type": "color",
-      "$value": "#b8dbc8",
+      "$value": "#acd9d3",
       "$primitive": null
     },
     "green-30": {
       "$type": "color",
-      "$value": "#86caa5",
+      "$value": "#78c2ba",
       "$primitive": null
     },
     "green-40": {
       "$type": "color",
-      "$value": "#53b57f",
+      "$value": "#3fa89e",
       "$primitive": null
     },
     "green-50": {
       "$type": "color",
-      "$value": "#098842",
+      "$value": "#0f766e",
       "$primitive": null
     },
     "green-60": {
       "$type": "color",
-      "$value": "#1e6b41",
+      "$value": "#0d625c",
       "$primitive": null
     },
     "green-65": {
       "$type": "color",
-      "$value": "#1c623b",
+      "$value": "#0c5a54",
       "$primitive": null
     },
     "green-70": {
       "$type": "color",
-      "$value": "#195936",
+      "$value": "#0a4c47",
       "$primitive": null
     },
     "blue-10": {

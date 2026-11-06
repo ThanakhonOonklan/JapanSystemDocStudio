@@ -21,16 +21,29 @@ $neutral-80: #2f3a4c;
 $neutral-85: #252e3c;
 $neutral-90: #1b222c;
 
-/* Green */
-$green-10: #eaf6ef;
-$green-15: #daede2;
-$green-20: #b8dbc8;
-$green-30: #86caa5;
-$green-40: #53b57f;
-$green-50: #098842;
-$green-60: #1e6b41;
-$green-65: #1c623b;
-$green-70: #195936;
+/* Green: the brand colour of Documentation Studio REA is teal #0f766e.
+   The name `green` is kept so that every component keeps working;
+   real green for success messages is the `success` scale below. */
+$green-10: #e8f5f3;
+$green-15: #d3ece8;
+$green-20: #acd9d3;
+$green-30: #78c2ba;
+$green-40: #3fa89e;
+$green-50: #0f766e;
+$green-60: #0d625c;
+$green-65: #0c5a54;
+$green-70: #0a4c47;
+
+/* Success (real green) */
+$success-10: #eaf6ef;
+$success-15: #daede2;
+$success-20: #b8dbc8;
+$success-30: #86caa5;
+$success-40: #53b57f;
+$success-50: #098842;
+$success-60: #1e6b41;
+$success-65: #1c623b;
+$success-70: #195936;
 
 /* Blue */
 $blue-10: #f1f4f9;
@@ -86,7 +99,7 @@ $content-disabled: $neutral-40;
 $content-placeholder: $neutral-60;
 $content-danger: $red-50;
 $content-warning: $yellow-50;
-$content-positive: $green-50;
+$content-positive: $success-50;
 $content-info: $blue-50;
 $border-primary: $neutral-60;
 $border-hover: $neutral-70;
@@ -106,7 +119,7 @@ $content-disabled-dark: $neutral-60;
 $content-placeholder-dark: $neutral-50;
 $content-danger-dark: $red-40;
 $content-warning-dark: $yellow-40;
-$content-positive-dark: $green-40;
+$content-positive-dark: $success-40;
 $content-info-dark: $blue-30;
 $border-primary-dark: $neutral-30;
 $border-hover-dark: $neutral-20;
@@ -147,6 +160,17 @@ $link-ui-visited-dark: $blue-40;
   --green-60: #{$green-60};
   --green-65: #{$green-65};
   --green-70: #{$green-70};
+
+  /* Success (real green) */
+  --success-10: #{$success-10};
+  --success-15: #{$success-15};
+  --success-20: #{$success-20};
+  --success-30: #{$success-30};
+  --success-40: #{$success-40};
+  --success-50: #{$success-50};
+  --success-60: #{$success-60};
+  --success-65: #{$success-65};
+  --success-70: #{$success-70};
 
   /* Blue */
   --blue-10: #{$blue-10};
@@ -202,7 +226,7 @@ $link-ui-visited-dark: $blue-40;
   --content-placeholder: var(--neutral-60);
   --content-danger: var(--red-50);
   --content-warning: var(--yellow-50);
-  --content-positive: var(--green-50);
+  --content-positive: var(--success-50);
   --content-info: var(--blue-50);
   --border-primary: var(--neutral-60);
   --border-hover: var(--neutral-70);
@@ -223,7 +247,7 @@ $link-ui-visited-dark: $blue-40;
   --content-placeholder-dark: var(--neutral-50);
   --content-danger-dark: var(--red-40);
   --content-warning-dark: var(--yellow-40);
-  --content-positive-dark: var(--green-40);
+  --content-positive-dark: var(--success-40);
   --content-info-dark: var(--blue-30);
   --border-primary-dark: var(--neutral-30);
   --border-hover-dark: var(--neutral-20);
