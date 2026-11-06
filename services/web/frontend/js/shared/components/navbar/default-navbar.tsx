@@ -3,7 +3,6 @@ import { sendMB } from '@/infrastructure/event-tracking'
 import { useTranslation } from 'react-i18next'
 import { Button, Container, Nav, Navbar } from 'react-bootstrap'
 import useWaitForI18n from '@/shared/hooks/use-wait-for-i18n'
-import AdminMenu from '@/shared/components/navbar/admin-menu'
 import type { DefaultNavbarMetadata } from '@/shared/components/types/default-navbar-metadata'
 import NavItemFromData from '@/shared/components/navbar/nav-item-from-data'
 import LoggedInItems from '@/shared/components/navbar/logged-in-items'
@@ -24,12 +23,6 @@ function DefaultNavbar(
     overleafLogo,
     customLogo,
     title,
-    canDisplayAdminMenu,
-    canDisplayAdminRedirect,
-    canDisplayProjectUrlLookup,
-    canDisplaySplitTestMenu,
-    canDisplaySurveyMenu,
-    canDisplayScriptLogMenu,
     enableUpgradeButton,
     suppressNavbarRight,
     suppressNavContentLinks,
@@ -37,7 +30,6 @@ function DefaultNavbar(
     showSubscriptionLink,
     showSignUpLink,
     sessionUser,
-    adminUrl,
     items,
   } = props
   const { t } = useTranslation()
@@ -107,19 +99,6 @@ function DefaultNavbar(
                 className="justify-content-end"
               >
                 <Nav as="ul" className="ms-auto" role="menubar">
-                  {canDisplayAdminMenu ||
-                  canDisplayAdminRedirect ||
-                  canDisplaySplitTestMenu ? (
-                    <AdminMenu
-                      canDisplayAdminMenu={canDisplayAdminMenu}
-                      canDisplayAdminRedirect={canDisplayAdminRedirect}
-                      canDisplayProjectUrlLookup={canDisplayProjectUrlLookup}
-                      canDisplaySplitTestMenu={canDisplaySplitTestMenu}
-                      canDisplaySurveyMenu={canDisplaySurveyMenu}
-                      canDisplayScriptLogMenu={canDisplayScriptLogMenu}
-                      adminUrl={adminUrl}
-                    />
-                  ) : null}
                   {items.map((item, index) => {
                     const showNavItem =
                       (item.only_when_logged_in && sessionUser) ||
