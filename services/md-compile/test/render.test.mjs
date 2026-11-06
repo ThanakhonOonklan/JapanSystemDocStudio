@@ -121,8 +121,8 @@ test('captions and labels follow the language', () => {
         log: new Log(),
         lang: 'th',
       })
-      assert.match(html, /รูปที่ 1\.1<\/span> แผนภาพ/)
-      assert.match(html, /<a class="xref" href="#fig-a">รูปที่ 1\.1<\/a>/)
+      assert.match(html, /ภาพที่ 1\.1<\/span> แผนภาพ/)
+      assert.match(html, /<a class="xref" href="#fig-a">ภาพที่ 1\.1<\/a>/)
     }
   )
 })

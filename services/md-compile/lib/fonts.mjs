@@ -37,13 +37,15 @@ export function parseFontName(fileName) {
 
 /**
  * @param {string} baseDir folder that holds book.yaml (or the root file)
+ * @param {{ direct?: boolean }} [options] direct: baseDir is the font folder
  * @returns {Array<{ family: string, weight: number, style: string, file: string }>}
  */
-export function discoverFonts(baseDir) {
+export function discoverFonts(baseDir, { direct = false } = {}) {
   const fonts = []
   // Font/ and font/ are the same folder on case-insensitive file systems
   const seen = new Set()
-  for (const dirName of FONT_DIRS) {
+  // direct: baseDir is itself the font folder
+  for (const dirName of direct ? ['.'] : FONT_DIRS) {
     const dir = path.join(baseDir, dirName)
     if (!fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) continue
     for (const entry of fs.readdirSync(dir)) {

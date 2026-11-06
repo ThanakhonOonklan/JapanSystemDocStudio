@@ -1,0 +1,322 @@
+/* user-manual: a user manual in the layout of a KMUTNB project report
+   (Class/project_report.cls), appendix "คู่มือการใช้งานระบบ" in particular.
+     - A4, margins top 1.5in, right 1in, bottom 1in, left 1.5in
+     - TH Sarabun New 16pt for Thai and English, justified, first line
+       indented 1.3em
+     - chapter: new page, "บทที่ N" and the title centred, bold
+     - sections bold; subsections indented 0.8cm
+     - screenshots centred, 90% of the text width, thin black frame, caption
+       below: "ภาพที่ 1-1 ..."; tables with full grid, caption above
+     - numbered steps "1)", nested "1.1)"
+     - note box: ::: note ... :::
+   Page numbers are written by the page-labelling pass (lib/page-labels.mjs):
+   none on the cover, Thai letters at the bottom centre in the front matter,
+   Arabic numbers at the top right from chapter 1, none on the first page of
+   a chapter.
+   The font is shipped with the template (md-compile/fonts); a project can
+   override it with its own Font/ folder. */
+
+@page {
+  size: A4;
+  margin: 1.5in 1in 1in 1.5in;
+
+  /* "content" must be set so that the margin boxes exist; the numbers
+     themselves are filled in after layout */
+  @top-right {
+    content: " ";
+    font-family: "THSarabunNew", "Noto Sans Thai", sans-serif;
+    font-size: 16pt;
+    vertical-align: bottom;
+    padding-bottom: 0.4in;
+  }
+  @bottom-center {
+    content: " ";
+    font-family: "THSarabunNew", "Noto Sans Thai", sans-serif;
+    font-size: 16pt;
+    vertical-align: top;
+    padding-top: 0.25in;
+  }
+}
+
+/* the cover uses the whole sheet */
+@page cover {
+  margin: 0;
+}
+
+html {
+  font-family: "THSarabunNew", "Noto Sans Thai", sans-serif;
+  font-size: 16pt;
+  line-height: 1.15;
+  color: #000;
+}
+
+:lang(th) {
+  word-break: normal;
+  line-break: normal;
+  overflow-wrap: break-word;
+}
+
+body { margin: 0; }
+
+/* each file of the book starts on a new page */
+section.chapter { break-before: page; }
+
+/* a line with only \newpage */
+.page-break { break-after: page; height: 0; }
+
+/* ---- Text ------------------------------------------------------------ */
+
+p {
+  margin: 0 0 4pt;
+  text-align: justify;
+  text-indent: 1.3em;
+  orphans: 2;
+  widows: 2;
+}
+
+a { color: #000; text-decoration: none; }
+
+strong { font-weight: 700; }
+
+/* ---- Headings -------------------------------------------------------- */
+
+h1, h2, h3, h4 {
+  font-weight: 700;
+  text-indent: 0;
+  break-after: avoid;
+  line-height: 1.15;
+}
+
+/* chapter: "บทที่ N" on one line, the title below */
+h1 {
+  text-align: center;
+  font-size: 20pt;
+  margin: 0 0 1em;
+}
+
+h2 {
+  font-size: 16pt;
+  margin: 10pt 0 4pt;
+}
+
+h2 .num { margin-right: 0.3cm; }
+
+/* subsection: indented 0.8cm, wrapped lines hang under the text */
+h3 {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3cm;
+  font-size: 16pt;
+  margin: 8pt 0 4pt;
+  padding-left: 0.8cm;
+}
+
+h3 .num { flex: none; }
+
+h4 {
+  font-size: 16pt;
+  margin: 6pt 0 4pt;
+  padding-left: 1.6cm;
+}
+
+/* ---- Lists ----------------------------------------------------------- */
+
+/* steps: 1) 2) 3), nested 1.1) 1.2); the numbers are written into the HTML
+   (data-step) because Paged.js breaks nested CSS counters */
+ol {
+  list-style: none;
+  margin: 0 0 4pt;
+  padding-left: 2.6em;
+}
+
+ol > li { position: relative; }
+
+ol > li::before {
+  content: attr(data-step) ")";
+  position: absolute;
+  left: -1.6em;
+}
+
+/* nested steps: the number starts where the parent's text starts */
+ol ol { padding-left: 2.2em; }
+ol ol > li::before { left: -2.2em; }
+ol ol ol { padding-left: 2.8em; }
+ol ol ol > li::before { left: -2.8em; }
+
+ul {
+  margin: 0 0 4pt;
+  padding-left: 2.6em;
+}
+
+li { margin: 0 0 2pt; }
+
+/* list items are not paragraphs with an indented first line */
+li > p { text-indent: 0; margin: 0 0 2pt; }
+
+/* short step lines read better ragged than stretched (URLs, English) */
+li, li > p { text-align: left; }
+
+/* ---- Figures (screenshots) ------------------------------------------- */
+
+figure {
+  margin: 8pt 0 12pt;
+  text-align: center;
+  break-inside: avoid;
+}
+
+figure img {
+  display: block;
+  margin: 0 auto 6pt;
+  max-width: 100%;
+  height: auto;
+  border: 0.75pt solid #000;
+  box-sizing: border-box;
+}
+
+/* 90% of the text width unless the image says otherwise:
+   ![ชื่อภาพ](images/a.png){width=60%} */
+figure img:not([width]) { width: 90%; }
+
+/* images inside a paragraph (icons) are not framed */
+p img { max-width: 100%; height: auto; vertical-align: middle; }
+
+figcaption, caption {
+  font-size: 16pt;
+  text-indent: 0;
+}
+
+figcaption { text-align: center; }
+
+figcaption .label, caption .label { font-weight: 700; }
+
+/* ---- Tables ---------------------------------------------------------- */
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 6pt 0 12pt;
+  /* Paged.js cannot repeat the header row on the next page, so keep a table
+     on one page where it fits */
+  break-inside: avoid;
+}
+
+caption {
+  caption-side: top;
+  text-align: left;
+  margin-bottom: 4pt;
+}
+
+th, td {
+  border: 0.75pt solid #000;
+  padding: 2pt 6pt;
+  text-align: left;
+  vertical-align: top;
+}
+
+th { text-align: center; font-weight: 700; }
+
+td p, th p { text-indent: 0; margin: 0; text-align: left; }
+
+/* ---- Note box -------------------------------------------------------- */
+
+aside.note {
+  margin: 6pt 0 10pt;
+  padding: 4pt 10pt 4pt 12pt;
+  border-left: 3pt solid #000;
+  break-inside: avoid;
+}
+
+aside.note .note-title {
+  font-weight: 700;
+  text-indent: 0;
+  margin: 0 0 2pt;
+}
+
+aside.note p { text-indent: 0; }
+aside.note > :last-child { margin-bottom: 0; }
+
+/* ---- Code ------------------------------------------------------------ */
+
+pre, code {
+  font-family: "Noto Sans Mono", "DejaVu Sans Mono", monospace;
+  font-size: 12pt;
+}
+
+pre {
+  border: 0.75pt solid #000;
+  padding: 6pt 8pt;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  break-inside: avoid;
+}
+
+blockquote {
+  margin: 8pt 0 8pt 1cm;
+  padding: 0;
+}
+
+/* ---- Cover (refined in U2) ------------------------------------------- */
+
+.cover {
+  page: cover;
+  height: 297mm;
+  break-after: page;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 1in;
+}
+
+.cover-inner { width: 100%; }
+
+.cover-title {
+  font-size: 40pt;
+  margin: 0 0 8pt;
+}
+
+.cover-subtitle {
+  font-size: 20pt;
+  text-align: center;
+  text-indent: 0;
+  margin: 0 0 24pt;
+}
+
+.cover-meta { margin: 0; }
+.cover-meta div { margin: 2pt 0; }
+.cover-meta dt { display: inline; font-weight: 700; }
+.cover-meta dt::after { content: " "; }
+.cover-meta dd { display: inline; margin: 0; }
+
+/* ---- Contents (refined in U3) ---------------------------------------- */
+
+.toc { break-after: page; }
+
+.toc-title {
+  text-align: center;
+  font-size: 20pt;
+  margin: 0 0 12pt;
+}
+
+.toc ul { list-style: none; margin: 0; padding: 0; }
+.toc li { margin: 0; }
+
+.toc li a {
+  display: flex;
+  align-items: baseline;
+}
+
+.toc .toc-text { flex: 0 1 auto; }
+.toc .toc-fill { flex: 1 1 auto; }
+
+.toc li a::after {
+  content: target-counter(attr(href url), page);
+  flex: none;
+  padding-left: 6pt;
+}
+
+.toc .toc-2 { padding-left: 2.6em; }
+.toc .toc-3 { padding-left: 4.4em; }
+.toc .toc-4 { padding-left: 6.2em; }
+.toc .num { display: inline-block; min-width: 2em; }

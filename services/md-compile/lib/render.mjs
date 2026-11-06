@@ -7,6 +7,10 @@
 //   - numbered tables: a paragraph starting with ": " right after a table
 //       : Caption {#tbl-b}
 //   - cross-references: @fig-a, @tbl-b, @sec-c (or @id of any heading)
+//   - note boxes:
+//       ::: note
+//       text
+//       :::
 //   - a cover page and a table of contents
 //
 // Raw HTML in the Markdown source is not allowed (html: false), so a document
@@ -27,6 +31,8 @@ const URL_SCHEME = /^[a-z][a-z0-9+.-]*:/i
 const BLANK_IMAGE =
   'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
 const PREFIXED_REF = /^(fig|tbl|sec)-/
+// a Thai letter (or mark) followed by one space, at the end of a text run
+const THAI_BEFORE_SPACE = /[ก-๛] $/
 const REF_START = '\u0001REF:'
 const REF_END = '\u0002'
 
@@ -50,11 +56,12 @@ function plainText(inline) {
   return text
 }
 
-function newState({ lang, numbering, chapterHeading, log }) {
+function newState({ lang, numbering, chapterHeading, numberSeparator, log }) {
   return {
     t: strings(lang),
     numbering,
     chapterHeading,
+    numberSeparator,
     log,
     chapter: 0,
     section: 0,
@@ -84,9 +91,12 @@ function claimId(bs, id, env, line) {
   bs.ids.add(id)
 }
 
-// Number within the current chapter: "2.1", or just "1" before any chapter.
+// Number within the current chapter: "2-1" (or "2.1"), or just "1" before
+// any chapter.
 function localNumber(bs, counter) {
-  return bs.chapter > 0 ? `${bs.chapter}.${counter}` : `${counter}`
+  return bs.chapter > 0
+    ? `${bs.chapter}${bs.numberSeparator}${counter}`
+    : `${counter}`
 }
 
 function htmlInline(StateToken, html) {
@@ -213,10 +223,13 @@ function handleFigure(tokens, i, env, Token) {
 
   open.type = 'figure_open'
   open.tag = 'figure'
+  // in a tight list the paragraph would be hidden, the figure must not be
+  open.hidden = false
   open.attrSet('id', id)
   open.attrSet('class', 'figure')
   close.type = 'figure_close'
   close.tag = 'figure'
+  close.hidden = false
   inline.children.push(
     htmlInline(
       Token,
@@ -263,11 +276,90 @@ function handleTable(tokens, i, env) {
   bs.labels.set(id, { kind: 'table', number, text: caption })
 }
 
+// Number the items of ordered lists in the HTML ("3", nested "3.1") so the
+// stylesheet can print "3)" / "3.1)": Paged.js does not handle nested CSS
+// counters.
+function numberListItems(tokens) {
+  const stack = [] // { ordered, next }
+  const path = []
+  for (const token of tokens) {
+    if (token.type === 'ordered_list_open') {
+      const start = parseInt(token.attrGet('start'), 10)
+      stack.push({ ordered: true, next: Number.isFinite(start) ? start : 1 })
+    } else if (token.type === 'bullet_list_open') {
+      stack.push({ ordered: false })
+    } else if (token.type === 'ordered_list_close' || token.type === 'bullet_list_close') {
+      stack.pop()
+    } else if (token.type === 'list_item_open') {
+      const list = stack[stack.length - 1]
+      if (list?.ordered) {
+        const number = list.next++
+        // nested ordered lists continue the number of their parent items
+        const parents = []
+        for (let d = 0; d < stack.length - 1; d++) {
+          if (stack[d].ordered && path[d] != null) parents.push(path[d])
+        }
+        path[stack.length - 1] = number
+        token.attrSet('data-step', [...parents, number].join('.'))
+      } else {
+        path[stack.length - 1] = null
+      }
+    }
+  }
+}
+
+// ::: note ... ::: becomes a note box. The content is ordinary Markdown.
+function noteBlock(state, startLine, endLine, silent) {
+  const lineText = line =>
+    state.src.slice(state.bMarks[line] + state.tShift[line], state.eMarks[line])
+  if (state.sCount[startLine] - state.blkIndent >= 4) return false
+  if (!/^:::\s*note\s*$/i.test(lineText(startLine))) return false
+  if (silent) return true
+
+  let next = startLine + 1
+  let closed = false
+  for (; next < endLine; next++) {
+    if (
+      state.sCount[next] - state.blkIndent < 4 &&
+      /^:::\s*$/.test(lineText(next))
+    ) {
+      closed = true
+      break
+    }
+  }
+
+  const open = state.push('note_open', 'aside', 1)
+  open.attrSet('class', 'note')
+  open.map = [startLine, next]
+  open.block = true
+
+  const oldParent = state.parentType
+  const oldLineMax = state.lineMax
+  state.parentType = 'note'
+  state.lineMax = next
+  state.md.block.tokenize(state, startLine + 1, next)
+  state.parentType = oldParent
+  state.lineMax = oldLineMax
+
+  const close = state.push('note_close', 'aside', -1)
+  close.block = true
+  state.line = closed ? next + 1 : next
+  return true
+}
+
 function createMarkdown() {
   const md = new MarkdownIt({ html: false, linkify: false, typographer: false })
   md.use(markdownItAttrs, {
     allowedAttributes: ['id', 'class', 'width', 'height'],
   })
+
+  md.block.ruler.before('fence', 'note', noteBlock, {
+    alt: ['paragraph', 'reference', 'blockquote', 'list'],
+  })
+  md.renderer.rules.note_open = (tokens, idx, options, env, self) =>
+    self.renderToken(tokens, idx, options) +
+    `<p class="note-title">${escapeHtml(env.state.t.note)}</p>
+`
 
   // @fig-x / @tbl-x / @sec-x / @heading-id
   md.inline.ruler.push('xref', (state, silent) => {
@@ -292,6 +384,7 @@ function createMarkdown() {
 
   md.core.ruler.after('curly_attributes', 'book_structure', state => {
     const { tokens, env } = state
+    numberListItems(tokens)
     for (let i = 0; i < tokens.length; i++) {
       const token = tokens[i]
       if (
@@ -306,11 +399,21 @@ function createMarkdown() {
         tokens.splice(i, 3, marker)
       } else if (token.type === 'inline') {
         // remember where images and references are, for warnings
-        for (const child of token.children || []) {
+        const children = token.children || []
+        children.forEach((child, k) => {
           if (child.type === 'image' || child.type === 'xref') {
             child.meta = { line: lineOf(token, env) }
           }
-        }
+          // Thai has no space between words: "จาก @fig-a" reads "จากภาพที่ 1-1"
+          const before = children[k - 1]
+          if (
+            child.type === 'xref' &&
+            before?.type === 'text' &&
+            THAI_BEFORE_SPACE.test(before.content)
+          ) {
+            before.content = before.content.slice(0, -1)
+          }
+        })
       } else if (token.type === 'heading_open') {
         handleHeading(tokens, i, env, state.Token)
       } else if (token.type === 'paragraph_open' && isFigureParagraph(tokens, i)) {
@@ -400,10 +503,11 @@ export function renderChapters({
   lang = 'en',
   numbering = true,
   chapterHeading = 'number',
+  numberSeparator = '.',
   kinds = new Map(),
 }) {
   const md = createMarkdown()
-  const state = newState({ lang, numbering, chapterHeading, log })
+  const state = newState({ lang, numbering, chapterHeading, numberSeparator, log })
   const parts = []
   for (const file of files) {
     const source = fs.readFileSync(file, 'utf8')
@@ -444,7 +548,7 @@ export function renderCover({ title, meta, lang }) {
         `<div><dt>${escapeHtml(t[field])}</dt><dd>${escapeHtml(meta[field])}</dd></div>`
     )
     .join('\n')
-  return `<section class="cover">
+  return `<section class="cover" data-kind="cover">
 <div class="cover-inner">
 <h1 class="cover-title">${escapeHtml(title)}</h1>
 ${meta.subtitle ? `<p class="cover-subtitle">${escapeHtml(meta.subtitle)}</p>` : ''}
@@ -469,7 +573,7 @@ export function renderToc({ headings, depth, lang }) {
         }${escapeHtml(h.text)}</span><span class="toc-fill"></span></a></li>`
     )
   if (items.length === 0) return ''
-  return `<nav class="toc">
+  return `<nav class="toc" data-kind="front">
 <h2 class="toc-title">${escapeHtml(t.contents)}</h2>
 <ul>
 ${items.join('\n')}

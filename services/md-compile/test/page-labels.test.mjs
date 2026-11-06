@@ -13,7 +13,7 @@ import { discoverFonts, fontFaceCss, parseFontName } from '../lib/fonts.mjs'
 const sample = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
   'fixtures',
-  'kmutnb-sample'
+  'manual-sample'
 )
 
 test('thai letters count like the report template: ก ข ค ... then กก', () => {
@@ -74,40 +74,59 @@ test('fonts are found in Font/ and turned into @font-face rules', () => {
   }
 })
 
-test('book.yaml: template, kinds per file', () => {
+test('user-manual is the default template', () => {
   const log = new Log(sample)
   const project = loadProject(sample, 'book.yaml', log)
-  assert.equal(project.template.name, 'kmutnb-project')
-  assert.equal(project.options.cover, false) // the template leaves it to the author
+  assert.equal(project.template.name, 'user-manual')
+  assert.equal(project.options.cover, true)
+  assert.equal(project.options.toc, true)
   assert.equal(project.options.chapterHeading, 'label-break')
-  const kinds = project.languages[0].chapters.map(c => c.kind)
-  assert.deepEqual(kinds, ['cover', 'cover', 'front', 'front', 'chapter', 'chapter', 'back'])
+  assert.equal(project.options.numberSeparator, '-')
+  assert.ok(project.template.fontDir)
+  assert.ok(
+    discoverFonts(project.template.fontDir, { direct: true }).some(
+      f => f.family === 'THSarabunNew' && f.weight === 700
+    )
+  )
 })
 
-test('only chapters are numbered, chapter titles get a label line', () => {
+test('manual pages: "บทที่ N" headings, figures "ภาพที่ 1-1", framed steps and notes', () => {
   const log = new Log(sample)
   const project = loadProject(sample, 'book.yaml', log)
-  const language = project.languages[0]
-  const { html, headings } = renderChapters({
+  const language = project.languages.find(l => l.code === 'th')
+  const { html } = renderChapters({
     files: language.files,
     kinds: language.kinds,
     compileDir: sample,
     log,
     lang: 'th',
     chapterHeading: project.options.chapterHeading,
+    numberSeparator: project.options.numberSeparator,
   })
-  // abstract, contents and bibliography headings are not numbered
-  const abstract = headings.find(h => h.text === 'บทคัดย่อ')
-  assert.equal(abstract.number, undefined)
-  assert.equal(headings.find(h => h.id === 'intro').number, '1')
-  assert.equal(headings.find(h => h.id === 'theory').number, '2')
-  assert.equal(headings.find(h => h.id === 'general').number, '1.2.1')
-  assert.match(html, /<h1 id="intro" data-chapter-start="1" class="chapter-title"><span class="chapter-label">บทที่ 1<\/span><br>บทนำ<\/h1>/)
-  assert.match(html, /<section class="chapter" data-kind="front"/)
-  // the bibliography starts a part, the abstract does not
-  assert.match(html, /<h1[^>]*data-chapter-start="1"[^>]*>บรรณานุกรม<\/h1>/)
-  assert.doesNotMatch(html, /<h1[^>]*data-chapter-start[^>]*>บทคัดย่อ/)
+  assert.match(html, /<span class="chapter-label">บทที่ 1<\/span><br>การเข้าสู่ระบบ<\/h1>/)
+  // a figure inside a numbered step keeps its <figure>
+  assert.match(html, /<li data-step="1">[\s\S]*<figure id="fig-login" class="figure">[\s\S]*<span class="label">ภาพที่ 1-1<\/span> หน้าเข้าสู่ระบบ<\/figcaption><\/figure>/)
+  // Thai text runs into the reference without a space
+  assert.match(html, /จาก<a class="xref" href="#fig-login">ภาพที่ 1-1<\/a>/)
+  // nested steps continue the parent's number
+  assert.match(html, /<li data-step="3.1">ถ้ากรอกถูกต้อง/)
+  assert.match(html, /<span class="label">ตารางที่ 1-1<\/span> สิทธิ์ของผู้ใช้แต่ละกลุ่ม/)
+  assert.match(html, /<span class="label">ภาพที่ 2-2<\/span> ภาพหน้าจอขนาดเล็ก/)
+  assert.match(html, /<img[^>]*width="50%"/)
+  assert.match(html, /<aside class="note">\s*<p class="note-title">หมายเหตุ<\/p>\s*<p>ถ้าลืมรหัสผ่าน/)
   assert.equal(log.warnings, 0)
+})
+
+test('an unclosed note box ends with its file', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mdc-note-'))
+  try {
+    const file = path.join(dir, 'a.md')
+    fs.writeFileSync(file, '::: note\nแรก\n\nสอง\n')
+    const { html } = renderChapters({ files: [file], compileDir: dir, log: new Log(dir), lang: 'en' })
+    assert.match(html, /<aside class="note">\s*<p class="note-title">Note<\/p>\s*<p>แรก<\/p>\s*<p>สอง<\/p>\s*<\/aside>/)
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true })
+  }
 })
 
 test('a line with only \\newpage becomes a page break', () => {

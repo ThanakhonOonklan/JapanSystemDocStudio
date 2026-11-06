@@ -90,6 +90,10 @@ function pickOptions(source, template = TEMPLATES.default) {
     numbering: flag('numbering'),
     cover: flag('cover'),
     chapterHeading: source?.chapterHeading ?? defaults.chapterHeading ?? 'number',
+    // between the chapter and the figure/table number: "4-8" or "4.8"
+    numberSeparator: ['-', '.'].includes(source?.numberSeparator)
+      ? source.numberSeparator
+      : (defaults.numberSeparator ?? '.'),
     css: typeof source?.css === 'string' ? source.css : undefined,
     // overrides for the page-number rules of the template
     pageLabels:

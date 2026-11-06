@@ -71,15 +71,22 @@ async function main() {
     const templateCss = fs.readFileSync(template.css, 'utf8')
     const customCss = readCustomCss(compileDir, project.options.css, log)
 
-    // fonts kept in the project's Font/ folder
-    const fonts = discoverFonts(path.dirname(path.resolve(compileDir, mainFile)))
-    if (fonts.length > 0) {
-      log.info(`Fonts from the project: ${fontFamilies(fonts).join(', ')}`)
+    // fonts shipped with the template, then the project's own Font/ folder
+    // (declared later, so a project font of the same name wins)
+    const templateFonts = template.fontDir
+      ? discoverFonts(template.fontDir, { direct: true })
+      : []
+    const projectFonts = discoverFonts(
+      path.dirname(path.resolve(compileDir, mainFile))
+    )
+    if (projectFonts.length > 0) {
+      log.info(`Fonts from the project: ${fontFamilies(projectFonts).join(', ')}`)
     }
+    const fonts = [...templateFonts, ...projectFonts]
     for (const family of template.fonts) {
       if (!fontFamilies(fonts).includes(family)) {
         log.warn(
-          `font ${family} was not found in the Font folder of the project, a substitute font is used`
+          `font ${family} was not found, a substitute font is used`
         )
       }
     }
@@ -107,6 +114,7 @@ async function main() {
         lang: language.code,
         numbering: project.options.numbering,
         chapterHeading: project.options.chapterHeading,
+        numberSeparator: project.options.numberSeparator,
         kinds: language.kinds,
       })
       language.structure = structure

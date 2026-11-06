@@ -1,0 +1,13 @@
+title:
+  th: คู่มือการใช้งาน
+  en: User Manual
+subtitle:
+  th: ระบบบริหารจัดการโรงงาน
+  en: Factory Management System
+author:
+  th: ทีมเอกสาร
+  en: Documentation team
+defaultLanguage: th
+chapters:
+  - 01-login.md
+  - 02-quotation.md
