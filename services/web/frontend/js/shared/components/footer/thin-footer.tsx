@@ -64,9 +64,7 @@ function ThinFooter({
               <>
                 <li>
                   {/* year of Server Pro release, static */}© 2026{' '}
-                  <a href="https://www.overleaf.com/for/enterprises">
-                    Powered by Overleaf
-                  </a>
+                  Japan System
                 </li>
                 {showLanguagePicker || hasCustomLeftNav ? <Separator /> : null}
               </>
@@ -93,12 +91,7 @@ function ThinFooter({
           <OLRow>
             <OLCol lg={12}>
               <p className="copyright-notice">
-                Overleaf Community Edition™ is a free unsupported software that
-                may contain vulnerabilities and used at your own risk. Use of
-                Overleaf Community Edition™ here is not operated, supported or
-                endorsed by Overleaf®. It has been provided "AS IS" with all
-                liability disclaimed (to the fullest extent lawful) and all
-                rights reserved.
+                This software is provided "AS IS", without warranty of any kind. Licensed under the GNU Affero General Public License v3.0.
               </p>
             </OLCol>
           </OLRow>

@@ -163,7 +163,6 @@ export const EditorProvider: FC<React.PropsWithChildren> = ({ children }) => {
       parts.push('-')
     }
 
-    parts.push('Online LaTeX Editor')
     parts.push(getMeta('ol-ExposedSettings').appName)
 
     const title = parts.join(' ')

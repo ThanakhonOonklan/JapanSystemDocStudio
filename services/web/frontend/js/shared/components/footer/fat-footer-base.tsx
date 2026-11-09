@@ -27,7 +27,7 @@ function FatFooterBase() {
       <div className="fat-footer-base-section fat-footer-base-meta">
         <div className="fat-footer-base-item">
           <div className="fat-footer-base-copyright" translate="no">
-            © {currentYear} Overleaf
+            © {currentYear} Japan System
           </div>
           <FooterBaseLink href="/legal">
             {t('privacy_and_terms')}

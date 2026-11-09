@@ -1,20 +1,20 @@
 //- Title
 if metadata && metadata.title
-	title(translate='no')= metadata.title + ' - ' + settings.appName + ', ' + translate('online_latex_editor')
+	title(translate='no')= metadata.title + ' - ' + settings.appName
 	meta(name='twitter:title' content=metadata.title)
 	meta(name='og:title' content=metadata.title)
 else if typeof title == 'undefined'
-	title(translate='no')= settings.appName + ', ' + translate('online_latex_editor')
+	title(translate='no')= settings.appName
 	meta(
 		name='twitter:title'
-		content=settings.appName + ', ' + translate('online_latex_editor')
+		content=settings.appName
 	)
 	meta(
 		name='og:title'
-		content=settings.appName + ', ' + translate('online_latex_editor')
+		content=settings.appName
 	)
 else
-	title(translate='no')= translate(title) + ' - ' + settings.appName + ', ' + translate('online_latex_editor')
+	title(translate='no')= translate(title) + ' - ' + settings.appName
 	//- to do - not translate?
 	meta(name='twitter:title' content=translate(title))
 	meta(name='og:title' content=translate(title))
@@ -51,7 +51,7 @@ if metadata && metadata.keywords
 	meta(name='keywords' content=metadata.keywords)
 
 //- Misc
-meta(itemprop='name' content=settings.appName + ', the Online LaTeX Editor')
+meta(itemprop='name' content=settings.appName)
 
 if metadata && metadata.robotsNoindexNofollow
 	meta(name='robots' content='noindex, nofollow')
