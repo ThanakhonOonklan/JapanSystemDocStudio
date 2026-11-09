@@ -5,8 +5,20 @@ title:
 subtitle:
   th: ตัวอย่างเอกสารคู่มือสองภาษา
   en: A bilingual manual example
-version: "1.0"
 author: <%= JSON.stringify(author) %>
+
+# Cover page (the first page of the PDF). Every line is optional.
+cover:
+  # logo: images/logo.png          # upload the file into images/, then remove the leading #
+  organization: Your Organization  # shown under the logo
+  system:                          # name of the system, in bold
+    th: <%= JSON.stringify(project_name) %>
+    en: <%= JSON.stringify(project_name) %>
+  preparedBy: <%= JSON.stringify(author) %>   # shown under "Prepared by"
+theme:
+  primary: "#000000"               # colour of the title and rule on the cover
+
+version: "1.0"
 date:
   th: <%= JSON.stringify(thai_date) %>
   en: <%= JSON.stringify(month + ' ' + year) %>

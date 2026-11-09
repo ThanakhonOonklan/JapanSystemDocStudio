@@ -2,8 +2,26 @@
 title:
   th: <%= JSON.stringify(project_name) %>
   en: <%= JSON.stringify(project_name) %>
-version: "1.0"
 author: <%= JSON.stringify(author) %>
+
+# Cover page (the first page of the PDF). Every line is optional.
+cover:
+  # logo: images/logo.png          # upload the file into images/, then remove the leading #
+  organization: Your Organization  # shown under the logo
+  subtitle:                        # shown under the title
+    th: คู่มือการใช้งาน
+    en: USER MANUAL
+  system:                          # name of the system, in bold
+    th: <%= JSON.stringify(project_name) %>
+    en: <%= JSON.stringify(project_name) %>
+  description:                     # one line, or a list of lines
+    th: คำอธิบายสั้น ๆ ของเอกสารนี้
+    en: A short description of this document
+  preparedBy: <%= JSON.stringify(author) %>   # shown under "Prepared by"
+theme:
+  primary: "#000000"               # colour of the title and rule on the cover
+
+version: "1.0"
 defaultLanguage: th   # language written to output.pdf
 chapters:             # file names inside th/ and en/
   - 01-intro.md
