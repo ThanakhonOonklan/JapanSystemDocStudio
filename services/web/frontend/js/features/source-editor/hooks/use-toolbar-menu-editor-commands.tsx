@@ -53,6 +53,7 @@ export const useToolbarMenuBarEditorCommands = () => {
       {
         id: 'undo',
         label: t('undo'),
+        leadingIcon: 'undo',
         handler: () => {
           undo(view)
           view.focus()
@@ -62,6 +63,7 @@ export const useToolbarMenuBarEditorCommands = () => {
       {
         id: 'redo',
         label: t('redo'),
+        leadingIcon: 'redo',
         handler: () => {
           redo(view)
           view.focus()
@@ -71,6 +73,7 @@ export const useToolbarMenuBarEditorCommands = () => {
       {
         id: 'find',
         label: t('find'),
+        leadingIcon: 'search',
         handler: () => {
           openSearchPanel(view)
         },
@@ -78,6 +81,7 @@ export const useToolbarMenuBarEditorCommands = () => {
       {
         id: 'select-all',
         label: t('select_all'),
+        leadingIcon: 'select_all',
         handler: () => {
           selectAll(view)
           view.focus()

@@ -148,6 +148,7 @@ export const RailLayout = () => {
         },
         menuLabel: t('settings'),
         label: t('open_settings'),
+        leadingIcon: 'settings',
       },
     ],
     [t, setSettingsShown]

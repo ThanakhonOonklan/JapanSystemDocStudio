@@ -24,6 +24,7 @@ type Entry<T> = T | GroupStructure<T>
 type GroupStructure<T> = {
   id: string
   title: string
+  icon?: string
   children: Array<Entry<T>>
 }
 export type MenuSectionStructure<T = CommandId> = {
@@ -135,7 +136,12 @@ const CommandDropdownChild = ({ item }: { item: Entry<TaggedCommand> }) => {
     )
   } else {
     return (
-      <NestedMenuBarDropdown title={item.title} id={item.id} key={item.id}>
+      <NestedMenuBarDropdown
+        title={item.title}
+        icon={item.icon}
+        id={item.id}
+        key={item.id}
+      >
         {item.children.map(subChild => {
           return <CommandDropdownChild item={subChild} key={subChild.id} />
         })}

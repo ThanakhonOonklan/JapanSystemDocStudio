@@ -35,6 +35,7 @@ export default function FileTreeActionButtons({
       {
         label: t('new_file'),
         id: 'new_file',
+        leadingIcon: 'note_add',
         handler: ({ location }) => {
           eventTracking.sendMB('new-file-click', { location })
           startCreatingDocOrFile()
@@ -44,12 +45,14 @@ export default function FileTreeActionButtons({
       {
         label: t('new_folder'),
         id: 'new_folder',
+        leadingIcon: 'create_new_folder',
         handler: startCreatingFolder,
         disabled: isDisabledDueToNetworkStall,
       },
       {
         label: t('upload_file'),
         id: 'upload_file',
+        leadingIcon: 'upload_file',
         handler: ({ location }) => {
           eventTracking.sendMB('upload-click', { location })
           startUploadingDocOrFile()

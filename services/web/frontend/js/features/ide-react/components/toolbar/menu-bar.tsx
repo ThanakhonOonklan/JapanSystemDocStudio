@@ -61,6 +61,7 @@ export const ToolbarMenuBar = () => {
       {
         type: 'command',
         label: t('make_a_copy'),
+        leadingIcon: 'file_copy',
         disabled: anonymous || isDisabledDueToNetworkStall,
         handler: () => {
           setShowCloneProjectModal(true)
@@ -83,6 +84,7 @@ export const ToolbarMenuBar = () => {
           {
             id: 'file-download-group',
             title: t('download'),
+            icon: 'download',
             children: [
               'download-as-source-zip',
               'download-pdf',

@@ -57,6 +57,7 @@ function FileTreeItemMenuItems() {
           <OLDropdownItem
             onClick={startRenaming}
             disabled={isDisabledDueToNetworkStall}
+            leadingIcon="edit"
           >
             {t('rename')}
           </OLDropdownItem>
@@ -69,6 +70,7 @@ function FileTreeItemMenuItems() {
             onClick={downloadWithAnalytics}
             download={selectedFileName ?? undefined}
             disabled={isDisabledDueToNetworkStall}
+            leadingIcon="download"
           >
             {t('download')}
           </OLDropdownItem>
@@ -81,6 +83,7 @@ function FileTreeItemMenuItems() {
             <OLDropdownItem
               onClick={setRootDocId}
               disabled={isDisabledDueToNetworkStall}
+              leadingIcon="flag"
             >
               {t('set_as_main_document')}
             </OLDropdownItem>
@@ -94,6 +97,8 @@ function FileTreeItemMenuItems() {
             <OLDropdownItem
               onClick={startDeleting}
               disabled={isDisabledDueToNetworkStall}
+              leadingIcon="delete"
+              variant="danger"
             >
               {t('delete')}
             </OLDropdownItem>
@@ -107,6 +112,7 @@ function FileTreeItemMenuItems() {
             <OLDropdownItem
               onClick={createWithAnalytics}
               disabled={isDisabledDueToNetworkStall}
+              leadingIcon="note_add"
             >
               {t('new_file')}
             </OLDropdownItem>
@@ -115,6 +121,7 @@ function FileTreeItemMenuItems() {
             <OLDropdownItem
               onClick={startCreatingFolder}
               disabled={isDisabledDueToNetworkStall}
+              leadingIcon="create_new_folder"
             >
               {t('new_folder')}
             </OLDropdownItem>
@@ -123,6 +130,7 @@ function FileTreeItemMenuItems() {
             <OLDropdownItem
               onClick={uploadWithAnalytics}
               disabled={isDisabledDueToNetworkStall}
+              leadingIcon="upload_file"
             >
               {t('upload')}
             </OLDropdownItem>

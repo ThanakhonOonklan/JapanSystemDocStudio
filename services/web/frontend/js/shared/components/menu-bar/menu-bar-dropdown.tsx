@@ -104,9 +104,10 @@ export const NestedMenuBarDropdown: FC<
   React.PropsWithChildren<{
     id: string
     title: string
+    icon?: string
     drop?: 'start' | 'end'
   }>
-> = ({ children, id, title, drop = 'end' }) => {
+> = ({ children, id, title, icon, drop = 'end' }) => {
   const { menuId, selected, setSelected } = useNestableDropdown()
   const closeTimerRef = useRef<number | null>(null)
 
@@ -166,6 +167,9 @@ export const NestedMenuBarDropdown: FC<
           className={classNames({ 'nested-dropdown-toggle-shown': active })}
           as={NestedDropdownToggle}
         >
+          {icon && (
+            <MaterialIcon className="dropdown-item-leading-icon" type={icon} />
+          )}
           {title}
         </OLDropdownToggle>
         {active && (
