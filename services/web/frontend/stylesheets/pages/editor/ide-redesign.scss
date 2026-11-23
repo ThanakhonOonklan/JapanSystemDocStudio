@@ -96,3 +96,36 @@
 .ide-redesign-labs-user-beta-promo-button {
   margin-top: var(--spacing-05);
 }
+
+// Documentation Studio: slim scrollbars in the code editor and the PDF viewer
+.cm-scroller,
+.pdfjs-viewer,
+.pdfjs-viewer-inner {
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track,
+  &::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgb(128 128 128 / 45%);
+    border-radius: 3px;
+
+    &:hover {
+      background-color: rgb(128 128 128 / 75%);
+    }
+  }
+}
+
+// browsers without ::-webkit-scrollbar (Firefox)
+@supports not selector(::-webkit-scrollbar) {
+  .cm-scroller,
+  .pdfjs-viewer,
+  .pdfjs-viewer-inner {
+    scrollbar-width: thin;
+  }
+}
