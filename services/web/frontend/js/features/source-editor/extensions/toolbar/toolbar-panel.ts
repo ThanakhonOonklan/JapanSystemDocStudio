@@ -3,7 +3,9 @@ import { EditorView, showPanel } from '@codemirror/view'
 
 const toggleToolbarEffect = StateEffect.define<boolean>()
 const toolbarState = StateField.define<boolean>({
-  create: () => true,
+  // Documentation Studio: the editor toolbar bar (undo, redo, search) is not
+  // shown. Undo/redo and Find are in the Edit menu and on the keyboard.
+  create: () => false,
   update: (value, tr) => {
     for (const effect of tr.effects) {
       if (effect.is(toggleToolbarEffect)) {
