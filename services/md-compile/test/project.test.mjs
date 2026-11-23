@@ -98,3 +98,27 @@ test('defaultLanguage wins over a languages list that leaves it out', () => {
     fs.rmSync(dir, { recursive: true, force: true })
   }
 })
+
+test('defaultLanguage is ignored (with a warning) when its folder has no chapters', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mdc-lang2-'))
+  try {
+    fs.mkdirSync(path.join(dir, 'th'))
+    fs.mkdirSync(path.join(dir, 'en'))
+    fs.writeFileSync(path.join(dir, 'th', 'a.md'), '# ก\n')
+    fs.writeFileSync(path.join(dir, 'en', 'other.md'), '# leftover\n')
+    fs.writeFileSync(
+      path.join(dir, 'book.yaml'),
+      'title: X\ndefaultLanguage: en\nlanguages: [th]\nchapters:\n  - a.md\n'
+    )
+    const log = new Log()
+    const project = loadProject(dir, 'book.yaml', log)
+    assert.equal(project.defaultLanguage, 'th')
+    assert.deepEqual(
+      project.languages.map(l => l.code),
+      ['th']
+    )
+    assert.ok(log.entries.some(e => /none of the chapters; ignoring it/.test(e.message)))
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true })
+  }
+})

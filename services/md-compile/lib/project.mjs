@@ -230,15 +230,28 @@ function loadBook(compileDir, bookPath, log) {
   const codes = (configured || (detected.length > 0 ? detected : [null])).map(c =>
     c == null ? (book.defaultLanguage || 'th') : String(c)
   )
-  // defaultLanguage wins over a `languages` list that leaves it out, when the
-  // book has that language's folder: output.pdf is the language it names
+  // defaultLanguage wins over a `languages` list that leaves it out, when that
+  // language's folder holds the book's chapters: output.pdf is the language it
+  // names. A folder without the chapters (a leftover template file, say) is
+  // ignored with a warning, so the book still builds as before.
   const wanted = book.defaultLanguage != null ? String(book.defaultLanguage) : null
   if (wanted && !codes.includes(wanted) && fs.existsSync(path.join(baseDir, wanted))) {
-    log.warn(
-      `defaultLanguage "${wanted}" is not in languages [${codes.join(', ')}]; building it as well`,
-      { file: bookPath }
-    )
-    codes.push(wanted)
+    const hasChapters = book.chapters.some(item => {
+      const name = typeof item === 'string' ? item : item?.file
+      return typeof name === 'string' && fs.existsSync(path.join(baseDir, wanted, name))
+    })
+    if (hasChapters) {
+      log.warn(
+        `defaultLanguage "${wanted}" is not in languages [${codes.join(', ')}]; building it as well`,
+        { file: bookPath }
+      )
+      codes.push(wanted)
+    } else {
+      log.warn(
+        `defaultLanguage "${wanted}" is not in languages [${codes.join(', ')}] and ${wanted}/ has none of the chapters; ignoring it`,
+        { file: bookPath }
+      )
+    }
   }
 
   const bookLines = fs.readFileSync(bookPath, 'utf8').split('\n')

@@ -135,7 +135,11 @@ export function buildBookOutline(docs, options = {}) {
       ? detected
       : [book.defaultLanguage ?? 'th']
   const fallback = book.defaultLanguage
-  if (fallback && !languages.includes(fallback) && hasFolder(fallback)) {
+  // ...but only when that folder holds the book's chapters (a leftover file in
+  // it does not count), the same rule as md-compile
+  const hasChapters = code =>
+    book.chapters.some(chapter => byPath.has(normalise(`${code}/${chapter.file}`)))
+  if (fallback && !languages.includes(fallback) && hasChapters(fallback)) {
     languages.push(fallback)
   }
   const defaultLanguage =

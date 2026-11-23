@@ -1,17 +1,15 @@
-# Book settings. Each value can be plain text or a map of language -> text.
-title:                             # system name, the big line on the cover
+title:
   th: ชื่อระบบ (ตัวอย่าง)
   en: System name (example)
 author: ชื่อผู้จัดทำ (ตัวอย่าง)
 version: "1.0"
 
-# Cover page (the first page of the PDF). Every line is optional.
 cover:
-  logo: images/logo.png            # replace images/logo.png with your own logo
-  subtitle:                        # under the system name
+  logo: images/logo.png
+  subtitle:
     th: คู่มือการใช้งาน (ตัวอย่าง)
     en: User Manual (example)
-  description:                     # version, date and language, one per line
+  description:
     th:
       - Version 1.0
       - วว/ดด/ปปปป
@@ -20,22 +18,22 @@ cover:
       - Version 1.0
       - DD/MM/YYYY
       - English
-  preparedBy:                      # under "จัดทำโดย"
+  preparedBy:
     th: ชื่อผู้จัดทำ (ตัวอย่าง)
     en: Author name (example)
 theme:
   primary: "#000000"
 
-css: style.css           # the look of this manual (cover frame, tables, ...)
-numbering: sections      # sections 1. 2. 3. through the whole book
-figureNumbers: false     # pictures show their caption only
-lof: false               # no list of figures
-lot: false               # no list of tables
-tocDepth: 2              # contents: page titles and sections
+css: style.css
+numbering: sections
+figureNumbers: false
+lof: false
+lot: false
+tocDepth: 2
 pageLabels:
-  mainPosition: bottom-right   # page number in the bottom corner
-  chapterStartNumber: true     # also on the first page of each file
+  mainPosition: bottom-right
+  chapterStartNumber: true
 
-defaultLanguage: th   # language written to output.pdf
-chapters:             # file names inside th/ and en/
+defaultLanguage: th
+chapters:
   - 01-example.md
