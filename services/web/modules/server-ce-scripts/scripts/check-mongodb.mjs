@@ -24,8 +24,7 @@ function handleUnauthorizedError(err, feature) {
     console.warn(`Warning: failed to check ${feature} (not authorised)`)
     if (!shouldSkipAdminChecks()) {
       console.error(
-        `Please ensure the MongoDB user has the required permissions, for more information see
-https://docs.overleaf.com/on-premises/maintenance/updating-mongodb#creating-a-custom-role
+        `Please ensure the MongoDB user has the required permissions,
 or set the environment variable ${OVERRIDE_ENV_VAR_NAME}=true to ignore this check.`
       )
       process.exit(1)
@@ -86,7 +85,7 @@ async function checkMongoVersion(mongoClient) {
     const version = buildInfo.version
     const minVersion = MIN_MONGO_VERSION.join('.')
     console.error(
-      `The MongoDB server has version ${version}, but Overleaf requires at least version ${minVersion}. Aborting.`
+      `The MongoDB server has version ${version}, but Japan Documentation Studio requires at least version ${minVersion}. Aborting.`
     )
     process.exit(1)
   }
@@ -105,10 +104,9 @@ async function checkFeatureCompatibilityVersion(mongoClient) {
   if (major < minMajor || (major === minMajor && minor < minMinor)) {
     const minVersion = MIN_MONGO_FEATURE_COMPATIBILITY_VERSION.join('.')
     console.error(`
-The MongoDB server has featureCompatibilityVersion=${version}, but Overleaf requires at least version ${minVersion}.
+The MongoDB server has featureCompatibilityVersion=${version}, but Japan Documentation Studio requires at least version ${minVersion}.
 
 Open a mongo shell:
-- Overleaf Toolkit deployments: $ bin/mongo
 - Legacy docker-compose.yml deployments: $ docker exec -it mongo mongosh localhost/sharelatex
 
 In the mongo shell:

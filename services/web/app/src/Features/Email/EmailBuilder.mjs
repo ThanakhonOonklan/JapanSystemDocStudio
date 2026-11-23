@@ -265,7 +265,7 @@ templates.confirmCode = NoCTAEmailTemplate({
     return ''
   },
   subject(opts) {
-    return `Confirm your email address on Overleaf (${opts.confirmCode})`
+    return `Confirm your email address on Japan Documentation Studio (${opts.confirmCode})`
   },
   title(opts) {
     return 'Confirm your email address'
@@ -273,7 +273,7 @@ templates.confirmCode = NoCTAEmailTemplate({
   message(opts, isPlainText) {
     const msg = opts.welcomeUser
       ? [
-          `Welcome to Overleaf! We're so glad you joined us.`,
+          `Welcome to Japan Documentation Studio! We're so glad you joined us.`,
           'Use this 6-digit confirmation code to finish your setup.',
         ]
       : ['Use this 6-digit code to confirm your email address.']
@@ -466,7 +466,7 @@ templates.inviteNewUserToJoinManagedUsers = ctaTemplate({
 templates.groupSSOLinkingInvite = ctaTemplate({
   subject(opts) {
     const subjectPrefix = opts.reminder ? 'Reminder: ' : 'Action required: '
-    return `${subjectPrefix}Authenticate your Overleaf account`
+    return `${subjectPrefix}Authenticate your Japan Documentation Studio account`
   },
   title(opts) {
     const titlePrefix = opts.reminder ? 'Reminder: ' : ''
@@ -484,8 +484,8 @@ templates.groupSSOLinkingInvite = ctaTemplate({
       </div>
       </br>
       <div>
-        You won't need to remember a separate email address and password to sign in to Overleaf.
-        All you need to do is authenticate your existing Overleaf account with your SSO provider.
+        You won't need to remember a separate email address and password to sign in to Japan Documentation Studio.
+        All you need to do is authenticate your existing Japan Documentation Studio account with your SSO provider.
       </div>
       `,
     ]
@@ -506,7 +506,7 @@ templates.groupSSOLinkingInvite = ctaTemplate({
 
 templates.groupSSOReauthenticate = ctaTemplate({
   subject(opts) {
-    return 'Action required: Reauthenticate your Overleaf account'
+    return 'Action required: Reauthenticate your Japan Documentation Studio account'
   },
   title(opts) {
     return 'Action required: Reauthenticate SSO'
@@ -515,8 +515,8 @@ templates.groupSSOReauthenticate = ctaTemplate({
     return [
       `Hi,
       <div>
-      Single sign-on for your Overleaf group has been updated.
-      This means you need to reauthenticate your Overleaf account with your group’s SSO provider.
+      Single sign-on for your Japan Documentation Studio group has been updated.
+      This means you need to reauthenticate your Japan Documentation Studio account with your group’s SSO provider.
       </div>
       `,
     ]
@@ -527,7 +527,7 @@ templates.groupSSOReauthenticate = ctaTemplate({
     } else {
       const passwordResetUrl = `${settings.siteUrl}/user/password/reset`
       return [
-        `If you’re not currently logged in to Overleaf, you'll need to <a href="${passwordResetUrl}">set a new password</a> to reauthenticate.`,
+        `If you’re not currently logged in to Japan Documentation Studio, you'll need to <a href="${passwordResetUrl}">set a new password</a> to reauthenticate.`,
       ]
     }
   },
@@ -545,9 +545,9 @@ templates.groupSSOReauthenticate = ctaTemplate({
 templates.groupSSODisabled = ctaTemplate({
   subject(opts) {
     if (opts.userIsManaged) {
-      return `Action required: Set your Overleaf password`
+      return `Action required: Set your Japan Documentation Studio password`
     } else {
-      return 'A change to your Overleaf login options'
+      return 'A change to your Japan Documentation Studio login options'
     }
   },
   title(opts) {
@@ -556,12 +556,12 @@ templates.groupSSODisabled = ctaTemplate({
   message(opts, isPlainText) {
     const loginUrl = `${settings.siteUrl}/login`
     let whatDoesThisMeanExplanation = [
-      `You can still log in to Overleaf using one of our other <a href="${loginUrl}" style="color: #0F7A06; text-decoration: none;">login options</a> or with your email address and password.`,
+      `You can still log in to Japan Documentation Studio using one of our other <a href="${loginUrl}" style="color: #0F7A06; text-decoration: none;">login options</a> or with your email address and password.`,
       `If you don't have a password, you can set one now.`,
     ]
     if (opts.userIsManaged) {
       whatDoesThisMeanExplanation = [
-        'You now need an email address and password to sign in to your Overleaf account.',
+        'You now need an email address and password to sign in to your Japan Documentation Studio account.',
       ]
     }
 
@@ -901,7 +901,7 @@ templates.userOnboardingEmail = NoCTAEmailTemplate({
       isPlainText
     )
     const siteLink = EmailMessageHelper.displayLink(
-      'www.overleaf.com',
+      settings.siteUrl,
       settings.siteUrl,
       isPlainText
     )
@@ -919,19 +919,19 @@ templates.userOnboardingEmail = NoCTAEmailTemplate({
       `Thanks for signing up for ${settings.appName} recently. We hope you've been finding it useful! Here are some key features to help you get the most out of the service:`,
       `${learnLatexLink}: In this tutorial we provide a quick and easy first introduction to LaTeX with no prior knowledge required. By the time you are finished, you will have written your first LaTeX document!`,
       `${templatesLinks}: If you're looking for a template or example to get started, we've a large selection available in our template gallery, including CVs, project reports, journal articles and more.`,
-      `${collaboratorsLink}: One of the key features of Overleaf is the ability to share projects and collaborate on them with other users. Find out how to share your projects with your colleagues in this quick how-to guide.`,
-      `${onboardingSurveyLink} to help us make Overleaf even better!`,
-      'Thanks again for using Overleaf :)',
+      `${collaboratorsLink}: One of the key features of Japan Documentation Studio is the ability to share projects and collaborate on them with other users. Find out how to share your projects with your colleagues in this quick how-to guide.`,
+      `${onboardingSurveyLink} to help us make Japan Documentation Studio even better!`,
+      'Thanks again for using Japan Documentation Studio :)',
       `Lee`,
       `Lee Shalit<br />CEO<br />${siteLink}<hr>`,
-      `You're receiving this email because you've recently signed up for an Overleaf account. If you've previously subscribed to emails about product offers and company news and events, you can unsubscribe ${userSettingsLink}.`,
+      `You're receiving this email because you've recently signed up for an Japan Documentation Studio account. If you've previously subscribed to emails about product offers and company news and events, you can unsubscribe ${userSettingsLink}.`,
     ]
   },
 })
 
 templates.securityAlert = NoCTAEmailTemplate({
   subject(opts) {
-    return `Overleaf security note: ${opts.action}`
+    return `Japan Documentation Studio security note: ${opts.action}`
   },
   title(opts) {
     return opts.action.charAt(0).toUpperCase() + opts.action.slice(1)
@@ -967,12 +967,9 @@ templates.securityAlert = NoCTAEmailTemplate({
   },
 })
 
-const GIT_TOKEN_DOCS_URL =
-  'https://docs.overleaf.com/integrations-and-add-ons/git-integration-and-github-synchronization/git-integration/git-integration-authentication-tokens#how-to-generate-authentication-tokens'
-
 templates.gitTokenExpiringSoon = NoCTAEmailTemplate({
   subject() {
-    return 'Your Overleaf token is about to expire'
+    return 'Your Japan Documentation Studio token is about to expire'
   },
   title() {
     return 'Your token is about to expire'
@@ -986,24 +983,18 @@ templates.gitTokenExpiringSoon = NoCTAEmailTemplate({
       `${settings.siteUrl}/user/settings`,
       isPlainText
     )
-    const docsLink = EmailMessageHelper.displayLink(
-      'our docs',
-      GIT_TOKEN_DOCS_URL,
-      isPlainText
-    )
     return [
       `One of your Git authentication tokens is about to expire. This means you won't be able to use your token to authenticate when performing git operations.`,
       `If you haven't already, you'll need to generate a new token in your ${settingsLink}.`,
-      `Take a look at ${docsLink} if you need more help.`,
       'All the best,',
-      'Team Overleaf',
+      'Team Japan Documentation Studio',
     ]
   },
 })
 
 templates.gitTokenExpired = NoCTAEmailTemplate({
   subject() {
-    return 'Your Overleaf token has expired'
+    return 'Your Japan Documentation Studio token has expired'
   },
   title() {
     return 'Token expired'
@@ -1017,17 +1008,11 @@ templates.gitTokenExpired = NoCTAEmailTemplate({
       `${settings.siteUrl}/user/settings`,
       isPlainText
     )
-    const docsLink = EmailMessageHelper.displayLink(
-      'our docs',
-      GIT_TOKEN_DOCS_URL,
-      isPlainText
-    )
     return [
       `One of your Git authentication tokens has expired. This means you won't be able to use it to authenticate when performing git operations.`,
       `If you haven't already, you'll need to generate a new token in your ${settingsLink}.`,
-      `Take a look at ${docsLink} if you need more help.`,
       'All the best,',
-      'Team Overleaf',
+      'Team Japan Documentation Studio',
     ]
   },
 })
@@ -1124,7 +1109,7 @@ templates.removeGroupMember = NoCTAEmailTemplate({
 
 templates.taxExemptCertificateRequired = NoCTAEmailTemplate({
   subject(opts) {
-    return `Action required: Tax exemption verification for Overleaf [${opts.ein}]`
+    return `Action required: Tax exemption verification for Japan Documentation Studio [${opts.ein}]`
   },
   title() {
     return 'Action required: Tax exemption verification'
@@ -1144,7 +1129,7 @@ templates.taxExemptCertificateRequired = NoCTAEmailTemplate({
       'If you have any questions, let us know by replying to this email.',
       '<br/>',
       'Best wishes,',
-      'Team Overleaf',
+      'Team Japan Documentation Studio',
       '<br/>',
       `Our reference: ${opts.stripeCustomerId}`,
     ]
@@ -1198,17 +1183,17 @@ templates.taxIdInvalidNonVat = taxIdInvalidTemplate({
 
 templates.groupMemberLimitWarning = ctaTemplate({
   subject(opts) {
-    return `Action needed: your Overleaf group is nearly out of licenses`
+    return `Action needed: your Japan Documentation Studio group is nearly out of licenses`
   },
   title(opts) {
-    return `Action needed: your Overleaf group is nearly out of licenses`
+    return `Action needed: your Japan Documentation Studio group is nearly out of licenses`
   },
   greeting(opts) {
     return opts.firstName ? `Hi ${opts.firstName},` : 'Hi there,'
   },
   message(opts) {
     return [
-      `Your Overleaf group <b>${opts.groupName}</b> is close to its license limit.`,
+      `Your Japan Documentation Studio group <b>${opts.groupName}</b> is close to its license limit.`,
       `<b>${opts.currentMembers} of ${opts.membersLimit} licenses are in use (${opts.remainingSeats} remaining).</b>`,
       'Because domain capture is enabled, users from your domain can join automatically via SSO.' +
         '<br/>' +
@@ -1234,17 +1219,17 @@ templates.groupMemberLimitWarning = ctaTemplate({
 
 templates.groupMemberLimitReached = ctaTemplate({
   subject(opts) {
-    return `Action needed: your Overleaf group is out of licenses`
+    return `Action needed: your Japan Documentation Studio group is out of licenses`
   },
   title(opts) {
-    return `Action needed: your Overleaf group is out of licenses`
+    return `Action needed: your Japan Documentation Studio group is out of licenses`
   },
   greeting(opts) {
     return opts.firstName ? `Hi ${opts.firstName},` : 'Hi there,'
   },
   message(opts) {
     return [
-      `Your Overleaf group <b>${opts.groupName}</b> has used all ${opts.membersLimit} of its licenses.`,
+      `Your Japan Documentation Studio group <b>${opts.groupName}</b> has used all ${opts.membersLimit} of its licenses.`,
       'Because domain capture is enabled, new users from your domain can no longer ' +
         'join automatically.',
       '<b>What you can do now:</b>',
@@ -1432,7 +1417,7 @@ templates.domainVerifiedForGroup = NoCTAEmailTemplate({
   },
   message(opts, isPlainText) {
     const message = [
-      `We've verified <b>${_.escape(opts.domain)}</b> for your Overleaf group.`,
+      `We've verified <b>${_.escape(opts.domain)}</b> for your Japan Documentation Studio group.`,
     ]
 
     if (opts.capturedByGroup) {
@@ -1440,7 +1425,7 @@ templates.domainVerifiedForGroup = NoCTAEmailTemplate({
     } else {
       message.push(
         `To complete the capture, reply to this email and we'll take it from there.`,
-        `Once captured, existing Overleaf users with a <b>${_.escape(opts.domain)}</b> address will be invited to join your group. Until they accept, they won't be able to access Overleaf. New users who sign up with <b>${_.escape(opts.domain)}</b> will be added to your group automatically.`,
+        `Once captured, existing Japan Documentation Studio users with a <b>${_.escape(opts.domain)}</b> address will be invited to join your group. Until they accept, they won't be able to access Japan Documentation Studio. New users who sign up with <b>${_.escape(opts.domain)}</b> will be added to your group automatically.`,
         `You'll receive a confirmation email once the capture is active.`
       )
     }

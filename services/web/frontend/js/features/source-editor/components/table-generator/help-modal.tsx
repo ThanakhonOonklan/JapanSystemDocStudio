@@ -46,11 +46,7 @@ export const TableGeneratorHelpModal = () => {
             i18nKey="if_you_need_to_customize_your_table_further_you_can"
             components={[
               // eslint-disable-next-line react/jsx-key, jsx-a11y/anchor-has-content
-              <a
-                href="https://www.overleaf.com/learn/latex/Tables"
-                target="_blank"
-                rel="noopener"
-              />,
+              <span />,
             ]}
           />
         </p>
@@ -60,11 +56,7 @@ export const TableGeneratorHelpModal = () => {
             i18nKey="latex_places_tables_according_to_a_special_algorithm"
             components={[
               // eslint-disable-next-line react/jsx-key, jsx-a11y/anchor-has-content
-              <a
-                href="https://www.overleaf.com/learn/latex/Positioning_images_and_tables"
-                target="_blank"
-                rel="noopener"
-              />,
+              <span />,
             ]}
           />
         </p>
@@ -76,11 +68,7 @@ export const TableGeneratorHelpModal = () => {
               // eslint-disable-next-line react/jsx-key
               <code />,
               // eslint-disable-next-line react/jsx-key, jsx-a11y/anchor-has-content
-              <a
-                href="https://docs.overleaf.com/writing-and-editing/inserting-images/captioning-and-referencing-figures#labels-and-cross-references"
-                target="_blank"
-                rel="noopener noreferrer"
-              />,
+              <span />,
             ]}
           />
         </p>

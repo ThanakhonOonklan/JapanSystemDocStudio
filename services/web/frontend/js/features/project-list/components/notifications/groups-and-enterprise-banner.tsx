@@ -132,8 +132,8 @@ function BannerContent({
     case 'on-premise':
       return (
         <span>
-          Overleaf On-Premises: Does your company want to keep its data within
-          its firewall? Overleaf offers Server Pro, an on-premises solution for
+          Japan Documentation Studio On-Premises: Does your company want to keep its data within
+          its firewall? Japan Documentation Studio offers Server Pro, an on-premises solution for
           companies. Get in touch to learn more.
         </span>
       )
@@ -141,7 +141,7 @@ function BannerContent({
       return (
         <span>
           Why do Fortune 500 companies and top research institutions trust
-          Overleaf to streamline their collaboration? Get in touch to learn
+          Japan Documentation Studio to streamline their collaboration? Get in touch to learn
           more.
         </span>
       )

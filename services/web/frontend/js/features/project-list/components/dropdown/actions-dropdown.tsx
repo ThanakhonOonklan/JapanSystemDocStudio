@@ -105,7 +105,7 @@ function ActionsDropdown({ project }: ActionDropdownProps) {
                 as="button"
                 tabIndex={-1}
                 onClick={handleOpenModal}
-                leadingIcon="block"
+                leadingIcon="delete"
               >
                 {text}
               </OLDropdownItem>

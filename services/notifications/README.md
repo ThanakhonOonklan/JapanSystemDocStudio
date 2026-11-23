@@ -1,6 +1,6 @@
-# overleaf/notifications
+# notifications
 
-An API for managing user notifications in Overleaf
+An API for managing user notifications in Japan Documentation Studio
 
 # database indexes
 

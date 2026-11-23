@@ -75,7 +75,7 @@ const DeleteProjectButtonTooltip = memo(function DeleteProjectButtonTooltip({
               variant="link"
               accessibilityLabel={text}
               className="action-btn"
-              icon="block"
+              icon="delete"
             />
           </span>
         </OLTooltip>

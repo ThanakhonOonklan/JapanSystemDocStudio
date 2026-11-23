@@ -57,11 +57,7 @@ function OutOfSyncModal({ editorContent, show, onHide }: OutOfSyncModalProps) {
             // eslint-disable-next-line react/jsx-key
             <br />,
             // eslint-disable-next-line jsx-a11y/anchor-has-content,react/jsx-key
-            <a
-              target="_blank"
-              rel="noopener noreferrer"
-              href="https://docs.overleaf.com/troubleshooting-and-support/resolving-pdf-rendering-and-project-loading-problems"
-            />,
+            <span />,
           ]}
         />
       </OLModalBody>

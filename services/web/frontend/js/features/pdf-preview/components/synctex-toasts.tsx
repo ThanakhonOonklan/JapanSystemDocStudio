@@ -1,6 +1,5 @@
 import { GlobalToastGeneratorEntry } from '@/features/ide-react/components/global-toasts'
 import { useTranslation } from 'react-i18next'
-import OLButton from '@/shared/components/ol/ol-button'
 
 export const SynctexFileErrorToast = () => {
   const { t } = useTranslation()
@@ -8,16 +7,6 @@ export const SynctexFileErrorToast = () => {
   return (
     <div className="synctex-error-toast-content">
       <span>{t('synctex_failed')}</span>
-
-      <OLButton
-        href="https://docs.overleaf.com/navigating-in-the-editor/working-with-the-pdf-viewer/moving-between-the-editor-and-pdf#an-error-couldnt-find-the-corresponding-source-file-was-shown"
-        target="_blank"
-        rel="noopener noreferrer"
-        variant="secondary"
-        size="sm"
-      >
-        {t('more_info')}
-      </OLButton>
     </div>
   )
 }

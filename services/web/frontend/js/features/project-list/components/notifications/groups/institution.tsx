@@ -54,13 +54,6 @@ function Institution() {
                         shouldUnescape
                         tOptions={{ interpolation: { escapeValue: true } }}
                       />{' '}
-                      <a
-                        href="https://docs.overleaf.com/accounts-and-security/email-address-and-login-options/logging-in-with-institutional-sso"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {t('learn_more')}
-                      </a>
                     </div>
                   </>
                 }
@@ -122,13 +115,6 @@ function Institution() {
                       tOptions={{ interpolation: { escapeValue: true } }}
                     />
                     &nbsp;
-                    <a
-                      href="https://docs.overleaf.com/accounts-and-security/understanding-managed-accounts"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {t('understand_managed_user_accounts')}
-                    </a>
                   </>
                 }
               />
@@ -173,16 +159,6 @@ function Institution() {
                     />{' '}
                     {t('we_logged_you_in')}
                   </>
-                }
-                action={
-                  <OLButton
-                    variant="secondary"
-                    href="https://docs.overleaf.com/accounts-and-security/email-address-and-login-options/logging-in-with-institutional-sso"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {t('find_out_more')}
-                  </OLButton>
                 }
               />
             )}

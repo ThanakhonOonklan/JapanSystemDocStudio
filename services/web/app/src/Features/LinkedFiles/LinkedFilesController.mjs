@@ -387,7 +387,7 @@ export default LinkedFilesController = {
       res.status(409)
       plainTextResponse(
         res,
-        'Sorry, the source project is not yet imported to Overleaf v2. Please import it to Overleaf v2 to refresh this file'
+        'Sorry, the source project is not yet imported to Japan Documentation Studio v2. Please import it to Japan Documentation Studio v2 to refresh this file'
       )
     } else if (error instanceof CompileFailedError) {
       res.status(422)

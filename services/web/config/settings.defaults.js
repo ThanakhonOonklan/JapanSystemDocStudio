@@ -243,7 +243,7 @@ module.exports = {
       url: `http://${process.env.WEBPACK_HOST || '127.0.0.1'}:3808`,
     },
     wiki: {
-      url: process.env.WIKI_URL || 'https://learnwiki.overleaf.com',
+      url: process.env.WIKI_URL || '',
       maxCacheAge: parseInt(process.env.WIKI_MAX_CACHE_AGE || 5 * minutes, 10),
     },
 
@@ -785,7 +785,7 @@ module.exports = {
     userId: process.env.SMOKE_TEST_USER_ID,
   },
 
-  appName: process.env.APP_NAME || 'Overleaf (Community Edition)',
+  appName: process.env.APP_NAME || 'Japan Documentation Studio',
 
   adminEmail: process.env.ADMIN_EMAIL || 'placeholder@example.com',
   adminDomains: process.env.ADMIN_DOMAINS
@@ -793,7 +793,7 @@ module.exports = {
     : undefined,
 
   nav: {
-    title: process.env.APP_NAME || 'Documentation Studio',
+    title: process.env.APP_NAME || 'Japan Documentation Studio',
 
     hide_powered_by: process.env.NAV_HIDE_POWERED_BY === 'true',
     left_footer: [],

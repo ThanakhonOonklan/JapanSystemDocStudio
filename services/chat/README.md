@@ -1,6 +1,6 @@
-# overleaf/chat
+# chat
 
-The backend API that powers the chat service in Overleaf
+The backend API that powers the chat service in Japan Documentation Studio
 
 ## License
 

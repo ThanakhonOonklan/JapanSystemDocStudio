@@ -5,7 +5,6 @@ import PdfLogEntry from './pdf-log-entry'
 import { useDetachCompileContext as useCompileContext } from '../../../shared/context/detach-compile-context'
 import { useStopOnFirstError } from '../../../shared/hooks/use-stop-on-first-error'
 import getMeta from '../../../utils/meta'
-import { sendMB } from '@/infrastructure/event-tracking'
 
 function PdfPreviewError({
   error,
@@ -45,12 +44,7 @@ function PdfPreviewError({
                   i18nKey="last_resort_trouble_shooting_guide"
                   components={[
                     // eslint-disable-next-line jsx-a11y/anchor-has-content
-                    <a
-                      href="https://docs.overleaf.com/troubleshooting-and-support/resolving-pdf-rendering-and-project-loading-problems"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      key="troubleshooting-link"
-                    />,
+                    <span key="troubleshooting-link" />,
                   ]}
                 />
               </>
@@ -70,12 +64,7 @@ function PdfPreviewError({
               i18nKey="try_recompile_project_or_troubleshoot"
               components={[
                 // eslint-disable-next-line jsx-a11y/anchor-has-content
-                <a
-                  href="https://docs.overleaf.com/troubleshooting-and-support/resolving-pdf-rendering-and-project-loading-problems"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  key="troubleshooting-link"
-                />,
+                <span key="troubleshooting-link" />,
               ]}
             />
             {getMeta('ol-compilesUserContentDomain') && (
@@ -94,12 +83,7 @@ function PdfPreviewError({
                   components={[
                     <code key="domain" />,
                     /* eslint-disable-next-line jsx-a11y/anchor-has-content */
-                    <a
-                      href="https://docs.overleaf.com/troubleshooting-and-support/resolving-pdf-rendering-and-project-loading-problems"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      key="troubleshooting-link"
-                    />,
+                    <span key="troubleshooting-link" />,
                   ]}
                 />
               </>
@@ -226,12 +210,7 @@ function PdfPreviewError({
               components={[
                 <strong key="strong-" />,
                 // eslint-disable-next-line jsx-a11y/anchor-has-content
-                <a
-                  href="https://docs.overleaf.com/troubleshooting-and-support/resolving-pdf-rendering-and-project-loading-problems"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  key="troubleshooting-link"
-                />,
+                <span key="troubleshooting-link" />,
                 // eslint-disable-next-line jsx-a11y/anchor-has-content
                 <a key="contact-link" target="_blank" href="/contact" />,
               ]}
@@ -302,16 +281,7 @@ function TimedOutLogEntry() {
             i18nKey="project_timed_out_optimize_images"
             components={[
               // eslint-disable-next-line jsx-a11y/anchor-has-content, react/jsx-key
-              <a
-                href="https://docs.overleaf.com/troubleshooting-and-support/fixing-and-preventing-compile-timeouts/optimising-very-large-image-files"
-                onClick={() => {
-                  sendMB('paywall-info-click', {
-                    'paywall-type': 'compile-timeout',
-                    content: 'docs',
-                    type: 'optimize',
-                  })
-                }}
-              />,
+              <span />,
             ]}
           />
         </li>
@@ -320,16 +290,7 @@ function TimedOutLogEntry() {
             i18nKey="project_timed_out_fatal_error"
             components={[
               // eslint-disable-next-line jsx-a11y/anchor-has-content, react/jsx-key
-              <a
-                href="https://docs.overleaf.com/troubleshooting-and-support/fixing-and-preventing-compile-timeouts"
-                onClick={() => {
-                  sendMB('paywall-info-click', {
-                    'paywall-type': 'compile-timeout',
-                    content: 'docs',
-                    type: 'fatal-error',
-                  })
-                }}
-              />,
+              <span />,
             ]}
           />
           {!lastCompileOptions.stopOnFirstError && (
@@ -355,16 +316,7 @@ function TimedOutLogEntry() {
           i18nKey="project_timed_out_learn_more"
           components={[
             // eslint-disable-next-line jsx-a11y/anchor-has-content, react/jsx-key
-            <a
-              href="https://docs.overleaf.com/troubleshooting-and-support/fixing-and-preventing-compile-timeouts"
-              onClick={() => {
-                sendMB('paywall-info-click', {
-                  'paywall-type': 'compile-timeout',
-                  content: 'docs',
-                  type: 'learn-more',
-                })
-              }}
-            />,
+            <span />,
           ]}
         />
       </p>

@@ -1,4 +1,4 @@
-# overleaf/document-updater
+# document-updater
 
 An API for applying incoming updates to documents in real-time.
 

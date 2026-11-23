@@ -116,14 +116,6 @@ function CommonNotification({ notification }: CommonNotificationProps) {
               to help you continue collaborating throughout 2020.
             </>
           }
-          action={
-            <OLButton
-              variant="secondary"
-              href="https://www.overleaf.com/events/wfh2020"
-            >
-              View
-            </OLButton>
-          }
         />
       ) : templateKey === 'notification_ip_matched_affiliation' ? (
         <Notification
@@ -149,14 +141,11 @@ function CommonNotification({ notification }: CommonNotificationProps) {
                   />
                   <br />
                   {t('link_institutional_email_get_started')}{' '}
-                  <a
-                    href={
-                      notification.messageOpts.portalPath ||
-                      'https://docs.overleaf.com/accounts-and-security/email-address-and-login-options/logging-in-with-institutional-sso'
-                    }
-                  >
-                    {t('find_out_more_nt')}
-                  </a>
+                  {notification.messageOpts.portalPath && (
+                    <a href={notification.messageOpts.portalPath}>
+                      {t('find_out_more_nt')}
+                    </a>
+                  )}
                 </>
               ) : (
                 <>
@@ -233,13 +222,6 @@ function CommonNotification({ notification }: CommonNotificationProps) {
                   i18nKey="dropbox_duplicate_project_names_suggestion"
                   components={[<b />]} // eslint-disable-line react/jsx-key
                 />{' '}
-                <a
-                  href="https://docs.overleaf.com/integrations-and-add-ons/dropbox"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {t('learn_more')}
-                </a>
                 .
               </p>
             </>
@@ -265,13 +247,6 @@ function CommonNotification({ notification }: CommonNotificationProps) {
               ) : (
                 t('confirm_affiliation_to_relink_dropbox')
               )}{' '}
-              <a
-                href="https://docs.overleaf.com/accounts-and-security/email-address-and-login-options/logging-in-with-institutional-sso/institutional-email-reconfirmation"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {t('learn_more')}
-              </a>
             </>
           }
         />

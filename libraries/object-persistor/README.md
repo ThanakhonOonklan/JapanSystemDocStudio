@@ -307,4 +307,4 @@ Contributions should pass lint, formatting and unit test checks. To run these, u
 yarn run test
 ```
 
-There are no acceptance tests in this module, but https://github.com/overleaf/filestore/ contains a comprehensive set of acceptance tests that use this module. These should also pass, with the changes.
+There are no acceptance tests in this module, but  contains a comprehensive set of acceptance tests that use this module. These should also pass, with the changes.

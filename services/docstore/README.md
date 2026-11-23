@@ -1,4 +1,4 @@
-# overleaf/docstore
+# docstore
 
 A CRUD API for storing and updating text documents in projects
 

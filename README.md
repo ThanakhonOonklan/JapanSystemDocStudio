@@ -1,10 +1,9 @@
-# Japan System Documentation Studio
+# Japan Documentation Studio
 
 ระบบเขียนเอกสารคู่มือด้วยไฟล์ Markdown แล้วสร้างเป็น PDF ที่มีหน้าปก สารบัญ และเลขหน้าอัตโนมัติ
 รองรับภาษาไทยและอังกฤษ ใช้งานผ่านเว็บในเครื่องของตัวเอง
 
-ระบบนี้พัฒนาต่อจาก [Overleaf Community Edition](https://github.com/overleaf/overleaf) (หน้ารวมโปรเจ็ค ตัวแก้ไขไฟล์ ตัวดู PDF)
-โดยเปลี่ยนตัวสร้างเอกสารจาก LaTeX เป็น Markdown ผ่าน service ชื่อ `md-compile`
+ประกอบด้วยหน้ารวมโปรเจ็ค ตัวแก้ไขไฟล์ และตัวดู PDF เอกสารสร้างจาก Markdown ผ่าน service ชื่อ `md-compile`
 
 ## ทำอะไรได้บ้าง
 
@@ -244,7 +243,7 @@ docker cp docstudio-app:/tmp/my-manual/output.pdf ./my-manual.pdf
 คำเตือนด้านความปลอดภัย
 
 - ระบบเป็นแบบผู้ใช้คนเดียว ทุกคนที่เข้าถึงพอร์ตได้ จะเข้าใช้เป็นผู้ใช้คนเดียวกันโดยไม่ต้องล็อกอิน จึงห้ามเปิดออกอินเทอร์เน็ตตรง ๆ
-- ตามคำเตือนของ Overleaf Community Edition ผู้ใช้มีสิทธิ์เข้าถึงทรัพยากรในตัว container ระหว่างคอมไพล์ จึงควรให้เฉพาะคนที่ไว้ใจเท่านั้น
+- ผู้ใช้มีสิทธิ์เข้าถึงทรัพยากรในตัว container ระหว่างคอมไพล์ จึงควรให้เฉพาะคนที่ไว้ใจเท่านั้น
 - ถ้าต้องการเปิดให้ภายนอกเข้า ควรอยู่หลัง VPN หรือ reverse proxy ที่มีระบบยืนยันตัวตนและ HTTPS
 
 ## สำรองและย้ายข้อมูล
@@ -294,10 +293,9 @@ docker compose -f docker-compose.local.yml up -d
 
 ## สัญญาอนุญาตและเครดิต
 
-ซอร์สโค้ดอยู่ภายใต้ [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0) เหมือนต้นทาง
+ซอร์สโค้ดอยู่ภายใต้ [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0)
 ถ้าเปิดให้ผู้อื่นใช้ระบบที่แก้ไขนี้ผ่านเครือข่าย ต้องเปิดซอร์สโค้ดส่วนที่แก้ให้ผู้ใช้เหล่านั้นด้วย
 
-ระบบนี้พัฒนาต่อจาก Overleaf Community Edition ของ Overleaf (https://github.com/overleaf/overleaf)
-ชื่อและโลโก้ Overleaf เป็นเครื่องหมายการค้าของเจ้าของเดิม
+ข้อความลิขสิทธิ์ของโค้ดต้นทางอยู่ในไฟล์ LICENSE และส่วนหัวของไฟล์ซอร์สโค้ด
 
 ผู้พัฒนา: Japan System

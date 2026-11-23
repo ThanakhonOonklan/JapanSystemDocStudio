@@ -1,4 +1,4 @@
-# overleaf/metrics-module
+# metrics-module
 
 Wrappers the [prom-client](https://github.com/siimon/prom-client) npm module to provide [Prometheus](https://prometheus.io/) metrics at `/metrics`.
 

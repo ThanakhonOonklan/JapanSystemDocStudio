@@ -298,7 +298,7 @@ export default {
                 }
                 prepareZipAttachment(
                   res,
-                  `Overleaf Projects (${projectIds.length} items).zip`
+                  `Japan Documentation Studio Projects (${projectIds.length} items).zip`
                 )
                 stream.pipe(res)
               }

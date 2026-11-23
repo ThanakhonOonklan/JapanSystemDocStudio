@@ -69,10 +69,7 @@ function PreviewLogsPaneMaxEntriesContent({
                 onClick={handleEnableStopOnFirstErrorClick}
               />,
               // eslint-disable-next-line jsx-a11y/anchor-has-content
-              <a
-                key="learn-more"
-                href="https://docs.overleaf.com/troubleshooting-and-support/fixing-latex-errors"
-              />,
+              <span key="learn-more" />,
             ]}
           />{' '}
         </p>

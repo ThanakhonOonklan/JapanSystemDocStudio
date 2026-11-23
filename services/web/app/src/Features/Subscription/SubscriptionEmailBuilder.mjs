@@ -4,10 +4,10 @@ import settings from '@overleaf/settings'
 
 EmailBuilder.templates.trialOnboarding = EmailBuilder.NoCTAEmailTemplate({
   subject(opts) {
-    return `Welcome to your Overleaf ${opts.planName} plan trial`
+    return `Welcome to your Japan Documentation Studio ${opts.planName} plan trial`
   },
   title(opts) {
-    return `Welcome to your Overleaf ${opts.planName} plan trial`
+    return `Welcome to your Japan Documentation Studio ${opts.planName} plan trial`
   },
   greeting() {
     return 'Hello,'
@@ -108,7 +108,7 @@ EmailBuilder.templates.trialOnboarding = EmailBuilder.NoCTAEmailTemplate({
 
     let n = 1
     return [
-      `Welcome to your Overleaf Premium Features Trial!  We really appreciate your support of Overleaf and are excited for you to use our premium features and get the most out of your trial.`,
+      `Welcome to your Japan Documentation Studio Premium Features Trial!  We really appreciate your support of Japan Documentation Studio and are excited for you to use our premium features and get the most out of your trial.`,
       `<b>During your trial period, be sure to check out these premium features: </b>`,
 
       ...(canInviteMoreNamedCollaborators
@@ -128,20 +128,20 @@ EmailBuilder.templates.trialOnboarding = EmailBuilder.NoCTAEmailTemplate({
           ]
         : []),
 
-      `${n++}. <b>Full document history and versioning</b>: View the entire history of your project with the ability to revert to previous versions of your document from your project history (versus only 24 hours of history availability on a  free Overleaf account). No more fear of losing work or making changes you can’t undo. `,
+      `${n++}. <b>Full document history and versioning</b>: View the entire history of your project with the ability to revert to previous versions of your document from your project history (versus only 24 hours of history availability on a  free Japan Documentation Studio account). No more fear of losing work or making changes you can’t undo. `,
       `<ul><li> History: ${history}</li>
       <li>Versioning: ${versioning}</li></ul>`,
 
       `${n++}. <b>Advanced reference search</b>: You can search by citation key, and our premium feature allows the added ability to search by author, title, year, or journal.`,
       `<ul><li>Advanced Reference Search: ${advancedReferenceSearch}</li></ul>`,
 
-      `${n++}. <b>Reference manager sync </b>: You can link your Mendeley and Zotero accounts to your Overleaf account, allowing you to import your reference library and keep your Overleaf document in sync with the references stored in Mendeley / Zotero.`,
+      `${n++}. <b>Reference manager sync </b>: You can link your Mendeley and Zotero accounts to your Japan Documentation Studio account, allowing you to import your reference library and keep your Japan Documentation Studio document in sync with the references stored in Mendeley / Zotero.`,
       `<ul><li> Reference Manager Sync: ${referenceManagerSync}</li></ul>`,
 
-      `${n++}. <b>Dropbox Sync</b>: You can link your Dropbox account to your Overleaf account, allowing 2-way integration with Dropbox `,
+      `${n++}. <b>Dropbox Sync</b>: You can link your Dropbox account to your Japan Documentation Studio account, allowing 2-way integration with Dropbox `,
       `<ul><li> Dropbox Sync: ${dropboxSync}</li></ul>`,
 
-      `${n++}. <b>Git and GitHub integration</b>: You can configure your Overleaf project to sync directly with a repository on GitHub, or you can use raw git access. This allows you to work offline and sync your files whenever you come back online. You can also use our Overleaf Git Bridge integration, which lets you git clone, push and pull changes between the online Overleaf editor, and your local offline git repository.`,
+      `${n++}. <b>Git and GitHub integration</b>: You can configure your Japan Documentation Studio project to sync directly with a repository on GitHub, or you can use raw git access. This allows you to work offline and sync your files whenever you come back online. You can also use our Japan Documentation Studio Git Bridge integration, which lets you git clone, push and pull changes between the online Japan Documentation Studio editor, and your local offline git repository.`,
       `<ul><li> Git, GitHub and Git Bridge: ${gitSync}</li></ul>`,
 
       `${n++}. <b>Symbol Palette</b>: A quick and convenient tool to insert math symbols into your document.`,
@@ -156,10 +156,10 @@ EmailBuilder.templates.trialOnboarding = EmailBuilder.NoCTAEmailTemplate({
       `Your trial will last for seven days from when you started it, and you can ${cancel} via your subscription page on your dashboard. If you’d like to continue your subscription after your trial, you’re all set!`,
 
       `Please let us know if we can provide any additional support or answer any questions - and we’d love to ${feedback}!`,
-      `Thanks again for supporting Overleaf - Happy TeXing!`,
-      `The Overleaf Team <hr>`,
+      `Thanks again for supporting Japan Documentation Studio - Happy TeXing!`,
+      `The Japan Documentation Studio Team <hr>`,
 
-      `You're receiving this email because you've recently signed up for an Overleaf premium trial. If you've previously subscribed to emails about product offers and company news and events, you can unsubscribe ${unsubscribe}.`,
+      `You're receiving this email because you've recently signed up for an Japan Documentation Studio premium trial. If you've previously subscribed to emails about product offers and company news and events, you can unsubscribe ${unsubscribe}.`,
     ]
   },
 })

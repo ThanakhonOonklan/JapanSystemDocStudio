@@ -43,7 +43,7 @@ async function getScoresForPrefix(prefix) {
       `${Settings.apis.haveIBeenPwned.url}/range/${prefix}`,
       {
         headers: {
-          'User-Agent': 'www.overleaf.com',
+          'User-Agent': 'Japan Documentation Studio',
           // Docs: https://haveibeenpwned.com/API/v3#PwnedPasswordsPadding
           'Add-Padding': true,
         },

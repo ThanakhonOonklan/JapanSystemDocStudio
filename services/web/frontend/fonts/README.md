@@ -1,4 +1,4 @@
-This directory contains fonts used by the Overleaf web application.
+This directory contains fonts used by the Japan Documentation Studio web application.
 
 - [DM Mono](https://github.com/googlefonts/dm-mono)
 - [Inter](https://rsms.me/inter/)

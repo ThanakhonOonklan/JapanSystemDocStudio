@@ -1,7 +1,7 @@
 # @overleaf/settings
 
 A small module to allow global config settings to be set for all services
-within the Overleaf architecture.
+within the Japan Documentation Studio architecture.
 
 ## Settings file location
 

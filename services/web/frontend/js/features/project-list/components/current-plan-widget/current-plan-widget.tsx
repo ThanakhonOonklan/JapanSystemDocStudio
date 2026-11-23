@@ -26,8 +26,7 @@ function CurrentPlanWidget() {
     isIndividualPlan &&
     getUserSubscriptionState(usersBestSubscription) === 'paused'
 
-  const featuresPageURL =
-    'https://docs.overleaf.com/getting-started/free-and-premium-plans/premium-features'
+  const featuresPageURL = '/project'
   const subscriptionPageUrl = '/user/subscription'
 
   let currentPlan

@@ -1,4 +1,4 @@
-# overleaf/clsi
+# clsi
 
 A web api for compiling LaTeX documents in the cloud
 
@@ -33,11 +33,11 @@ The CLSI can be configured through the following environment variables:
 - `TEXLIVE_IMAGE_USER` - When using sibling containers, the user to run as in the TeX Live image. Defaults to `tex`
 - `TEXLIVE_OPENOUT_ANY` - Sets the `openout_any` environment variable for TeX Live (see the `\openout` primitive [documentation](http://tug.org/texinfohtml/web2c.html#tex-invocation))
 
-Further environment variables configure the [metrics module](https://github.com/overleaf/metrics-module)
+Further environment variables configure the metrics module
 
 ## Installation
 
-The CLSI can be installed and set up as part of the entire [Overleaf stack](https://github.com/overleaf/overleaf) (complete with front end editor and document storage), or it can be run as a standalone service. To run is as a standalone service, first checkout this repository:
+The CLSI can be installed and set up as part of the entire Japan Documentation Studio stack (complete with front end editor and document storage), or it can be run as a standalone service. To run is as a standalone service, first checkout this repository:
 
 ```shell
 git clone git@github.com:overleaf/overleaf.git

@@ -82,7 +82,7 @@ const en = {
     'translate.request-new-language.thanks.body':
       'We’ll review your request and consider adding it in the future',
     'translate.non-latin-warning.title':
-      'Using __language__ characters in Overleaf',
+      'Using __language__ characters in Japan Documentation Studio',
     'translate.non-latin-warning.body':
       'To avoid compile issues with your translation, your project might need extra LaTeX packages to handle the proper characters.',
     'translate.non-latin-warning.link': 'Learn how to use non-Latin characters',
@@ -107,7 +107,7 @@ const en = {
     'language-model.quota-reached.ai-bundle.tooltip.1':
       "You've hit your daily AI limit",
     'language-model.quota-reached.ai-bundle.tooltip.2':
-      'Add AI Assist for unlimited access to all Overleaf AI features,',
+      'Add AI Assist for unlimited access to all Japan Documentation Studio AI features,',
     'language-model.quota-reached.ai-bundle.tooltip.3':
       'including Writefull. Or wait for your quota to reset.',
     'language-model.quota-reached.tooltip': "You've hit your daily AI limit",
@@ -279,17 +279,17 @@ const en = {
     'fake-door-test.text-to-speech.title':
       'Sorry, text to speech isn’t available yet',
     'fake-door-test.text-to-speech.introduction_p1':
-      'We are considering adding text to speech to language suggestions in Overleaf and are gathering feedback.',
+      'We are considering adding text to speech to language suggestions in Japan Documentation Studio and are gathering feedback.',
     'fake-door-test.text-to-speech.introduction_p2':
-      'Is text to speech something that would help you with your writing in Overleaf?',
+      'Is text to speech something that would help you with your writing in Japan Documentation Studio?',
     'fake-door-test.text-to-speech.more-information-if-yes':
       'How would text to speech help you with your writing?',
     'fake-door-test.text-to-speech.more-information-if-no':
-      'What would help you with your writing in Overleaf?',
+      'What would help you with your writing in Japan Documentation Studio?',
     'fake-door-test.text-to-speech.closing.title':
       'Thank you for your feedback!',
     'fake-door-test.text-to-speech.closing.body':
-      'We’ll use this to assess whether we add text to speech functionality to language suggestions in Overleaf.',
+      'We’ll use this to assess whether we add text to speech functionality to language suggestions in Japan Documentation Studio.',
     'language-model.using-this-feature':
       'Using this feature means your text is sent to OpenAI’s servers and may be kept there for up to 30 days. It is not used to train OpenAI’s models. Writefull does not store or train on your texts.',
     'language-model.learn-more': 'Learn more about how your data is used',
@@ -343,13 +343,13 @@ const en = {
     'settings.english-variant': 'English variant: __variant__',
     'settings.account': 'Account',
     'sign-in.extension-user-blocked.p1':
-      'Writefull is now fully integrated with Overleaf meaning you no longer',
+      'Writefull is now fully integrated with Japan Documentation Studio meaning you no longer',
     'sign-in.extension-user-blocked.p2':
       'need to use the Chrome extension to access Writefull.',
     'sign-in.extension-user-blocked.p3':
-      'Please disable or remove the Writefull for Overleaf Chrome Extension to continue.',
+      'Please disable or remove the Writefull for Japan Documentation Studio Chrome Extension to continue.',
     'sign-in.extension-user-blocked.p4':
-      'You can enable the Writefull integration via your Overleaf ',
+      'You can enable the Writefull integration via your Japan Documentation Studio ',
     'sign-in.extension-user-blocked.l1': 'account settings.',
     'sign-in.extension-user-blocked.p5':
       'If you need help or guidance then more information is available ',
@@ -357,7 +357,7 @@ const en = {
     'translation-notification.title_1': 'New, nieuw, nuevo!',
     'translation-notification.title_2': 'Translate your text instantly',
     'translation-notification.body_1':
-      'Translate your project without leaving Overleaf!',
+      'Translate your project without leaving Japan Documentation Studio!',
     'translation-notification.body_2_floating-button-enabled':
       'Simply highlight your text, click',
     'translation-notification.body_3_floating-button-enabled':
@@ -375,27 +375,27 @@ const en = {
     'welcome.to-use-writefull-in-the-future': 'To use Writefull in the future,',
     'welcome.click-the-writefull-logo': 'click the Writefull logo',
     'welcome.link-your-writefull-and-overleaf-accounts':
-      'Link your Writefull and Overleaf accounts',
+      'Link your Writefull and Japan Documentation Studio accounts',
     'welcome.enter-the-details-of-the-writefull-account':
-      'Enter the details of the Writefull account you would like to link to your Overleaf account.',
+      'Enter the details of the Writefull account you would like to link to your Japan Documentation Studio account.',
     'welcome.simplify-your-access-by-linking-accounts':
-      'Simplify your access by linking your Writefull and Overleaf accounts. Linking them lets you sign in to Writefull using your Overleaf credentials.',
+      'Simplify your access by linking your Writefull and Japan Documentation Studio accounts. Linking them lets you sign in to Writefull using your Japan Documentation Studio credentials.',
     'welcome.enter-your-password-to-link-accounts':
       'Enter your password below to link the accounts associated with',
     'welcome.choose-a-different-writefull-account':
       'choose a different Writefull account',
     'welcome.language-suggestions': 'Language suggestions',
     'welcome.writefull':
-      'Get Writefull’s AI-powered language suggestions and editing tools in Overleaf to help you write smarter and faster.',
+      'Get Writefull’s AI-powered language suggestions and editing tools in Japan Documentation Studio to help you write smarter and faster.',
     'welcome.writefull-enabled':
-      'Overleaf provides these AI powered language suggestions to help you with your writing.',
+      'Japan Documentation Studio provides these AI powered language suggestions to help you with your writing.',
     'welcome.writefull-email': 'Writefull email',
     'welcome.writefull-password': 'Writefull password',
     'welcome.link-accounts': 'Link accounts',
     'welcome.confirm-your-primary-email-on-overleaf':
-      'Confirm your primary email on Overleaf',
+      'Confirm your primary email on Japan Documentation Studio',
     'welcome.please-confirm-your-primary-email-address':
-      'Please confirm your primary email address on Overleaf to start using Writefull.',
+      'Please confirm your primary email address on Japan Documentation Studio to start using Writefull.',
     'welcome.confirm-primary-email': 'Confirm primary email',
     'welcome.i-have-verified-my-account': 'I have verified my account',
     'welcome.sign-in-to-writefull': 'Sign in to Writefull',
@@ -404,18 +404,18 @@ const en = {
     'welcome.sign-in': 'Sign in',
     'welcome.next': 'Next',
     'welcome.overleaf-has-partnered-with-writefull':
-      'Overleaf has partnered with Writefull!',
+      'Japan Documentation Studio has partnered with Writefull!',
     'welcome.ai-powered-language-and-latex-assistance':
-      'AI-powered language and LaTeX assistance right within the Overleaf editor, letting you improve your grammar, auto-generate code, and more',
+      'AI-powered language and LaTeX assistance right within the Japan Documentation Studio editor, letting you improve your grammar, auto-generate code, and more',
     'welcome.one-click-sign-in-with-overleaf':
-      'One-click sign-in with Overleaf',
+      'One-click sign-in with Japan Documentation Studio',
     'welcome.i-already-have-an-account': 'I already have an account',
     'welcome.by-signing-in-you-agree-to-writefull-terms':
       'By signing-in, you agree to Writefull’s',
     'welcome.terms-of-service': 'terms of service',
     'welcome.learn-about-the-information-overleaf-shares': 'Learn about the',
     'welcome.information-overleaf-shares':
-      'information Overleaf shares with Writefull',
+      'information Japan Documentation Studio shares with Writefull',
     'welcome.and-its': 'and its',
     'welcome.privacy-notice': 'privacy notice',
     'welcome.ok': 'OK',
@@ -505,7 +505,7 @@ const en = {
     'citations-reviewer.chat.non-english-error.yes':
       'Yes, run citation reviewer',
     'citations-reviewer.chat.non-english-error.no': 'No, return to main menu',
-    'paywall.title': 'You’ve hit your Overleaf AI limit',
+    'paywall.title': 'You’ve hit your Japan Documentation Studio AI limit',
     'paywall.title.new-plans': 'You’ve hit your daily AI limit',
     'paywall.title.new-plans.fair-usage': 'Usage limit reached',
     'paywall.body':
@@ -607,7 +607,7 @@ const es = {
     'translate.request-new-language.thanks.body':
       'Revisaremos tu solicitud y consideraremos agregarlo en el futuro',
     'translate.non-latin-warning.title':
-      'Uso de caracteres __language__ en Overleaf',
+      'Uso de caracteres __language__ en Japan Documentation Studio',
     'translate.non-latin-warning.body':
       'Para evitar problemas de compilación con tu traducción, tu proyecto podría necesitar paquetes LaTeX adicionales para manejar los caracteres correspondientes.',
     'translate.non-latin-warning.link':
@@ -635,7 +635,7 @@ const es = {
     'language-model.quota-reached.ai-bundle.tooltip.1':
       'Has alcanzado tu límite de uso.',
     'language-model.quota-reached.ai-bundle.tooltip.2':
-      'Añade AI Assist para acceso ilimitado a todas las funcionalidades AI de Overleaf,',
+      'Añade AI Assist para acceso ilimitado a todas las funcionalidades AI de Japan Documentation Studio,',
     'language-model.quota-reached.ai-bundle.tooltip.3':
       'incluyendo Writefull. O espera a que se reinicie tu cuota.',
     'language-model.quota-reached.tooltip':
@@ -819,17 +819,17 @@ const es = {
     'fake-door-test.text-to-speech.title':
       'Lo sentimos, el texto a voz aún no está disponible',
     'fake-door-test.text-to-speech.introduction_p1':
-      'Estamos considerando agregar texto a voz a las sugerencias de idioma en Overleaf y estamos recopilando comentarios.',
+      'Estamos considerando agregar texto a voz a las sugerencias de idioma en Japan Documentation Studio y estamos recopilando comentarios.',
     'fake-door-test.text-to-speech.introduction_p2':
-      '¿Es el texto a voz algo que te ayudaría con tu escritura en Overleaf?',
+      '¿Es el texto a voz algo que te ayudaría con tu escritura en Japan Documentation Studio?',
     'fake-door-test.text-to-speech.more-information-if-yes':
       '¿Cómo te ayudaría el texto a voz con tu escritura?',
     'fake-door-test.text-to-speech.more-information-if-no':
-      '¿Qué te ayudaría con tu escritura en Overleaf?',
+      '¿Qué te ayudaría con tu escritura en Japan Documentation Studio?',
     'fake-door-test.text-to-speech.closing.title':
       '¡Gracias por tus comentarios!',
     'fake-door-test.text-to-speech.closing.body':
-      'Los utilizaremos para evaluar si agregamos la funcionalidad de texto a voz a las sugerencias de idioma en Overleaf.',
+      'Los utilizaremos para evaluar si agregamos la funcionalidad de texto a voz a las sugerencias de idioma en Japan Documentation Studio.',
     'language-model.using-this-feature':
       'Usar esta función significa que su texto se envía a los servidores de OpenAI y puede mantenerse allí hasta por 30 días. No se utiliza para entrenar los modelos de OpenAI. Writefull no almacena ni entrena con sus textos.',
     'language-model.learn-more': 'Aprende más',
@@ -885,21 +885,21 @@ const es = {
     'settings.english-variant': 'Variante de inglés',
     'settings.account': 'Cuenta',
     'sign-in.extension-user-blocked.p1':
-      'Writefull esta ahora totalmente integrado en Overleaf y ya no',
+      'Writefull esta ahora totalmente integrado en Japan Documentation Studio y ya no',
     'sign-in.extension-user-blocked.p2':
       'necesitas usar la extensión de Chrome para acceder a Writefull.',
     'sign-in.extension-user-blocked.p3':
-      'Por favor, desactiva o elimina la extensión de Chrome Writefull for Overleaf para continuar.',
+      'Por favor, desactiva o elimina la extensión de Chrome Writefull for Japan Documentation Studio para continuar.',
     'sign-in.extension-user-blocked.p4':
       'Puedes habilitar la integración de Writefull a través de tu ',
-    'sign-in.extension-user-blocked.l1': 'configuración de cuenta de Overleaf.',
+    'sign-in.extension-user-blocked.l1': 'configuración de cuenta de Japan Documentation Studio.',
     'sign-in.extension-user-blocked.p5':
       'Si necesitas ayuda o orientación, más información está disponible ',
     'sign-in.extension-user-blocked.l2': 'aquí.',
     'translation-notification.title_1': 'New, nieuw, nuevo!',
     'translation-notification.title_2': 'Traduce tu texto instantáneamente',
     'translation-notification.body_1':
-      'Traduce tu proyecto sin salir de Overleaf!',
+      'Traduce tu proyecto sin salir de Japan Documentation Studio!',
     'translation-notification.body_2_floating-button-enabled':
       'Simplemente resalta tu texto, haz clic',
     'translation-notification.body_3_floating-button-enabled':
@@ -918,27 +918,27 @@ const es = {
       'Para usar Writefull en el futuro,',
     'welcome.click-the-writefull-logo': 'haz clic en el logo de Writefull',
     'welcome.link-your-writefull-and-overleaf-accounts':
-      'Vincula tus cuentas de Writefull y Overleaf',
+      'Vincula tus cuentas de Writefull y Japan Documentation Studio',
     'welcome.enter-the-details-of-the-writefull-account':
-      'Introduce los detalles de la cuenta de Writefull que te gustaría vincular a tu cuenta de Overleaf.',
+      'Introduce los detalles de la cuenta de Writefull que te gustaría vincular a tu cuenta de Japan Documentation Studio.',
     'welcome.simplify-your-access-by-linking-accounts':
-      'Simplifica tu acceso vinculando tus cuentas de Writefull y Overleaf. Vincularlas te permite iniciar sesión en Writefull usando tus credenciales de Overleaf.',
+      'Simplifica tu acceso vinculando tus cuentas de Writefull y Japan Documentation Studio. Vincularlas te permite iniciar sesión en Writefull usando tus credenciales de Japan Documentation Studio.',
     'welcome.enter-your-password-to-link-accounts':
       'Introduce tu contraseña a continuación para vincular las cuentas asociadas con',
     'welcome.choose-a-different-writefull-account':
       'elige una cuenta de Writefull diferente',
     'welcome.language-suggestions': 'Sugerencias de lenguaje',
     'welcome.writefull':
-      'Obtén las sugerencias de lenguaje y las herramientas de edición impulsadas por IA de Writefull en Overleaf para ayudarte a escribir de manera más inteligente y rápida.',
+      'Obtén las sugerencias de lenguaje y las herramientas de edición impulsadas por IA de Writefull en Japan Documentation Studio para ayudarte a escribir de manera más inteligente y rápida.',
     'welcome.writefull-enabled':
-      'Overleaf proporciona estas sugerencias de lenguaje impulsadas por IA para ayudarte con tu escritura.',
+      'Japan Documentation Studio proporciona estas sugerencias de lenguaje impulsadas por IA para ayudarte con tu escritura.',
     'welcome.writefull-email': 'Correo electrónico de Writefull',
     'welcome.writefull-password': 'Contraseña de Writefull',
     'welcome.link-accounts': 'Vincular cuentas',
     'welcome.confirm-your-primary-email-on-overleaf':
-      'Confirma tu correo electrónico principal en Overleaf',
+      'Confirma tu correo electrónico principal en Japan Documentation Studio',
     'welcome.please-confirm-your-primary-email-address':
-      'Por favor, confirma tu dirección de correo electrónico principal en Overleaf para empezar a usar Writefull.',
+      'Por favor, confirma tu dirección de correo electrónico principal en Japan Documentation Studio para empezar a usar Writefull.',
     'welcome.confirm-primary-email': 'Confirmar correo electrónico principal',
     'welcome.i-have-verified-my-account': 'He verificado mi cuenta',
     'welcome.sign-in-to-writefull': 'Inicia sesión en Writefull',
@@ -947,17 +947,17 @@ const es = {
     'welcome.sign-in': 'Iniciar sesión',
     'welcome.next': 'Siguiente',
     'welcome.overleaf-has-partnered-with-writefull':
-      '¡Overleaf se ha asociado con Writefull!',
+      '¡Japan Documentation Studio se ha asociado con Writefull!',
     'welcome.ai-powered-language-and-latex-assistance':
-      'Asistencia de lenguaje y LaTeX impulsada por IA directamente en el editor de Overleaf, permitiéndote mejorar tu gramática, autogenerar código y más',
-    'welcome.one-click-sign-in-with-overleaf': 'Inicio de sesión con Overleaf',
+      'Asistencia de lenguaje y LaTeX impulsada por IA directamente en el editor de Japan Documentation Studio, permitiéndote mejorar tu gramática, autogenerar código y más',
+    'welcome.one-click-sign-in-with-overleaf': 'Inicio de sesión con Japan Documentation Studio',
     'welcome.i-already-have-an-account': 'Ya tengo una cuenta',
     'welcome.by-signing-in-you-agree-to-writefull-terms':
       'Al iniciar sesión, aceptas los',
     'welcome.terms-of-service': 'términos y condiciones de uso',
     'welcome.learn-about-the-information-overleaf-shares': 'Aprende sobre la',
     'welcome.information-overleaf-shares':
-      'información que Overleaf comparte con Writefull',
+      'información que Japan Documentation Studio comparte con Writefull',
     'welcome.and-its': 'y su',
     'welcome.privacy-notice': 'aviso de privacidad',
     'welcome.go-back': 'Volver',
@@ -1051,7 +1051,7 @@ const es = {
       'Sí, ejecutar el revisor de citas',
     'citations-reviewer.chat.non-english-error.no':
       'No, volver al menú principal',
-    'paywall.title': 'Has alcanzado tu límite de Overleaf AI',
+    'paywall.title': 'Has alcanzado tu límite de Japan Documentation Studio AI',
     'paywall.title.new-plans': 'Has alcanzado tu límite de AI diario',
     'paywall.title.new-plans.fair-usage': 'Límite de uso alcanzado',
     'paywall.body':

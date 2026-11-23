@@ -36,8 +36,8 @@ services:
     volumes:
       - app_data:/var/lib/overleaf
     environment:
-      OVERLEAF_APP_NAME: Documentation Studio REA
-      OVERLEAF_NAV_TITLE: Documentation Studio REA
+      OVERLEAF_APP_NAME: Japan Documentation Studio
+      OVERLEAF_NAV_TITLE: Japan Documentation Studio
       OVERLEAF_SITE_URL: http://localhost:8080
       OVERLEAF_MONGO_URL: mongodb://mongo/sharelatex
       OVERLEAF_REDIS_HOST: redis

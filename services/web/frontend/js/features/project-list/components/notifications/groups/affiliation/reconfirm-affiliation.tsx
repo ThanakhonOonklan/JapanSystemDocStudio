@@ -44,14 +44,6 @@ function ReconfirmAffiliation({
             /* eslint-disable-next-line jsx-a11y/anchor-has-content, react/jsx-key */
             components={[<a href={`/user/settings?remove=${email}`} />]}
           />
-          &nbsp;
-          <a
-            href="https://docs.overleaf.com/accounts-and-security/email-address-and-login-options/logging-in-with-institutional-sso/institutional-email-reconfirmation"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {t('learn_more_about_email_reconfirmation')}
-          </a>
         </>
       }
       action={

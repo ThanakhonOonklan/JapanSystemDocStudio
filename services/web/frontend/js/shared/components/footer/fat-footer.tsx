@@ -40,25 +40,7 @@ function FatFooter() {
     {
       title: t('Learn'),
       links: [
-        {
-          href: 'https://learn.overleaf.com/101-get-started-with-latex-in-overleaf',
-          label: t('get_started_with_latex'),
-          target: '_blank',
-          rel: 'noopener noreferrer',
-        },
         { href: '/latex/templates', label: t('templates') },
-        {
-          href: 'https://learn.overleaf.com/calendar',
-          label: t('webinars'),
-          target: '_blank',
-          rel: 'noopener noreferrer',
-        },
-        {
-          href: 'https://learn.overleaf.com/',
-          label: t('overleaf_learning_center'),
-          target: '_blank',
-          rel: 'noopener noreferrer',
-        },
         {
           href: '/learn/latex/Inserting_Images',
           label: t('how_to_insert_images'),
@@ -98,7 +80,6 @@ function FatFooter() {
       links: [
         { href: '/learn', label: t('Documentation') },
         { href: '/contact', label: t('footer_contact_us') },
-        { href: 'https://status.overleaf.com/', label: t('website_status') },
       ],
     },
   ]
