@@ -39,12 +39,16 @@ function isBlocked(req) {
 }
 
 export function singleUserBlockMiddleware(req, res, next) {
-  if (!Settings.singleUserEmail) {
+  // Both modes have no sharing, registration or password pages: single user
+  // (everybody is one person) and login at the web layer (the proxy signs
+  // people in, the app has no passwords of its own).
+  if (!Settings.singleUserEmail && !Settings.authHeader) {
     return next()
   }
-  // Logging out would only log the same person straight back in, so the
-  // "Log out" buttons simply return to the project list.
-  if (req.path === '/logout') {
+  // Single user: logging out would only log the same person straight back in,
+  // so the "Log out" buttons simply return to the project list. With the login
+  // header, headerAuthMiddleware handles /logout (it goes to the proxy).
+  if (req.path === '/logout' && !Settings.authHeader) {
     return res.redirect(303, '/project')
   }
   if (!isBlocked(req)) {

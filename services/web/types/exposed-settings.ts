@@ -48,6 +48,7 @@ export type ExposedSettings = {
   textExtensions: string[]
   editableFilenames: string[]
   validRootDocExtensions: string[]
+  hasLoginHeader?: boolean
   fileIgnorePattern: string
   templateLinks?: TemplateLink[]
   labsEnabled: boolean

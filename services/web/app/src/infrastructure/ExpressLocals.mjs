@@ -400,6 +400,8 @@ export default async function (webRouter, privateApiRouter, publicApiRouter) {
       textExtensions: Settings.textExtensions,
       editableFilenames: Settings.editableFilenames,
       validRootDocExtensions: Settings.validRootDocExtensions,
+      // login at the web layer: the account menu shows "Log out"
+      hasLoginHeader: Boolean(Settings.authHeader),
       fileIgnorePattern: Settings.fileIgnorePattern,
       sentryAllowedOriginRegex: Settings.sentry.allowedOriginRegex,
       sentryDsn: Settings.sentry.publicDSN,

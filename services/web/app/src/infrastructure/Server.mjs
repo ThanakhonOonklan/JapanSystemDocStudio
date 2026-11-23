@@ -41,6 +41,7 @@ import {
   singleUserBlockMiddleware,
   singleUserAutoLoginMiddleware,
 } from './SingleUserMiddleware.mjs'
+import { headerAuthMiddleware } from './HeaderAuthMiddleware.mjs'
 
 const { hasAdminAccess } = AdminAuthorizationHelper
 const sessionsRedisClient = UserSessionsRedis.client()
@@ -235,6 +236,8 @@ Modules.hooks.fire('passportSetup', passport, err => {
 // Single-user mode (no-ops unless OVERLEAF_SINGLE_USER_EMAIL is set)
 webRouter.use(singleUserBlockMiddleware)
 webRouter.use(singleUserAutoLoginMiddleware)
+// Login at the web layer (no-op unless OVERLEAF_AUTH_HEADER is set)
+webRouter.use(headerAuthMiddleware)
 
 await Modules.applyNonCsrfRouter(webRouter, privateApiRouter, publicApiRouter)
 

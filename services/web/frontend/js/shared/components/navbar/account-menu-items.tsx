@@ -17,6 +17,7 @@ export function AccountMenuItems({
 }) {
   const { t } = useTranslation()
   const hasOverallThemes = Boolean(getMeta('ol-overallThemes'))
+  const hasLoginHeader = Boolean(getMeta('ol-ExposedSettings')?.hasLoginHeader)
 
   return (
     <>
@@ -28,6 +29,17 @@ export function AccountMenuItems({
         <DropdownListItem>
           <ThemeToggle />
         </DropdownListItem>
+      )}
+      {hasLoginHeader && (
+        <li role="none">
+          {/* ends this session and goes to the login proxy's sign-out page */}
+          <form method="POST" action="/logout">
+            <input type="hidden" name="_csrf" value={getMeta('ol-csrfToken')} />
+            <OLDropdownItem as="button" type="submit">
+              {t('log_out')}
+            </OLDropdownItem>
+          </form>
+        </li>
       )}
     </>
   )

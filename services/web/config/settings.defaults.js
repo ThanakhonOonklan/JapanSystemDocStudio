@@ -447,6 +447,21 @@ module.exports = {
   // automatically logged in as this user and sharing/email routes are blocked.
   singleUserEmail: process.env.OVERLEAF_SINGLE_USER_EMAIL || undefined,
 
+  // Japan Documentation Studio: login at the web layer. A reverse proxy signs
+  // people in and passes the email in this header (e.g. x-forwarded-email);
+  // each email is its own user with its own projects. See HeaderAuth.mjs.
+  authHeader: process.env.OVERLEAF_AUTH_HEADER || undefined,
+  // addresses (exact or IPv4 CIDR, comma separated) the header is trusted from
+  authProxyIps: (process.env.OVERLEAF_AUTH_PROXY_IPS || '')
+    .split(/[\s,]+/)
+    .filter(Boolean),
+  // optional: only these email domains may sign in
+  authAllowedDomains: (process.env.OVERLEAF_AUTH_ALLOWED_DOMAINS || '')
+    .split(/[\s,]+/)
+    .filter(Boolean),
+  // where "Log out" goes (the proxy's sign-out page)
+  authLogoutUrl: process.env.OVERLEAF_AUTH_LOGOUT_URL || undefined,
+
   disableChat: process.env.OVERLEAF_DISABLE_CHAT === 'true',
   disableLinkSharing: process.env.OVERLEAF_DISABLE_LINK_SHARING === 'true',
   safeCompilers,
