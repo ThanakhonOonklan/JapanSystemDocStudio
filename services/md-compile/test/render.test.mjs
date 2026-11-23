@@ -75,6 +75,55 @@ test('numbering can be turned off', () => {
   })
 })
 
+test("numbering: 'sections' numbers sections 1. 2. 3. through the book", () => {
+  withProject(
+    {
+      'a.md': '# Quotation\n\n## Create\n\n### Detail\n\n## Send\n',
+      'b.md': '# Order\n\n## Accept\n',
+    },
+    (dir, [a, b]) => {
+      const { headings, html } = renderChapters({
+        files: [a, b],
+        compileDir: dir,
+        log: new Log(),
+        numbering: 'sections',
+        chapterHeading: 'label-break',
+      })
+      assert.deepEqual(
+        headings.map(h => h.number),
+        [undefined, '1', '1.1', '2', undefined, '3']
+      )
+      assert.match(html, /<span class="num">3\.<\/span> Accept/)
+      assert.doesNotMatch(html, /chapter-label/)
+    }
+  )
+})
+
+test('page numbers can go to the bottom right, chapter first pages included', () => {
+  const pages = [
+    { kind: 'cover' },
+    { kind: 'front' },
+    { kind: 'chapter', chapterStart: true },
+    { kind: 'chapter' },
+  ]
+  const labels = computePageLabels(pages, {
+    mainPosition: 'bottom-right',
+    chapterStartNumber: true,
+  })
+  assert.deepEqual(
+    labels.slice(2).map(l => [l.text, l.position]),
+    [
+      ['1', 'bottom-right'],
+      ['2', 'bottom-right'],
+    ]
+  )
+  // unknown positions fall back to the top right
+  assert.equal(
+    computePageLabels(pages, { mainPosition: 'left' })[3].position,
+    'top-right'
+  )
+})
+
 test('figures and tables are numbered per chapter, with captions', () => {
   withProject(
     {

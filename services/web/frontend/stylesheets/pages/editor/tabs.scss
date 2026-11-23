@@ -43,7 +43,14 @@
   flex: 1;
   background: var(--bg-secondary-themed);
   overflow-x: auto;
-  scrollbar-width: thin;
+
+  // no visible scrollbar: the mouse wheel scrolls the tabs sideways
+  // (tabs-container.tsx onWheel)
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .editor-file-tab {

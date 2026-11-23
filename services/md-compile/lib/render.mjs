@@ -151,10 +151,14 @@ function handleHeading(tokens, i, env, Token) {
   if (bs.flow && level === 1) bs.suppress = classes.includes('unnumbered')
   // only the chapters of the book are numbered, not the cover, front matter,
   // bibliography or appendices
+  // numbering: 'sections' -- chapter titles plain, sections 1. 2. 3. through
+  // the whole book, subsections 1.1
+  const sectionsOnly = bs.numbering === 'sections'
   const numbered =
     bs.numbering &&
     env.kind === 'chapter' &&
     level <= 3 &&
+    !(sectionsOnly && level === 1) &&
     !classes.includes('unnumbered') &&
     !(bs.flow && bs.suppress)
 
@@ -167,7 +171,16 @@ function handleHeading(tokens, i, env, Token) {
   }
 
   let number
-  if (numbered) {
+  if (numbered && sectionsOnly) {
+    if (level === 2) {
+      bs.section++
+      bs.subsection = 0
+      number = `${bs.section}`
+    } else {
+      bs.subsection++
+      number = `${bs.section}.${bs.subsection}`
+    }
+  } else if (numbered) {
     if (level === 1) {
       bs.chapter++
       bs.section = 0
@@ -225,8 +238,10 @@ function handleHeading(tokens, i, env, Token) {
         )
       )
     } else {
+      // "6. title" when the sections are numbered through the book
+      const shown = sectionsOnly && level === 2 ? `${number}.` : number
       inline.children.unshift(
-        htmlInline(Token, `<span class="num">${number}</span> `)
+        htmlInline(Token, `<span class="num">${shown}</span> `)
       )
     }
   }

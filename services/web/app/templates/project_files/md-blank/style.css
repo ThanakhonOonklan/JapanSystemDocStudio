@@ -1,0 +1,117 @@
+/* Look of this manual. Change anything here; book.yaml points to this file
+   (css: style.css). */
+
+/* ---- Page ----------------------------------------------------------- */
+
+@page {
+  margin: 0.9in 0.7in 0.9in 0.7in;
+}
+
+/* ---- Cover: a frame around the page, the system name, version, date and
+   language, a short rule, then "จัดทำโดย" ------------------------------ */
+
+.cover,
+.cover * { color: #000 !important; }
+
+.cover::before {
+  content: "";
+  position: absolute;
+  top: 12mm;
+  right: 12mm;
+  bottom: 12mm;
+  left: 12mm;
+  border: 1.2pt solid #000;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.cover-top { top: 30mm; }
+.cover-logo { max-width: 40mm; max-height: 30mm; }
+
+.cover-heading { top: 92mm; }
+.cover-title {
+  font-size: 22pt !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.5pt;
+  text-transform: uppercase;
+}
+.cover-subtitle { font-size: 18pt; font-weight: 400; margin-top: 2mm; }
+
+.cover-system { top: 140mm; }
+.cover-system-name,
+.cover-description {
+  font-size: 15pt;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.cover-rule {
+  top: 192mm;
+  left: 65mm;
+  right: 65mm;
+  height: 0.9mm;
+  background: #000 !important;
+}
+
+.cover-bottom { top: 208mm; }
+.cover-prepared-label { font-size: 14pt; }
+.cover-prepared-by { font-size: 20pt; font-weight: 400; }
+
+/* ---- Headings ------------------------------------------------------- */
+
+/* the title of a page: centred */
+section.chapter h1 { font-size: 24pt; margin: 0 0 14pt; }
+
+/* "1. หัวข้อ" with a label at the right edge: {.t-main} {.t-view} ... */
+section.chapter h2 {
+  display: flex;
+  align-items: baseline;
+  font-size: 18pt;
+  margin: 14pt 0 6pt;
+}
+section.chapter h2 .num { margin-right: 0.25em; }
+section.chapter h2[class*="t-"]::after {
+  margin-left: auto;
+  padding-left: 1em;
+  font-size: 13pt;
+  font-weight: 400;
+  white-space: nowrap;
+}
+.t-main::after { content: "ขั้นตอนหลัก"; }
+.t-view::after { content: "ตรวจสอบข้อมูล"; }
+.t-branch::after { content: "ขั้นตอนตามเงื่อนไข"; }
+.t-setting::after { content: "ตั้งค่า"; }
+:lang(en) .t-main::after { content: "Main step"; }
+:lang(en) .t-view::after { content: "Check"; }
+:lang(en) .t-branch::after { content: "When needed"; }
+:lang(en) .t-setting::after { content: "Settings"; }
+
+section.chapter h3 { padding-left: 0.9cm; }
+
+/* ---- Text ----------------------------------------------------------- */
+
+p { text-indent: 0; padding-left: 0.9cm; }
+td p, th p, li p, .cover p { padding-left: 0; }
+ol, ul { margin-left: 0.9cm; }
+
+/* ---- Pictures: a thin frame, caption below -------------------------- */
+
+figure img { border: 1pt solid #9ca3af; }
+figure img:not([width]) { width: 100%; }
+figcaption {
+  font-size: 13pt;
+  font-style: italic;
+  color: #475569;
+}
+
+/* ---- Tables: grid lines, header row bold without a colour ----------- */
+
+th, td {
+  border: 0.75pt solid #9ca3af;
+  padding: 4pt 7pt;
+}
+thead th { background: none; font-weight: 700; }
+
+/* 3 columns: a narrow "ลำดับ" column */
+th:first-child:nth-last-child(3),
+td:first-child:nth-last-child(3) { width: 9%; text-align: center; }

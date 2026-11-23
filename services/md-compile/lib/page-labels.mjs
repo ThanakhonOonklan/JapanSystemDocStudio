@@ -46,8 +46,12 @@ export function roman(n) {
 
 /**
  * @param {Array<{ kind: string, chapterStart?: boolean }>} pages in page order
- * @param {{ frontStart?: number, mainStart?: number, frontStyle?: 'thai' | 'roman' }} config
- * @returns {Array<{ text: string, number: string, position: 'top-right' | 'bottom-center' | null }>}
+ * @param {{ frontStart?: number, mainStart?: number, frontStyle?: 'thai' | 'roman',
+ *           mainPosition?: 'top-right' | 'bottom-right' | 'bottom-center',
+ *           chapterStartNumber?: boolean }} config
+ *   mainPosition: where the Arabic numbers go (default top-right);
+ *   chapterStartNumber: also print the number on the first page of a chapter
+ * @returns {Array<{ text: string, number: string, position: 'top-right' | 'bottom-right' | 'bottom-center' | null }>}
  *   text: what is printed on the page; number: the page's number even when
  *   it is not printed (used by the contents pages)
  *
@@ -63,6 +67,11 @@ export function computePageLabels(pages, config = {}) {
   const mainStart = config.mainStart ?? 1
   // Thai letters (ก ข ค) or lower-case roman numerals (i ii iii)
   const format = { front: config.frontStyle === 'roman' ? roman : thaiLetter }
+  const mainPosition = ['bottom-right', 'bottom-center'].includes(
+    config.mainPosition
+  )
+    ? config.mainPosition
+    : 'top-right'
   let front = frontStart
   let main = mainStart
   return pages.map(page => {
@@ -75,9 +84,9 @@ export function computePageLabels(pages, config = {}) {
     }
     const number = String(main++)
     return {
-      text: page.chapterStart ? '' : number,
+      text: page.chapterStart && !config.chapterStartNumber ? '' : number,
       number,
-      position: 'top-right',
+      position: mainPosition,
     }
   })
 }

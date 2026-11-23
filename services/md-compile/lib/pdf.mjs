@@ -60,6 +60,7 @@ async function applyPageLabels(page, config) {
     const boxes = {
       'top-right': '.pagedjs_margin-top-right',
       'bottom-center': '.pagedjs_margin-bottom-center',
+      'bottom-right': '.pagedjs_margin-bottom-right',
     }
     allPages.forEach((pg, index) => {
       for (const [position, selector] of Object.entries(boxes)) {

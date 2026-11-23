@@ -1,27 +1,41 @@
 # Book settings. Each value can be plain text or a map of language -> text.
-title:
-  th: <%= JSON.stringify(project_name) %>
-  en: <%= JSON.stringify(project_name) %>
-author: <%= JSON.stringify(author) %>
+title:                             # system name, the big line on the cover
+  th: ชื่อระบบ (ตัวอย่าง)
+  en: System name (example)
+author: ชื่อผู้จัดทำ (ตัวอย่าง)
+version: "1.0"
 
 # Cover page (the first page of the PDF). Every line is optional.
 cover:
-  # logo: images/logo.png          # upload the file into images/, then remove the leading #
-  organization: Your Organization  # shown under the logo
-  subtitle:                        # shown under the title
-    th: คู่มือการใช้งาน
-    en: USER MANUAL
-  system:                          # name of the system, in bold
-    th: <%= JSON.stringify(project_name) %>
-    en: <%= JSON.stringify(project_name) %>
-  description:                     # one line, or a list of lines
-    th: คำอธิบายสั้น ๆ ของเอกสารนี้
-    en: A short description of this document
-  preparedBy: <%= JSON.stringify(author) %>   # shown under "Prepared by"
+  logo: images/logo.png            # replace images/logo.png with your own logo
+  subtitle:                        # under the system name
+    th: คู่มือการใช้งาน (ตัวอย่าง)
+    en: User Manual (example)
+  description:                     # version, date and language, one per line
+    th:
+      - Version 1.0
+      - วว/ดด/ปปปป
+      - ภาษาไทย
+    en:
+      - Version 1.0
+      - DD/MM/YYYY
+      - English
+  preparedBy:                      # under "จัดทำโดย"
+    th: ชื่อผู้จัดทำ (ตัวอย่าง)
+    en: Author name (example)
 theme:
-  primary: "#000000"               # colour of the title and rule on the cover
+  primary: "#000000"
 
-version: "1.0"
+css: style.css           # the look of this manual (cover frame, tables, ...)
+numbering: sections      # sections 1. 2. 3. through the whole book
+figureNumbers: false     # pictures show their caption only
+lof: false               # no list of figures
+lot: false               # no list of tables
+tocDepth: 2              # contents: page titles and sections
+pageLabels:
+  mainPosition: bottom-right   # page number in the bottom corner
+  chapterStartNumber: true     # also on the first page of each file
+
 defaultLanguage: th   # language written to output.pdf
 chapters:             # file names inside th/ and en/
-  - 01-intro.md
+  - 01-example.md

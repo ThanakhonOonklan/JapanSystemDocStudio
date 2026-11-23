@@ -114,7 +114,9 @@ function pickOptions(source, template = TEMPLATES.default) {
     // list of figures / list of tables (only shown when there are any)
     lof: flag('lof'),
     lot: flag('lot'),
-    numbering: flag('numbering'),
+    // true: 1 / 1.1 / 1.1.1 by chapter; 'sections': the chapter titles are
+    // not numbered and the sections are numbered 1. 2. 3. through the book
+    numbering: source?.numbering === 'sections' ? 'sections' : flag('numbering'),
     cover: flag('cover'),
     chapterHeading: source?.chapterHeading ?? defaults.chapterHeading ?? 'number',
     // between the chapter and the figure/table number: "4-8" or "4.8"

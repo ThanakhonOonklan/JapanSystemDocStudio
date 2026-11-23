@@ -502,8 +502,11 @@ async function syncFromCode(projectId, userId, filename, line, column, opts) {
   // Markdown books have a source map written by md-compile instead of SyncTeX
   const sourceMap = await _readSourceMap(projectId, userId, opts)
   if (sourceMap) {
+    // the key names follow the SyncTeX branch below (and the callbackify
+    // wrapper at the end of this file): syncFromCode returns `codePositions`
+    // although they are positions in the PDF
     return {
-      pdfPositions: SourceMap.findPdf(sourceMap, filename, line),
+      codePositions: SourceMap.findPdf(sourceMap, filename, line),
       downloadedFromCache: false,
     }
   }
@@ -542,7 +545,7 @@ async function syncFromPdf(projectId, userId, page, h, v, opts) {
   const sourceMap = await _readSourceMap(projectId, userId, opts)
   if (sourceMap) {
     return {
-      codePositions: SourceMap.findCode(sourceMap, page, h, v),
+      pdfPositions: SourceMap.findCode(sourceMap, page, h, v),
       downloadedFromCache: false,
     }
   }

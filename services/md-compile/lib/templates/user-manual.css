@@ -36,6 +36,15 @@
     vertical-align: top;
     padding-top: 0.25in;
   }
+  /* used when book.yaml sets pageLabels.mainPosition: bottom-right */
+  @bottom-right {
+    content: " ";
+    font-family: "THSarabunNew", "Noto Sans Thai", sans-serif;
+    font-size: 16pt;
+    vertical-align: top;
+    text-align: right;
+    padding-top: 0.25in;
+  }
 }
 
 /* the cover uses the whole sheet */

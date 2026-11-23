@@ -98,8 +98,14 @@ async function createProjectFromSnippet(ownerId, projectName, docLines) {
 const MARKDOWN_TEMPLATES = {
   blank: {
     dir: 'md-blank',
-    docs: ['book.yaml', 'th/01-intro.md', 'en/01-intro.md'],
-    files: [],
+    docs: [
+      'book.yaml',
+      'README.md',
+      'style.css',
+      'th/01-example.md',
+      'en/01-example.md',
+    ],
+    files: ['images/logo.png', 'images/screenshot.svg'],
   },
   example: {
     dir: 'md-example',
