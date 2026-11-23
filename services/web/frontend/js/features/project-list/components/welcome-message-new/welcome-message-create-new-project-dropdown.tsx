@@ -115,19 +115,9 @@ function WelcomeMessageCreateNewProjectDropdown({
               handleDropdownItemClick(e, 'blank_project', 'blank-project')
             }
             tabIndex={-1}
+            leadingIcon="note_add"
           >
             {t('blank_project')}
-          </OLDropdownItem>
-        </li>
-        <li role="none">
-          <OLDropdownItem
-            as="button"
-            onClick={e =>
-              handleDropdownItemClick(e, 'example_project', 'example-project')
-            }
-            tabIndex={-1}
-          >
-            {t('example_project')}
           </OLDropdownItem>
         </li>
         <li role="none">
@@ -137,6 +127,7 @@ function WelcomeMessageCreateNewProjectDropdown({
               handleDropdownItemClick(e, 'upload_project', 'upload-project')
             }
             tabIndex={-1}
+            leadingIcon="upload_file"
           >
             {t('existing_project_zip')}
           </OLDropdownItem>

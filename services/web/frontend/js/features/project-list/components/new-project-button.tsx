@@ -195,6 +195,7 @@ function NewProjectButton({
                     dropdownMenuEvent: 'blank-project',
                   })
                 }
+                leadingIcon="note_add"
               >
                 {t('blank_project')}
               </OLDropdownItem>
@@ -211,6 +212,7 @@ function NewProjectButton({
                     dropdownMenuEvent: 'upload-project',
                   })
                 }
+                leadingIcon="upload_file"
               >
                 {t('existing_project_zip')}
               </OLDropdownItem>
@@ -224,6 +226,7 @@ function NewProjectButton({
                       dropdownMenuEvent: 'import-docx',
                     })
                   }
+                  leadingIcon="description"
                 >
                   {t('word_document')}
                 </OLDropdownItem>
@@ -238,6 +241,7 @@ function NewProjectButton({
                       dropdownMenuEvent: 'import-markdown',
                     })
                   }
+                  leadingIcon="description"
                 >
                   {t('markdown_document')}
                 </OLDropdownItem>
@@ -255,22 +259,15 @@ function NewProjectButton({
                 />
               </li>
             )}
-            <OLDropdownDivider />
-            <OLDropdownHeader aria-hidden="true">
-              {t('templates')}
-            </OLDropdownHeader>
-            <li role="none">
-              <OLDropdownItem
-                onClick={e =>
-                  handleModalMenuClick(e, {
-                    modalVariant: 'example_project',
-                    dropdownMenuEvent: 'example-project',
-                  })
-                }
-              >
-                {t('example_project')}
-              </OLDropdownItem>
-            </li>
+            {(portalTemplates.length > 0 ||
+              (templateLinks && templateLinks.length > 0)) && (
+              <>
+                <OLDropdownDivider />
+                <OLDropdownHeader aria-hidden="true">
+                  {t('templates')}
+                </OLDropdownHeader>
+              </>
+            )}
             {portalTemplates.map((portalTemplate, index) => (
               <li role="none" key={`portal-template-${index}`}>
                 <OLDropdownItem

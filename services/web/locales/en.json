@@ -1931,7 +1931,6 @@
   "organizations": "Organizations",
   "organize_tags": "Organize Tags",
   "other": "Other",
-  "outline_file_has_no_structure": "This file has no outline. The book outline is shown below.",
   "outline_no_chapters": "No chapters found. Add Markdown files and list them in book.yaml.",
   "other_actions": "Other Actions",
   "other_logs_and_files": "Other logs and files",

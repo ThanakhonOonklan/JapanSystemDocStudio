@@ -22,16 +22,13 @@ type BookOutlineData = {
   files: BookFile[]
 }
 
-const isMarkdownName = (name: string | null | undefined) =>
-  !!name && /\.(md|markdown)$/i.test(name)
-
 // the outline of the whole book (server: BookOutline feature), in chapter
 // order; the file being edited uses the live outline of the editor instead
 const BookOutlineTree: FC = () => {
   const { t } = useTranslation()
   const { projectId } = useProjectContext()
   const { flatOutline, highlightedLine, jumpToLine } = useOutlineContext()
-  const { currentDocumentId, openDocName } = useEditorOpenDocContext()
+  const { currentDocumentId } = useEditorOpenDocContext()
   const { openDocWithId } = useEditorManagerContext()
   const { pathInFolder, findEntityByPath } = useFileTreePathContext()
   const { fileTreeData } = useFileTreeData()
@@ -97,11 +94,6 @@ const BookOutlineTree: FC = () => {
 
   return (
     <div>
-      {openDocName && !isMarkdownName(openDocName) && (
-        <div className="outline-body-no-elements">
-          {t('outline_file_has_no_structure')}
-        </div>
-      )}
       {files.length === 0 && (
         <div className="outline-body-no-elements">{t('outline_no_chapters')}</div>
       )}
