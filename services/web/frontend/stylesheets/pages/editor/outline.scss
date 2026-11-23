@@ -214,21 +214,40 @@
 .book-outline-file {
   padding-bottom: var(--spacing-02);
 
+  // the file: one line, cut with "..." (the full path is in the tooltip)
   .book-outline-file-name {
     display: flex;
     align-items: center;
     gap: var(--spacing-02);
     width: 100%;
-    padding: var(--spacing-02) var(--spacing-05);
+    min-width: 0;
+    padding: var(--spacing-02) var(--spacing-04);
     border: 0;
     background: transparent;
     color: var(--outline-content-color);
+    font-size: 13px;
     font-weight: 600;
     text-align: left;
+    white-space: nowrap;
+
+    .material-symbols {
+      flex: none;
+      font-size: 16px;
+    }
+
+    span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
     &:hover,
     &:focus {
       background: var(--outline-item-hover-bg, rgb(0 0 0 / 6%));
     }
+  }
+
+  // the headings sit under their file
+  > .outline-item-list-root {
+    padding-left: var(--spacing-05);
   }
 }

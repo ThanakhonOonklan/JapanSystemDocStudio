@@ -71,3 +71,30 @@ test('paths cannot escape the project', () => {
   assert.equal(isInside('/p', '/q'), false)
   assert.throws(() => resolveInside('/p', '/p/th', '../../etc/passwd'))
 })
+
+test('defaultLanguage wins over a languages list that leaves it out', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mdc-lang-'))
+  try {
+    fs.mkdirSync(path.join(dir, 'th'))
+    fs.mkdirSync(path.join(dir, 'en'))
+    fs.writeFileSync(path.join(dir, 'th', 'a.md'), '# ก\n')
+    fs.writeFileSync(path.join(dir, 'en', 'a.md'), '# A\n')
+    fs.writeFileSync(
+      path.join(dir, 'book.yaml'),
+      'title: X\ndefaultLanguage: en\nlanguages: [th]\nchapters:\n  - a.md\n'
+    )
+    const log = new Log()
+    const project = loadProject(dir, 'book.yaml', log)
+    assert.equal(project.defaultLanguage, 'en')
+    assert.deepEqual(
+      project.languages.map(l => l.code),
+      ['th', 'en']
+    )
+    assert.ok(
+      log.entries.some(e => /defaultLanguage "en" is not in languages/.test(e.message)),
+      'warns about the conflict'
+    )
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true })
+  }
+})

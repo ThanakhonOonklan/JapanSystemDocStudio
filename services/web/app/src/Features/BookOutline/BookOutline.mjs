@@ -57,14 +57,14 @@ const unquote = value => {
 export function parseBookYaml(text) {
   const result = { chapters: [] }
   const lines = text.split(/\r?\n/)
-  let inChapters = false
+  let section = null // the top-level key whose block list is being read
   let current = null
   for (const raw of lines) {
     const line = raw.replace(/\s+#.*$/, '').replace(/^#.*$/, '')
     if (line.trim() === '') continue
     const top = /^([A-Za-z_][\w-]*)\s*:\s*(.*)$/.exec(line)
     if (top) {
-      inChapters = top[1] === 'chapters'
+      section = top[1]
       current = null
       const value = top[2].trim()
       if (top[1] === 'defaultLanguage' && value) {
@@ -78,8 +78,15 @@ export function parseBookYaml(text) {
       }
       continue
     }
-    if (!inChapters) continue
     const item = /^\s*-\s+(.*)$/.exec(line)
+    // languages:
+    //   - th
+    //   - ja
+    if (section === 'languages' && item) {
+      result.languages = [...(result.languages ?? []), unquote(item[1])]
+      continue
+    }
+    if (section !== 'chapters') continue
     if (item) {
       const value = item[1].trim()
       const keyed = /^file\s*:\s*(.+)$/.exec(value)
@@ -116,14 +123,26 @@ export function buildBookOutline(docs, options = {}) {
   }
 
   const book = parseBookYaml(byPath.get(bookPath).join('\n'))
-  // the language folders that exist, like md-compile detects them
-  const detected = ['th', 'en'].filter(code =>
+  const hasFolder = code =>
     [...byPath.keys()].some(p => p.startsWith(`${code}/`))
-  )
-  const languages = book.languages?.length ? book.languages : detected
-  const wanted = options.language ?? book.defaultLanguage ?? languages[0]
-  const language = languages.includes(wanted) ? wanted : languages[0]
-  const dir = language && detected.includes(language) ? `${language}/` : ''
+  // the same rules as md-compile (lib/project.mjs loadBook): the languages
+  // listed in book.yaml, else the th/ and en/ folders that exist; and
+  // defaultLanguage is added when the list leaves it out but its folder exists
+  const detected = ['th', 'en'].filter(hasFolder)
+  const languages = book.languages?.length
+    ? [...book.languages]
+    : detected.length > 0
+      ? detected
+      : [book.defaultLanguage ?? 'th']
+  const fallback = book.defaultLanguage
+  if (fallback && !languages.includes(fallback) && hasFolder(fallback)) {
+    languages.push(fallback)
+  }
+  const defaultLanguage =
+    fallback && languages.includes(fallback) ? fallback : languages[0]
+  const wanted = options.language ?? defaultLanguage
+  const language = languages.includes(wanted) ? wanted : defaultLanguage
+  const dir = hasFolder(language) ? `${language}/` : ''
 
   const files = []
   for (const chapter of book.chapters) {

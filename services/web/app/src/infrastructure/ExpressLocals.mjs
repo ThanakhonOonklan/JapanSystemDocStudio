@@ -81,7 +81,10 @@ function getWebpackAssets(entrypoint, section) {
     // Emit an empty list of entries in CI.
     return []
   }
-  return webpackManifest.entrypoints[entrypoint].assets[section] || []
+  // Documentation Studio: the lean build only has the bundles it uses; a page
+  // asking for one that was cut (e.g. 'marketing' for the 404 page) renders
+  // without it instead of failing
+  return webpackManifest.entrypoints[entrypoint]?.assets[section] || []
 }
 
 export default async function (webRouter, privateApiRouter, publicApiRouter) {

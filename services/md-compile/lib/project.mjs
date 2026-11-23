@@ -230,6 +230,16 @@ function loadBook(compileDir, bookPath, log) {
   const codes = (configured || (detected.length > 0 ? detected : [null])).map(c =>
     c == null ? (book.defaultLanguage || 'th') : String(c)
   )
+  // defaultLanguage wins over a `languages` list that leaves it out, when the
+  // book has that language's folder: output.pdf is the language it names
+  const wanted = book.defaultLanguage != null ? String(book.defaultLanguage) : null
+  if (wanted && !codes.includes(wanted) && fs.existsSync(path.join(baseDir, wanted))) {
+    log.warn(
+      `defaultLanguage "${wanted}" is not in languages [${codes.join(', ')}]; building it as well`,
+      { file: bookPath }
+    )
+    codes.push(wanted)
+  }
 
   const bookLines = fs.readFileSync(bookPath, 'utf8').split('\n')
   const lineInBook = chapter => {

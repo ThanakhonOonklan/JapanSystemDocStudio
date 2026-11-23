@@ -12,6 +12,7 @@ import { nestOutline } from '@/features/source-editor/utils/tree-operations/outl
 import { debugConsole } from '@/utils/debugging'
 import withErrorBoundary from '@/infrastructure/error-boundary'
 import OutlineList from './outline-list'
+import useEventListener from '@/shared/hooks/use-event-listener'
 
 type BookHeading = { level: number; title: string; line: number }
 type BookFile = { file: string; kind?: string; headings: BookHeading[] }
@@ -35,6 +36,15 @@ const BookOutlineTree: FC = () => {
   const [data, setData] = useState<BookOutlineData | null>(null)
 
   const openPath = currentDocumentId ? pathInFolder(currentDocumentId) : null
+  // book.yaml decides the language and the chapters: reload when it is saved
+  const [bookVersion, setBookVersion] = useState(0)
+  const editingBook = !!openPath && /^book\.ya?ml$/i.test(openPath)
+  useEventListener(
+    'doc:saved',
+    useCallback(() => {
+      if (editingBook) setBookVersion(v => v + 1)
+    }, [editingBook])
+  )
 
   // reload when the project's files change or another file is opened (the
   // server flushes the editor's changes first, so earlier edits are included)
@@ -55,7 +65,7 @@ const BookOutlineTree: FC = () => {
       window.clearTimeout(timer)
       controller.abort()
     }
-  }, [projectId, fileTreeData, openPath])
+  }, [projectId, fileTreeData, openPath, bookVersion])
 
   const openAt = useCallback(
     (file: string, line: number, syncToPdf: boolean) => {

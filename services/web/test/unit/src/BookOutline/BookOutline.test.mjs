@@ -47,6 +47,39 @@ describe('BookOutline', function () {
       expect(outline.files.map(f => f.file)).toEqual(['en/01-a.md'])
     })
 
+    it('reads a block-style languages list and any language folder', function () {
+      const outline = buildBookOutline({
+        '/book.yaml': [
+          'defaultLanguage: ja   # comment',
+          'languages:',
+          '  - th',
+          '  - ja',
+          'chapters:',
+          '  - 01.md',
+        ],
+        '/th/01.md': ['# ก'],
+        '/ja/01.md': ['# 日本'],
+      })
+      expect(outline.languages).toEqual(['th', 'ja'])
+      expect(outline.language).toBe('ja')
+      expect(outline.files.map(f => f.file)).toEqual(['ja/01.md'])
+    })
+
+    it('follows defaultLanguage even when the languages list leaves it out', function () {
+      const outline = buildBookOutline({
+        '/book.yaml': [
+          'defaultLanguage: en',
+          'languages: [th]',
+          'chapters:',
+          '  - a.md',
+        ],
+        '/th/a.md': ['# ก'],
+        '/en/a.md': ['# A'],
+      })
+      expect(outline.language).toBe('en')
+      expect(outline.files.map(f => f.file)).toEqual(['en/a.md'])
+    })
+
     it('falls back to the Markdown files when there is no book.yaml', function () {
       const outline = buildBookOutline({ '/z.md': ['# Z'], '/a.md': ['# A'] })
       expect(outline.source).toBe('files')

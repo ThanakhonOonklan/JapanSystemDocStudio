@@ -50,6 +50,12 @@ function ThinFooter({
   )
 
   const hasCustomLeftNav = Boolean(leftItems && leftItems.length > 0)
+  const hasRightItems = Boolean(rightItems && rightItems.length > 0)
+
+  // nothing to show: no empty (white) footer bar under the page
+  if (!showLanguagePicker && !hasCustomLeftNav && !hasRightItems) {
+    return null
+  }
 
   return (
     <footer className="site-footer">
