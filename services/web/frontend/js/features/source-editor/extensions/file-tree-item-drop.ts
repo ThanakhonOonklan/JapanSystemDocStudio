@@ -1,6 +1,4 @@
 import { EditorView } from '@codemirror/view'
-import { hasImageExtension } from '@/features/source-editor/utils/file'
-import { FigureModalSource } from '@/features/source-editor/components/figure-modal/figure-modal-context'
 import { EditorSelection } from '@codemirror/state'
 
 export const fileTreeItemDrop = () =>
@@ -66,24 +64,6 @@ const handleDroppedFile = (
     return
   }
 
-  if (hasImageExtension(filePath)) {
-    view.focus()
-
-    view.dispatch({
-      selection: EditorSelection.cursor(pos),
-    })
-
-    window.dispatchEvent(
-      new CustomEvent('figure-modal:open', {
-        detail: {
-          source: FigureModalSource.FILE_TREE,
-          fileId,
-          filePath,
-        },
-      })
-    )
-    return
-  }
 
   return null
 }

@@ -1,11 +1,6 @@
 import { EditorView } from '@codemirror/view'
 import { EditorSelection } from '@codemirror/state'
 import { handleImagePaste } from '../utils/paste-image'
-import { convertHtmlStringToLatex } from '../extensions/visual/paste-html'
-import {
-  insertPastedContent,
-  storePastedContent,
-} from '../extensions/visual/pasted-content'
 
 const getEntireLineText = (view: EditorView, pos: number): string => {
   const line = view.state.doc.lineAt(pos)
@@ -110,44 +105,8 @@ export const pasteWithoutFormatting = async (
   }
 }
 
+// Documentation Studio: pasting "with formatting" used to turn HTML into
+// LaTeX; Markdown documents get the plain text instead.
 export const pasteWithFormatting = async (
   view: EditorView
-): Promise<boolean> => {
-  try {
-    const clipboardItems = await navigator.clipboard.read()
-
-    let html = ''
-    let text = ''
-    let nonTextBlobCount = 0
-    for (const item of clipboardItems) {
-      for (const type of item.types) {
-        const blob = await item.getType(type)
-        if (type === 'text/html') {
-          html = (await blob.text()).trim()
-        } else if (type === 'text/plain') {
-          text = (await blob.text()).trim()
-        } else if (!type.startsWith('text/')) {
-          nonTextBlobCount++
-        }
-      }
-    }
-
-    if (!html) {
-      return await pasteWithoutFormatting(view)
-    }
-
-    const latex = convertHtmlStringToLatex(html, nonTextBlobCount)
-
-    if (latex === null || (latex === text && nonTextBlobCount === 0)) {
-      // No latex or formatting detected, use plain text paste
-      return await pasteWithoutFormatting(view)
-    }
-
-    view.dispatch(insertPastedContent(view, { latex, text }))
-    view.dispatch(storePastedContent({ latex, text }, true))
-    return true
-  } catch {
-    // Clipboard.read not available, or latex conversion failed, use standard paste behavior
-    return await pasteWithoutFormatting(view)
-  }
-}
+): Promise<boolean> => await pasteWithoutFormatting(view)

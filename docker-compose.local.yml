@@ -12,7 +12,7 @@
 #   docker compose -f docker-compose.local.yml up -d
 # and open http://localhost:8080 (the single user is created automatically).
 #
-# Differences from upstream docker-compose.yml:
+# Differences from the upstream compose file:
 #   - uses the image built from this repo instead of sharelatex/sharelatex
 #   - binds to 127.0.0.1:8080 only (not reachable from other machines)
 #   - named Docker volumes instead of ~/ paths (works on Windows)

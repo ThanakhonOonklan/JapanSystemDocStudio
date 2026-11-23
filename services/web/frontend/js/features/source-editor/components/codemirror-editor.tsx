@@ -6,9 +6,7 @@ import CodeMirrorView from './codemirror-view'
 import CodeMirrorSearch from './codemirror-search'
 import { CodeMirrorToolbar } from './codemirror-toolbar'
 import { CodemirrorOutline } from './codemirror-outline'
-import { CodeMirrorCommandTooltip } from './codemirror-command-tooltip'
 import importOverleafModules from '../../../../macros/import-overleaf-module.macro'
-import { FigureModal } from './figure-modal/figure-modal'
 import {
   CodeMirrorStateContext,
   CodeMirrorViewContext,
@@ -90,10 +88,8 @@ function CodeMirrorEditorComponents({
     <>
       <CodemirrorOutline />
       <CodeMirrorView hidden={hidden} />
-      <FigureModal />
       <CodeMirrorSearch />
       <CodeMirrorToolbar />
-      <CodeMirrorCommandTooltip />
 
       <MathPreviewTooltip />
       <EditorContextMenu />

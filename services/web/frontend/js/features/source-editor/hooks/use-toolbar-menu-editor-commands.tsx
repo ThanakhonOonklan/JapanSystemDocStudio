@@ -3,7 +3,6 @@ import {
   useCodeMirrorStateContext,
   useCodeMirrorViewContext,
 } from '@/features/source-editor/components/codemirror-context'
-import { FigureModalSource } from '@/features/source-editor/components/figure-modal/figure-modal-context'
 import * as commands from '@/features/source-editor/extensions/toolbar/commands'
 import { setSectionHeadingLevel } from '@/features/source-editor/extensions/toolbar/sections'
 import { useEditorPropertiesContext } from '@/features/ide-react/context/editor-properties-context'
@@ -11,7 +10,6 @@ import { useLayoutContext } from '@/shared/context/layout-context'
 import getMeta from '@/utils/meta'
 import { redo, selectAll, undo } from '@codemirror/commands'
 import { openSearchPanel } from '@codemirror/search'
-import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { usePermissionsContext } from '@/features/ide-react/context/permissions-context'
 import { language } from '@codemirror/language'
@@ -28,19 +26,6 @@ export const useToolbarMenuBarEditorCommands = () => {
   const isTeXFile = languageName === 'latex'
   const canComment = !isCursorOnEmptyLine(state)
 
-  const openFigureModal = useCallback((source: FigureModalSource) => {
-    window.dispatchEvent(
-      new CustomEvent('figure-modal:open', {
-        detail: { source },
-      })
-    )
-  }, [])
-
-  const {
-    hasLinkedProjectFileFeature,
-    hasLinkedProjectOutputFileFeature,
-    hasLinkUrlFeature,
-  } = getMeta('ol-ExposedSettings')
   useCommandProvider(() => {
     if (!editorIsVisible) {
       return
@@ -121,83 +106,8 @@ export const useToolbarMenuBarEditorCommands = () => {
           view.focus()
         },
       },
-      {
-        menuLabel: t('upload_from_computer'),
-        label: t('figure_from_computer'),
-        id: 'insert-figure-from-computer',
-        handler: () => {
-          openFigureModal(FigureModalSource.FILE_UPLOAD)
-        },
-      },
-      {
-        menuLabel: t('from_project_files'),
-        label: t('figure_from_project_files'),
-        id: 'insert-figure-from-project-files',
-        handler: () => {
-          openFigureModal(FigureModalSource.FILE_TREE)
-        },
-      },
     ]
-  }, [view, t, editorIsVisible, openFigureModal, trackedWrite, isTeXFile])
-
-  useCommandProvider(() => {
-    if (!editorIsVisible) {
-      return
-    }
-    if (!isTeXFile || !trackedWrite) {
-      return
-    }
-    if (!hasLinkedProjectFileFeature || !hasLinkedProjectOutputFileFeature) {
-      return
-    }
-    return [
-      {
-        menuLabel: t('from_another_project'),
-        label: t('figure_from_another_project'),
-        id: 'insert-figure-from-another-project',
-        handler: () => {
-          openFigureModal(FigureModalSource.OTHER_PROJECT)
-        },
-      },
-    ]
-  }, [
-    t,
-    editorIsVisible,
-    openFigureModal,
-    trackedWrite,
-    isTeXFile,
-    hasLinkedProjectFileFeature,
-    hasLinkedProjectOutputFileFeature,
-  ])
-
-  useCommandProvider(() => {
-    if (!editorIsVisible) {
-      return
-    }
-    if (!isTeXFile || !trackedWrite) {
-      return
-    }
-    if (!hasLinkUrlFeature) {
-      return
-    }
-    return [
-      {
-        menuLabel: t('from_url'),
-        label: t('figure_from_url'),
-        id: 'insert-figure-from-url',
-        handler: () => {
-          openFigureModal(FigureModalSource.FROM_URL)
-        },
-      },
-    ]
-  }, [
-    t,
-    editorIsVisible,
-    openFigureModal,
-    trackedWrite,
-    isTeXFile,
-    hasLinkUrlFeature,
-  ])
+  }, [view, t, editorIsVisible, trackedWrite, isTeXFile])
 
   useCommandProvider(() => {
     if (!editorIsVisible) {

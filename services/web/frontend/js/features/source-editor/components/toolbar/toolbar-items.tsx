@@ -1,16 +1,12 @@
 import { ComponentType, FC, memo } from 'react'
 import { EditorState } from '@codemirror/state'
-import { useEditorContext } from '../../../../shared/context/editor-context'
 import { ToolbarButton } from './toolbar-button'
 import * as commands from '../../extensions/toolbar/commands'
 import { SectionHeadingDropdown } from './section-heading-dropdown'
 import getMeta from '../../../../utils/meta'
-import { InsertFigureDropdown } from './insert-figure-dropdown'
 import { useTranslation } from 'react-i18next'
 import { MathDropdown } from './math-dropdown'
 import { InsertListDropdown } from './insert-list-dropdown'
-import { TableDropdown } from './table-dropdown'
-import { LegacyTableDropdown } from './table-inserter-dropdown-legacy'
 import { withinFormattingCommand } from '@/features/source-editor/utils/tree-operations/formatting'
 import { isMac } from '@/shared/utils/os'
 import { useProjectContext } from '@/shared/context/project-context'
@@ -44,13 +40,11 @@ export const ToolbarItems: FC<{
   const { t } = useTranslation()
   const { showSymbolPalette, toggleSymbolPalette } =
     useEditorPropertiesContext()
-  const { writefullInstance } = useEditorContext()
   const { features } = useProjectContext()
   const permissions = usePermissionsContext()
   const isActive = withinFormattingCommand(state)
 
   const symbolPaletteAvailable = getMeta('ol-symbolPaletteAvailable')
-  const showAiFeaturesDisabled = getMeta('ol-showAiFeaturesDisabled')
 
   const showGroup = (group: string) => !overflowed || overflowed.has(group)
 
@@ -160,20 +154,6 @@ export const ToolbarItems: FC<{
                   command={commands.insertCite}
                   icon="book_5"
                 />
-              </div>
-            )}
-            {showGroup('misc-figure') && (
-              <div data-overflow="misc-figure">
-                <InsertFigureDropdown />
-              </div>
-            )}
-            {showGroup('misc-table') && (
-              <div data-overflow="misc-table">
-                {writefullInstance || showAiFeaturesDisabled ? (
-                  <TableDropdown />
-                ) : (
-                  <LegacyTableDropdown />
-                )}
               </div>
             )}
           </div>
