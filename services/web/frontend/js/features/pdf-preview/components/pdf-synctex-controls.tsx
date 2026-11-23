@@ -1,26 +1,19 @@
-import classNames from 'classnames'
-import { memo, useCallback, useMemo } from 'react'
+import { memo } from 'react'
 import { useDetachCompileContext as useCompileContext } from '../../../shared/context/detach-compile-context'
 import { useLayoutContext } from '../../../shared/context/layout-context'
 import { useTranslation } from 'react-i18next'
-import OLTooltip from '@/shared/components/ol/ol-tooltip'
-import OLButton from '@/shared/components/ol/ol-button'
-import MaterialIcon from '@/shared/components/material-icon'
-import { Placement } from 'react-bootstrap/types'
 import useSynctex from '../hooks/use-synctex'
-import { useFeatureFlag } from '@/shared/context/split-test-context'
-import OLSpinner from '@/shared/components/ol/ol-spinner'
-import { sendMB } from '@/infrastructure/event-tracking'
 import { useCommandProvider } from '@/features/ide-react/hooks/use-command-provider'
 
-const GoToCodeButton = memo(function GoToCodeButton({
+// Documentation Studio: the two arrow buttons between the editor and the PDF
+// were removed. What is left registers the "go to ... location" commands (menu
+// and command palette); clicking the PDF and the outline still jump too.
+function GoToCodeCommand({
   syncToCode,
   syncToCodeInFlight,
-  isDetachLayout,
 }: {
   syncToCode: ({ visualOffset }: { visualOffset: number }) => void
   syncToCodeInFlight: boolean
-  isDetachLayout?: boolean
 }) {
   const { t } = useTranslation()
   useCommandProvider(
@@ -28,10 +21,6 @@ const GoToCodeButton = memo(function GoToCodeButton({
       {
         id: 'synctex-sync-to-code',
         handler: () => {
-          sendMB('jump-to-location', {
-            method: 'command',
-            direction: 'pdf-location-in-code',
-          })
           syncToCode({ visualOffset: 72 })
         },
         disabled: syncToCodeInFlight,
@@ -40,92 +29,24 @@ const GoToCodeButton = memo(function GoToCodeButton({
     ],
     [t, syncToCode, syncToCodeInFlight]
   )
+  return null
+}
 
-  const buttonClasses = classNames('synctex-control', {
-    'detach-synctex-control': !!isDetachLayout,
-  })
-
-  let buttonIcon = null
-  if (syncToCodeInFlight) {
-    buttonIcon = <OLSpinner size="sm" />
-  } else if (!isDetachLayout) {
-    buttonIcon = (
-      <MaterialIcon type="arrow_left_alt" className="synctex-control-icon" />
-    )
-  }
-
-  const syncToCodeWithButton = useCallback(() => {
-    sendMB('jump-to-location', {
-      method: 'arrow',
-      direction: 'pdf-location-in-code',
-    })
-    syncToCode({ visualOffset: 72 })
-  }, [syncToCode])
-
-  const overlayProps = useMemo(
-    () => ({
-      placement: (isDetachLayout ? 'bottom' : 'right') as Placement,
-    }),
-    [isDetachLayout]
-  )
-
-  return (
-    <OLTooltip
-      id="sync-to-code"
-      description={t('go_to_pdf_location_in_code')}
-      overlayProps={overlayProps}
-    >
-      <span>
-        <OLButton
-          variant="secondary"
-          size="sm"
-          onClick={syncToCodeWithButton}
-          disabled={syncToCodeInFlight}
-          className={buttonClasses}
-          aria-label={t('go_to_pdf_location_in_code')}
-        >
-          {buttonIcon}
-          {isDetachLayout ? <span>&nbsp;{t('show_in_code')}</span> : ''}
-        </OLButton>
-      </span>
-    </OLTooltip>
-  )
-})
-
-const GoToPdfButton = memo(function GoToPdfButton({
+function GoToPdfCommand({
   syncToPdf,
   syncToPdfInFlight,
-  isDetachLayout,
   canSyncToPdf,
 }: {
   syncToPdf: () => void
   syncToPdfInFlight: boolean
   canSyncToPdf: boolean
-  isDetachLayout?: boolean
 }) {
   const { t } = useTranslation()
-  const tooltipPlacement = isDetachLayout ? 'bottom' : 'right'
-  const buttonClasses = classNames('synctex-control', {
-    'detach-synctex-control': !!isDetachLayout,
-  })
-
-  const handleSyncToPdf = useCallback(() => {
-    sendMB('jump-to-location', {
-      method: 'arrow',
-      direction: 'code-location-in-pdf',
-    })
-    syncToPdf()
-  }, [syncToPdf])
-
   useCommandProvider(
     () => [
       {
         id: 'synctex-sync-to-pdf',
         handler: () => {
-          sendMB('jump-to-location', {
-            method: 'command',
-            direction: 'code-location-in-pdf',
-          })
           syncToPdf()
         },
         label: t('go_to_code_location_in_pdf'),
@@ -134,38 +55,8 @@ const GoToPdfButton = memo(function GoToPdfButton({
     ],
     [t, syncToPdf, syncToPdfInFlight, canSyncToPdf]
   )
-
-  let buttonIcon = null
-  if (syncToPdfInFlight) {
-    buttonIcon = <OLSpinner size="sm" />
-  } else if (!isDetachLayout) {
-    buttonIcon = (
-      <MaterialIcon type="arrow_right_alt" className="synctex-control-icon" />
-    )
-  }
-
-  return (
-    <OLTooltip
-      id="sync-to-pdf"
-      description={t('go_to_code_location_in_pdf')}
-      overlayProps={{ placement: tooltipPlacement }}
-    >
-      <span>
-        <OLButton
-          variant="secondary"
-          size="sm"
-          onClick={handleSyncToPdf}
-          disabled={syncToPdfInFlight || !canSyncToPdf}
-          className={buttonClasses}
-          aria-label={t('go_to_code_location_in_pdf')}
-        >
-          {buttonIcon}
-          {isDetachLayout ? <span>&nbsp;{t('show_in_pdf')}</span> : ''}
-        </OLButton>
-      </span>
-    </OLTooltip>
-  )
-})
+  return null
+}
 
 function PdfSynctexControls() {
   const { detachRole } = useLayoutContext()
@@ -177,11 +68,6 @@ function PdfSynctexControls() {
     syncToPdfInFlight,
     canSyncToPdf,
   } = useSynctex()
-  const visualPreviewEnabled = useFeatureFlag('visual-preview')
-
-  if (visualPreviewEnabled) {
-    return null
-  }
 
   if (!position) {
     return null
@@ -193,31 +79,28 @@ function PdfSynctexControls() {
 
   if (detachRole === 'detacher') {
     return (
-      <GoToPdfButton
+      <GoToPdfCommand
         syncToPdf={syncToPdf}
         syncToPdfInFlight={syncToPdfInFlight}
-        isDetachLayout
         canSyncToPdf={canSyncToPdf}
       />
     )
   } else if (detachRole === 'detached') {
     return (
-      <GoToCodeButton
+      <GoToCodeCommand
         syncToCode={syncToCode}
         syncToCodeInFlight={syncToCodeInFlight}
-        isDetachLayout
       />
     )
   } else {
     return (
       <>
-        <GoToPdfButton
+        <GoToPdfCommand
           syncToPdf={syncToPdf}
           syncToPdfInFlight={syncToPdfInFlight}
           canSyncToPdf={canSyncToPdf}
         />
-
-        <GoToCodeButton
+        <GoToCodeCommand
           syncToCode={syncToCode}
           syncToCodeInFlight={syncToCodeInFlight}
         />

@@ -5,7 +5,6 @@ import { undo, redo } from '@codemirror/commands'
 import { useTranslation } from 'react-i18next'
 import { isMac } from '@/shared/utils/os'
 import { useCodeMirrorStateContext } from '@/features/source-editor/components/codemirror-context'
-import EditorSwitch from '@/features/source-editor/components/editor-switch'
 import { ToggleSearchButton } from './toggle-search-button'
 import SwitchToPDFButton from '../switch-to-pdf-button'
 import importOverleafModules from '../../../../../macros/import-overleaf-module.macro'
@@ -78,13 +77,11 @@ function Right({
   children,
 }: ToolbarLayoutRightProps) {
   const state = useCodeMirrorStateContext()
-  const visualPreviewEnabled = useFeatureFlag('visual-preview')
   const isToolbarMigration = useFeatureFlag('writefull-toolbar-migration')
   const networkIsStalled = useIsNetworkStalled()
   return (
     <div className="ol-toolbar-layout-right">
       {networkIsStalled && <DownloadFileButton />}
-      {!visualPreviewEnabled && <EditorSwitch />}
       {!isToolbarMigration && (
         <div
           style={{
