@@ -210,3 +210,25 @@
   font-size: 17px;
   text-align: center;
 }
+
+.book-outline-file {
+  padding-bottom: var(--spacing-02);
+
+  .book-outline-file-name {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-02);
+    width: 100%;
+    padding: var(--spacing-02) var(--spacing-05);
+    border: 0;
+    background: transparent;
+    color: var(--outline-content-color);
+    font-weight: 600;
+    text-align: left;
+
+    &:hover,
+    &:focus {
+      background: var(--outline-item-hover-bg, rgb(0 0 0 / 6%));
+    }
+  }
+}

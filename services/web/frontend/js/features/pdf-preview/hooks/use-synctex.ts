@@ -15,6 +15,7 @@ import { useEditorOpenDocContext } from '@/features/ide-react/context/editor-ope
 import useEventListener from '@/shared/hooks/use-event-listener'
 import { CursorPosition } from '@/features/ide-react/types/cursor-position'
 import { isValidTeXFile } from '@/main/is-valid-tex-file'
+import { isMarkdownFile } from '@/features/source-editor/utils/file'
 import { PdfScrollPosition } from '@/shared/hooks/use-pdf-scroll-position'
 import {
   showFileErrorToast,
@@ -69,13 +70,22 @@ export default function useSynctex(): {
   const getCurrentFilePath = useCallback(() => {
     const docId = getCurrentDocumentId()
 
-    if (!docId || !rootDocId) {
+    if (!docId) {
       return null
     }
 
     let path = pathInFolder(docId)
 
     if (!path) {
+      return null
+    }
+
+    // Markdown books are mapped by md-compile with plain project paths
+    if (isMarkdownFile(path)) {
+      return path
+    }
+
+    if (!rootDocId) {
       return null
     }
 
@@ -294,7 +304,7 @@ export default function useSynctex(): {
     hasSingleSelectedDoc &&
     cursorPosition &&
     openDocName &&
-    isValidTeXFile(openDocName)
+    (isValidTeXFile(openDocName) || isMarkdownFile(openDocName))
 
   return {
     syncToCode,

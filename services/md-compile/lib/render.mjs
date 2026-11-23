@@ -31,6 +31,19 @@ const URL_SCHEME = /^[a-z][a-z0-9+.-]*:/i
 const BLANK_IMAGE =
   'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
 const PREFIXED_REF = /^(fig|tbl|sec)-/
+// block tokens that get a data-src attribute
+const SOURCE_BLOCKS = new Set([
+  'paragraph_open',
+  'heading_open',
+  'list_item_open',
+  'figure_open',
+  'table_open',
+  'tr_open',
+  'blockquote_open',
+  'note_open',
+  'fence',
+  'code_block',
+])
 // a Thai letter (or mark) followed by one space, at the end of a text run
 const THAI_BEFORE_SPACE = /[ก-๛] $/
 const REF_START = '\u0001REF:'
@@ -567,6 +580,27 @@ function createMarkdown() {
     }
   })
 
+  // Where each block comes from, so that a click in the PDF can be traced back
+  // to the Markdown source (and the other way round): data-src="file:first-last"
+  md.core.ruler.after('book_structure', 'source_positions', state => {
+    const { env } = state
+    if (!env.sourceRefs) return
+    for (const token of state.tokens) {
+      if (!SOURCE_BLOCKS.has(token.type) || !token.map) continue
+      const first = token.map[0] + 1 + env.lineOffset
+      const last = Math.max(first, token.map[1] + env.lineOffset)
+      token.attrSet('data-src', `${env.relFile}:${first}-${last}`)
+    }
+  })
+
+  // the default fence renderer ignores the attributes of the token
+  const renderFence = md.renderer.rules.fence
+  md.renderer.rules.fence = (tokens, idx, options, env, self) => {
+    const html = renderFence(tokens, idx, options, env, self)
+    const src = tokens[idx].attrGet('data-src')
+    return src ? html.replace('<pre>', `<pre data-src="${escapeHtml(src)}">`) : html
+  }
+
   md.renderer.rules.table_open = (tokens, idx, options, env, self) => {
     const token = tokens[idx]
     if (!token.meta) return self.renderToken(tokens, idx, options)
@@ -655,6 +689,7 @@ export function renderChapters({
   flow = false,
   figureNumbers = true,
   kinds = new Map(),
+  sourceRefs = false, // mark blocks with data-src (needed for the source map)
 }) {
   const md = createMarkdown()
   const state = newState({
@@ -676,6 +711,8 @@ export function renderChapters({
       compileDir,
       baseDir: path.dirname(file),
       file,
+      relFile: path.relative(compileDir, file).split(path.sep).join('/'),
+      sourceRefs,
       kind,
       lineOffset,
       log,

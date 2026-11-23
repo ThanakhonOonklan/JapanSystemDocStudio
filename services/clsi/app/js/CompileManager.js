@@ -18,6 +18,7 @@ import Errors from './Errors.js'
 import CommandRunner from './CommandRunner.js'
 import ContentCacheMetrics from './ContentCacheMetrics.js'
 import SynctexOutputParser from './SynctexOutputParser.js'
+import * as SourceMap from './SourceMap.js'
 import CLSICacheHandler from './CLSICacheHandler.js'
 import StatsManager from './StatsManager.js'
 import SafeReader from './SafeReader.js'
@@ -498,6 +499,14 @@ async function _checkDirectory(compileDir) {
 }
 
 async function syncFromCode(projectId, userId, filename, line, column, opts) {
+  // Markdown books have a source map written by md-compile instead of SyncTeX
+  const sourceMap = await _readSourceMap(projectId, userId, opts)
+  if (sourceMap) {
+    return {
+      pdfPositions: SourceMap.findPdf(sourceMap, filename, line),
+      downloadedFromCache: false,
+    }
+  }
   // If LaTeX was run in a virtual environment, the file path that synctex expects
   // might not match the file path on the host. The .synctex.gz file however, will be accessed
   // wherever it is on the host.
@@ -530,6 +539,13 @@ async function syncFromCode(projectId, userId, filename, line, column, opts) {
 }
 
 async function syncFromPdf(projectId, userId, page, h, v, opts) {
+  const sourceMap = await _readSourceMap(projectId, userId, opts)
+  if (sourceMap) {
+    return {
+      codePositions: SourceMap.findCode(sourceMap, page, h, v),
+      downloadedFromCache: false,
+    }
+  }
   const compileName = getCompileName(projectId, userId)
   const baseDir = Settings.path.synctexBaseDir(compileName)
   const outputFilePath = `${baseDir}/output.pdf`
@@ -550,6 +566,23 @@ async function syncFromPdf(projectId, userId, page, h, v, opts) {
     pdfPositions: SynctexOutputParser.parseEditOutput(stdout, baseDir),
     downloadedFromCache,
   }
+}
+
+// The source map of the build the PDF came from (buildId), or of the latest
+// compile. null when the build was made by LaTeX.
+async function _readSourceMap(projectId, userId, opts) {
+  const { buildId } = opts
+  if (buildId && !OutputCacheManager.BUILD_REGEX.test(buildId)) {
+    throw new Errors.InvalidParameter('invalid buildId')
+  }
+  const directory = buildId
+    ? Path.join(
+        getOutputDir(projectId, userId),
+        OutputCacheManager.CACHE_SUBDIR,
+        buildId
+      )
+    : getCompileDir(projectId, userId)
+  return await SourceMap.readSourceMap(directory)
 }
 
 async function _checkFileExists(dir, filename) {

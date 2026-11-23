@@ -34,6 +34,7 @@ import InactiveProjectController from './Features/InactiveData/InactiveProjectCo
 import ReferencesController from './Features/References/ReferencesController.mjs'
 import AuthorizationMiddleware from './Features/Authorization/AuthorizationMiddleware.mjs'
 import MetaController from './Features/Metadata/MetaController.mjs'
+import BookOutlineController from './Features/BookOutline/BookOutlineController.mjs'
 import LinkedFilesRouter from './Features/LinkedFiles/LinkedFilesRouter.mjs'
 import SystemMessageController from './Features/SystemMessages/SystemMessageController.mjs'
 import UnsupportedBrowserMiddleware from './infrastructure/UnsupportedBrowserMiddleware.mjs'
@@ -508,6 +509,12 @@ async function initialize(webRouter, privateApiRouter, publicApiRouter) {
     ProjectDownloadsController.downloadMultipleProjects
   )
 
+  webRouter.get(
+    '/project/:project_id/outline',
+    AsyncLocalStorage.middleware,
+    AuthorizationMiddleware.ensureUserCanReadProject,
+    BookOutlineController.getBookOutline
+  )
   webRouter.get(
     '/project/:project_id/metadata',
     AsyncLocalStorage.middleware,

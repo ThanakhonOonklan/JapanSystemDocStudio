@@ -56,7 +56,7 @@ async function main() {
 
   // never leave a stale PDF from an earlier run behind
   for (const entry of fs.readdirSync(compileDir)) {
-    if (/^output(-[A-Za-z-]+)?\.pdf$/.test(entry)) {
+    if (/^output(-[A-Za-z-]+)?\.(pdf|sourcemap\.json)$/.test(entry)) {
       fs.rmSync(path.join(compileDir, entry), { force: true })
     }
   }
@@ -114,6 +114,7 @@ async function main() {
         numbering: project.options.numbering,
         chapterHeading: project.options.chapterHeading,
         numberSeparator: project.options.numberSeparator,
+        sourceRefs: true,
         chapterLabel: localized(project.options.chapterLabel, language.code),
         flow: project.options.layout === 'flow',
         figureNumbers: project.options.figureNumbers,
@@ -151,12 +152,11 @@ async function main() {
       )
       // several languages: one PDF each, and output.pdf is a copy of the default
       const multiple = project.languages.length > 1
+      const base = multiple ? `output-${language.code}` : 'output'
       jobs.push({
         htmlPath,
-        pdfPath: path.join(
-          compileDir,
-          multiple ? `output-${language.code}.pdf` : 'output.pdf'
-        ),
+        pdfPath: path.join(compileDir, `${base}.pdf`),
+        sourceMapPath: path.join(compileDir, `${base}.sourcemap.json`),
         label: language.code,
         // front matter: ก ข ค in Thai, i ii iii in other languages
         pageLabels: pageLabels && {
@@ -194,6 +194,10 @@ async function main() {
         `output-${project.defaultLanguage}.pdf`
       )
       fs.copyFileSync(defaultPdf, path.join(compileDir, 'output.pdf'))
+      fs.copyFileSync(
+        path.join(compileDir, `output-${project.defaultLanguage}.sourcemap.json`),
+        path.join(compileDir, 'output.sourcemap.json')
+      )
       log.info(`output.pdf is a copy of output-${project.defaultLanguage}.pdf`)
     }
     log.info('Done.')

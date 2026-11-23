@@ -4,8 +4,10 @@ import { useRef } from 'react'
 import { ImperativePanelHandle } from 'react-resizable-panels'
 
 export const useOutlinePane = () => {
-  const { canShowOutline, outlineExpanded, expandOutline, collapseOutline } =
+  const { outlineExpanded, expandOutline, collapseOutline } =
     useOutlineContext()
+  // the book outline is always available (it is the whole book, not one file)
+  const canShowOutline = true
   const outlinePanelRef = useRef<ImperativePanelHandle>(null)
   const outlineEnabled = canShowOutline && outlineExpanded
 

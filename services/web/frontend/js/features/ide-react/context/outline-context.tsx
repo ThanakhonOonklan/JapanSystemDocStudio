@@ -142,20 +142,16 @@ export const OutlineProvider: FC<React.PropsWithChildren> = ({ children }) => {
   const canShowOutline = hasSingleEntityOpen && isTexFile && !binaryFileOpened
 
   const expandOutline = useCallback(() => {
-    if (canShowOutline) {
-      localStorage.setItem(storageKey, true)
-      sendEvent('outline-expand')
-      setOutlineExpanded(true)
-    }
-  }, [canShowOutline, storageKey, sendEvent])
+    localStorage.setItem(storageKey, true)
+    sendEvent('outline-expand')
+    setOutlineExpanded(true)
+  }, [storageKey, sendEvent])
 
   const collapseOutline = useCallback(() => {
-    if (canShowOutline) {
-      localStorage.setItem(storageKey, false)
-      sendEvent('outline-collapse')
-      setOutlineExpanded(false)
-    }
-  }, [canShowOutline, storageKey, sendEvent])
+    localStorage.setItem(storageKey, false)
+    sendEvent('outline-collapse')
+    setOutlineExpanded(false)
+  }, [storageKey, sendEvent])
 
   const toggleOutlineExpanded = useCallback(() => {
     if (outlineExpanded) {

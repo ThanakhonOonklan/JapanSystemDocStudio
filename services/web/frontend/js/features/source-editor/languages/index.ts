@@ -68,6 +68,13 @@ export const languages = [
     },
   }),
   LanguageDescription.of({
+    name: 'css',
+    extensions: ['css'],
+    load: () => {
+      return import('./css').then(m => m.css())
+    },
+  }),
+  LanguageDescription.of({
     name: 'python',
     extensions: ['py'],
     load: () => {

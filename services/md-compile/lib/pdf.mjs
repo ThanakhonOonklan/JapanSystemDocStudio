@@ -5,6 +5,7 @@ import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { chromium } from 'playwright-core'
 import { computePageLabels } from './page-labels.mjs'
+import { writeSourceMap } from './source-map.mjs'
 
 // pagedjs restricts its "exports" map, so locate the browser bundle by path.
 const PAGED_POLYFILL = path.join(
@@ -146,7 +147,7 @@ export async function findStrandedEnds(page) {
 
 async function renderOne(
   browser,
-  { htmlPath, pdfPath, label, pageLabels },
+  { htmlPath, pdfPath, sourceMapPath, label, pageLabels },
   log,
   timeoutMs
 ) {
@@ -178,6 +179,11 @@ async function renderOne(
       log.warn(
         `[${label}] page ${issue.page} of the PDF ends with the ${issue.kind} "${issue.text}", the content it introduces is on the next page`
       )
+    }
+
+    if (sourceMapPath) {
+      const blocks = await writeSourceMap(page, sourceMapPath)
+      log.info(`[${label}] source map written, ${blocks} blocks`)
     }
 
     await page.pdf({

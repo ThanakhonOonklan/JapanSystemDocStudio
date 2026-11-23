@@ -245,3 +245,24 @@ test('cover: texts per language, images inside the project, primary colour', () 
     fs.rmSync(dir, { recursive: true, force: true })
   }
 })
+
+test('blocks carry data-src="file:first-last" for click-to-source', () => {
+  withProject(
+    { 'th/a.md': '---\nkind: chapter\n---\n# Head\n\nText @h\n\n1. one\n2. two\n\n```\ncode\nmore\n```\n' },
+    (dir, [a]) => {
+      const { html } = renderChapters({ files: [a], compileDir: dir, log: new Log(dir), sourceRefs: true })
+      // lines are counted in the file, front matter included
+      assert.match(html, /<h1[^>]* data-src="th\/a\.md:4-4"/)
+      assert.match(html, /<p[^>]* data-src="th\/a\.md:6-6"/)
+      assert.match(html, /<li[^>]* data-src="th\/a\.md:8-8"/)
+      assert.match(html, /<pre data-src="th\/a\.md:11-14"/)
+    }
+  )
+})
+
+test('source map blocks: "file:first-last" is parsed, anything else is ignored', async () => {
+  const { parseSrc } = await import('../lib/source-map.mjs')
+  assert.deepEqual(parseSrc('th/01-intro.md:15-17'), { file: 'th/01-intro.md', first: 15, last: 17 })
+  assert.deepEqual(parseSrc('a:b/c.md:2-2'), { file: 'a:b/c.md', first: 2, last: 2 })
+  assert.equal(parseSrc('nope'), null)
+})

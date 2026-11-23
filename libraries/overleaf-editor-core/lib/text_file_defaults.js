@@ -58,6 +58,7 @@ const DEFAULT_TEXT_EXTENSIONS = Object.freeze([
   'mf',
   'yml',
   'yaml',
+  'css',
   'lhs',
   'lean',
   'lean4',
