@@ -102,7 +102,6 @@ const MARKDOWN_TEMPLATES = {
       'book.yaml',
       'README.md',
       'style.css',
-      'th/01-example.md',
       'en/01-example.md',
     ],
     files: ['images/logo.png', 'images/screenshot.svg'],

@@ -1,26 +1,15 @@
-title:
-  th: ชื่อระบบ (ตัวอย่าง)
-  en: System name (example)
-author: ชื่อผู้จัดทำ (ตัวอย่าง)
+title: System name (example)
+author: Author name (example)
 version: "1.0"
 
 cover:
   logo: images/logo.png
-  subtitle:
-    th: คู่มือการใช้งาน (ตัวอย่าง)
-    en: User Manual (example)
+  subtitle: User Manual (example)
   description:
-    th:
-      - Version 1.0
-      - วว/ดด/ปปปป
-      - ภาษาไทย
-    en:
-      - Version 1.0
-      - DD/MM/YYYY
-      - English
-  preparedBy:
-    th: ชื่อผู้จัดทำ (ตัวอย่าง)
-    en: Author name (example)
+    - Version 1.0
+    - DD/MM/YYYY
+    - English
+  preparedBy: Author name (example)
 theme:
   primary: "#000000"
 
@@ -34,6 +23,7 @@ pageLabels:
   mainPosition: bottom-right
   chapterStartNumber: true
 
-defaultLanguage: th
+defaultLanguage: en
+languages: [en]
 chapters:
   - 01-example.md

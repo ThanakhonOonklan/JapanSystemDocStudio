@@ -8,7 +8,7 @@
 }
 
 /* ---- Cover: a frame around the page, the system name, version, date and
-   language, a short rule, then "จัดทำโดย" ------------------------------ */
+   language, a short rule, then "Prepared by" ------------------------------ */
 
 .cover,
 .cover * { color: #000 !important; }
@@ -62,7 +62,7 @@
 /* the title of a page: centred */
 section.chapter h1 { font-size: 24pt; margin: 0 0 14pt; }
 
-/* "1. หัวข้อ" with a label at the right edge: {.t-main} {.t-view} ... */
+/* "1. Heading" with a label at the right edge: {.t-main} {.t-view} ... */
 section.chapter h2 {
   display: flex;
   align-items: baseline;
@@ -77,14 +77,10 @@ section.chapter h2[class*="t-"]::after {
   font-weight: 400;
   white-space: nowrap;
 }
-.t-main::after { content: "ขั้นตอนหลัก"; }
-.t-view::after { content: "ตรวจสอบข้อมูล"; }
-.t-branch::after { content: "ขั้นตอนตามเงื่อนไข"; }
-.t-setting::after { content: "ตั้งค่า"; }
-:lang(en) .t-main::after { content: "Main step"; }
-:lang(en) .t-view::after { content: "Check"; }
-:lang(en) .t-branch::after { content: "When needed"; }
-:lang(en) .t-setting::after { content: "Settings"; }
+.t-main::after { content: "Main step"; }
+.t-view::after { content: "Check"; }
+.t-branch::after { content: "When needed"; }
+.t-setting::after { content: "Settings"; }
 
 section.chapter h3 { padding-left: 0.9cm; }
 
@@ -112,6 +108,6 @@ th, td {
 }
 thead th { background: none; font-weight: 700; }
 
-/* 3 columns: a narrow "ลำดับ" column */
+/* 3 columns: a narrow "No." column */
 th:first-child:nth-last-child(3),
 td:first-child:nth-last-child(3) { width: 9%; text-align: center; }

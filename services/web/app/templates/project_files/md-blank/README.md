@@ -1,51 +1,49 @@
-# วิธีใช้โปรเจ็คนี้
+# How to use this project
 
-ไฟล์นี้อธิบายวิธีเริ่มเขียนคู่มือ ไฟล์นี้ไม่ถูกนำไปใส่ใน PDF ลบทิ้งได้เมื่อไม่ใช้แล้ว
+This file explains how to start writing the manual. It is not put into the PDF. Delete it when you no longer need it.
 
-## เริ่มที่ไหน
+## Where to start
 
-1. เปิด `book.yaml` แก้ข้อความตัวอย่างบนหน้าปก: ชื่อระบบ (`title`) ชื่อเอกสาร (`subtitle`) เวอร์ชันและวันที่ (`description`) และ "จัดทำโดย" (`preparedBy`)
-2. เปิด `th/01-example.md` แล้วแก้ข้อความตัวอย่างให้เป็นเนื้อหาจริง
-3. กด **Recompile** เพื่อดู PDF ทางขวา
-4. ทำแบบเดียวกันกับ `en/01-example.md` ถ้าทำฉบับภาษาอังกฤษด้วย
+1. Open `book.yaml` and replace the example text on the cover: system name (`title`), document name (`subtitle`), version and date (`description`) and the author (`preparedBy`).
+2. Open `en/01-example.md` and replace the example text with real content.
+3. Click **Recompile** to see the PDF on the right.
 
-## ไฟล์ไหนคืออะไร
+## What each file is
 
 ```text
-book.yaml              ตั้งค่าเล่ม: หน้าปก สารบัญ ลำดับไฟล์ (เริ่มที่ไฟล์นี้)
-style.css              หน้าตาเล่ม: กรอบปก หัวข้อ ตาราง ภาพ เลขหน้า
-README.md              ไฟล์นี้ (วิธีใช้)
-th/01-example.md       เนื้อหาภาษาไทย (หน้าตัวอย่าง)
-en/01-example.md       เนื้อหาภาษาอังกฤษ (หน้าตัวอย่าง)
-images/logo.png        โลโก้บนหน้าปก อัปโหลดไฟล์ชื่อเดียวกันทับเพื่อเปลี่ยนโลโก้
-images/screenshot.svg  กรอบภาพเปล่า ใช้แทนภาพหน้าจอจนกว่าจะมีภาพจริง
+book.yaml              Book settings: cover, contents, order of the files (start here)
+style.css              Look of the book: cover frame, headings, tables, pictures, page numbers
+README.md              This file (how to use the project)
+en/01-example.md       The example page
+images/logo.png        Logo on the cover. Upload a file with the same name to replace it.
+images/screenshot.svg  An empty picture frame, used until you have a real screenshot
 ```
 
-## เพิ่มหน้าใหม่
+## Add a new page
 
-1. สร้างไฟล์ใหม่ใน `th/` เช่น `02-ชื่อหน้า.md` (และไฟล์ชื่อเดียวกันใน `en/`)
-2. เพิ่มชื่อไฟล์ใต้ `chapters:` ใน `book.yaml` ตามลำดับที่ต้องการ
-3. ไฟล์แต่ละไฟล์เริ่มหน้าใหม่ใน PDF
+1. Create a new file in `en/`, for example `02-page-name.md`.
+2. Add its file name under `chapters:` in `book.yaml`, in the order you want.
+3. Each file starts on a new page in the PDF.
 
-## เขียนเนื้อหา
+## Write the content
 
-| ต้องการ | เขียนอย่างไร |
+| You want | Write |
 |---|---|
-| ชื่อหน้า (กลางหน้า) | `# ชื่อหน้า` |
-| หัวข้อ (มีเลข 1. 2. 3. ให้เอง) | `## ชื่อหัวข้อ` |
-| ป้ายท้ายหัวข้อ | ใส่ `{.t-main}` ขั้นตอนหลัก, `{.t-view}` ตรวจสอบข้อมูล, `{.t-branch}` ขั้นตอนตามเงื่อนไข, `{.t-setting}` ตั้งค่า |
-| ตัวหนา | `**ข้อความ**` |
-| ภาพ | `![คำบรรยายใต้ภาพ](../images/ชื่อไฟล์.png)` |
-| ภาพขนาดเล็กลง | `![คำบรรยาย](../images/ชื่อไฟล์.png){width=60%}` |
-| ขั้นตอนเป็นข้อ | `1. ขั้นแรก` แล้วขึ้นบรรทัดใหม่ `2. ขั้นต่อไป` |
-| ตาราง | ดูตัวอย่างใน `th/01-example.md` บรรทัดแรกของตารางคือแถวหัว |
-| ขึ้นหน้าใหม่ | บรรทัดเดียวว่า `\newpage` เว้นบรรทัดว่างก่อนและหลัง |
+| Page title (centred) | `# Page title` |
+| Heading (numbered 1. 2. 3. automatically) | `## Heading` |
+| A label at the end of a heading | Add `{.t-main}` (Main step), `{.t-view}` (Check), `{.t-branch}` (When needed) or `{.t-setting}` (Settings) |
+| Bold | `**text**` |
+| Picture | `![Caption under the picture](../images/file-name.png)` |
+| Smaller picture | `![Caption](../images/file-name.png){width=60%}` |
+| Numbered steps | `1. First step`, then a new line `2. Next step` |
+| Table | See `en/01-example.md`; the first row of the table is the header row |
+| New page | A line with only `\newpage`, with a blank line before and after |
 
-## ใส่ภาพหน้าจอ
+## Add screenshots
 
-1. กดปุ่ม Upload ในแผงไฟล์ด้านซ้าย เลือกโฟลเดอร์ `images/`
-2. แก้ชื่อไฟล์ในบรรทัดภาพ เช่น `../images/screenshot.svg` เป็น `../images/หน้าจอ-1.png`
+1. Click Upload in the file panel on the left and choose the `images/` folder.
+2. Change the file name in the picture line, for example `../images/screenshot.svg` to `../images/screen-1.png`.
 
-## เขียนภาษาเดียว
+## Write in more than one language
 
-ถ้าไม่ทำฉบับภาษาอังกฤษ ให้เพิ่มบรรทัด `languages: [th]` ใน `book.yaml` แล้วลบโฟลเดอร์ `en/`
+The book is in English only. To add a second language, create a folder named with its language code (for example `th/`), put a file with the same name as each chapter in it, and list both languages in `book.yaml`, for example `languages: [en, th]`.
